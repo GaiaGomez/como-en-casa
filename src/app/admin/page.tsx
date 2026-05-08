@@ -40,7 +40,7 @@ export default function AdminDashboardPage() {
         <StatCard label="Empleados activos" value={`${activeEmployees}`} />
         <StatCard label="Propinas semana" value={formatCurrency(currentWeekTipsTotal)} />
         <StatCard label="Propinas por pagar" value={formatCurrency(pendingTips)} />
-        <StatCard label={`Críticos · ${pendingShoppingCount} pendientes`} value={`${criticalCount}`} />
+        <StatCard label={`Críticos · ${pendingShoppingCount} pendientes`} value={`${criticalCount}`} wide />
       </section>
 
       {/* Nav links */}
@@ -54,10 +54,10 @@ export default function AdminDashboardPage() {
   );
 }
 
-function StatCard({ label, value }: { label: string; value: string }) {
+function StatCard({ label, value, wide }: { label: string; value: string; wide?: boolean }) {
   return (
-    <article className="panel px-4 py-3">
-      <p className="text-[0.65rem] font-medium uppercase tracking-wide text-black/40">{label}</p>
+    <article className={`panel px-4 py-3${wide ? " col-span-2 sm:col-span-1" : ""}`}>
+      <p className="text-[0.65rem] font-medium uppercase tracking-wide text-black/45">{label}</p>
       <p className="mt-0.5 text-lg font-bold text-black">{value}</p>
     </article>
   );
@@ -84,9 +84,9 @@ function NavCard({
       </span>
       <div className="min-w-0 flex-1">
         <p className="text-sm font-bold text-black">{title}</p>
-        <p className="text-xs text-black/50">{description}</p>
+        <p className="text-xs text-black/45">{description}</p>
       </div>
-      <ArrowRight className="size-4 shrink-0 text-black/25" />
+      <ArrowRight className="size-4 shrink-0 text-black/45" />
     </Link>
   );
 }

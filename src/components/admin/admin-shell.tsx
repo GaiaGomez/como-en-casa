@@ -53,7 +53,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    "flex h-7 items-center justify-center gap-0.5 rounded-[10px] border border-transparent px-1 text-[0.66rem] font-medium leading-none transition-colors hover:text-white sm:gap-1 sm:text-xs",
+                    "flex h-7 items-center justify-center gap-0.5 rounded-[10px] border border-transparent px-1 text-[0.66rem] font-medium leading-none whitespace-nowrap overflow-hidden transition-colors hover:text-white sm:gap-1 sm:text-xs",
                     isActive
                       ? "border-white bg-white text-black hover:text-black"
                       : "border-white/25 bg-black text-white/70 hover:border-white/50 hover:text-white"

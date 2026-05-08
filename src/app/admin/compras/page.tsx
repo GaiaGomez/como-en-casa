@@ -18,6 +18,7 @@ type ShopItem = {
   unit: string;
   buyQty: number;
   source: "inventory";
+  done: boolean;
 };
 
 type PendingShopItem =
@@ -30,6 +31,7 @@ type PendingShopItem =
       unit: string;
       buyQty: number;
       source: "manual";
+      done: boolean;
     };
 
 type GroupBy = "category" | "supplier";
@@ -42,22 +44,24 @@ export default function PurchasesPage() {
   const [manualItems, setManualItems] = useState<ManualShoppingItem[]>(
     () => manualShoppingItems
   );
+  const [completedIds, setCompletedIds] = useState<Set<string>>(() => new Set());
 
   const inventoryItems = useMemo<ShopItem[]>(
     () =>
       inventory
         .map((item) => ({ ...item, currentStock: stocks[item.id] ?? item.currentStock }))
-        .filter((item) => getBuyQty(item) > 0)
+        .filter((item) => getBuyQty(item) > 0 || completedIds.has(item.id))
         .map((item) => ({
           id: item.id,
           name: item.name,
           category: item.category,
           supplier: item.supplier?.trim() || "Sin proveedor",
           unit: item.unit,
-          buyQty: getBuyQty(item),
+          buyQty: completedIds.has(item.id) ? item.idealStock - item.currentStock : getBuyQty(item),
           source: "inventory" as const,
+          done: completedIds.has(item.id),
         })),
-    [stocks]
+    [completedIds, stocks]
   );
 
   const items = useMemo<PendingShopItem[]>(
@@ -73,9 +77,10 @@ export default function PurchasesPage() {
           unit: item.unit,
           buyQty: item.quantity,
           source: "manual" as const,
+          done: completedIds.has(item.id),
         })),
     ],
-    [inventoryItems, manualItems]
+    [completedIds, inventoryItems, manualItems]
   );
 
   const groups = useMemo(
@@ -84,14 +89,13 @@ export default function PurchasesPage() {
   );
 
   function completeItem(item: PendingShopItem) {
+    setCompletedIds((current) => new Set(current).add(item.id));
+
     if (item.source === "inventory") {
       const inventoryItem = inventory.find((candidate) => candidate.id === item.id);
       if (!inventoryItem) return;
       setStocks((current) => ({ ...current, [item.id]: inventoryItem.idealStock }));
-      return;
     }
-
-    setManualItems((current) => current.filter((manualItem) => manualItem.id !== item.id));
   }
 
   function addManualItem(event: FormEvent<HTMLFormElement>) {
@@ -144,32 +148,37 @@ export default function PurchasesPage() {
         );
         return (
           <section key={group} className="mb-3">
-            <p className="mb-1.5 text-xs font-semibold uppercase tracking-widest text-white/50">
+            <p className="mb-1.5 text-[0.6rem] font-semibold uppercase tracking-wider text-white/50">
               {group}
             </p>
             <div className="overflow-hidden rounded-[16px] border border-black/10 bg-white">
               {groupItems.map((item) => {
                 return (
-                  <div
-                    key={item.id}
-                    className="flex items-center gap-3 px-4 py-2"
-                  >
-                    <button
-                      type="button"
-                      onClick={() => completeItem(item)}
-                      aria-label={`Marcar ${item.name} como comprado`}
-                      className="flex h-4 w-4 shrink-0 items-center justify-center rounded-[3px] border-2 border-black/25 bg-white transition-colors hover:border-black/50"
-                    >
-                      <Check className="size-2.5 stroke-[3] text-transparent" />
-                    </button>
+	                  <div
+	                    key={item.id}
+	                    className="flex items-center gap-3 px-4 py-1.5 leading-5"
+	                  >
+	                    <button
+	                      type="button"
+	                      onClick={() => completeItem(item)}
+	                      aria-label={`Marcar ${item.name} como comprado`}
+	                      disabled={item.done}
+	                      className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full border transition-colors ${
+	                        item.done
+	                          ? "border-black bg-black text-white"
+	                          : "border-black/20 bg-white text-transparent hover:border-black/40"
+	                      }`}
+	                    >
+	                      <Check className="size-2.5 stroke-[3]" />
+	                    </button>
 
-                    <p className="min-w-0 flex-1 text-left text-[0.8125rem] font-medium text-black">
-                      <span className="truncate">{item.name}</span>
-                    </p>
+	                    <p className={`min-w-0 flex-1 truncate text-left text-[0.85rem] font-normal leading-5 ${item.done ? "text-black/35 line-through" : "text-black"}`}>
+	                      {item.name}
+	                    </p>
 
-                    <span className="shrink-0 text-xs text-black/40">
-                      {item.buyQty} {item.unit}
-                    </span>
+	                    <span className={`shrink-0 text-xs ${item.done ? "text-black/25 line-through" : "text-black/45"}`}>
+	                      {item.buyQty} {item.unit}
+	                    </span>
                   </div>
                 );
               })}

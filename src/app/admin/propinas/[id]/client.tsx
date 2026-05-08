@@ -75,14 +75,14 @@ export function TipDetailClient({ week }: { week: TipWeek }) {
             key={date}
             className={`flex items-center gap-3 px-4 py-2.5 ${idx > 0 ? "border-t border-black/[0.07]" : ""}`}
           >
-            <p className="flex-1 text-sm text-black/60">{parseDayLabel(date)}</p>
+            <p className="flex-1 text-sm text-black/45">{parseDayLabel(date)}</p>
             <div className="flex items-center gap-1">
-              <span className="text-xs text-black/40 select-none">$</span>
+              <span className="text-xs text-black/45 select-none">$</span>
               <input
                 type="text"
                 inputMode="numeric"
                 pattern="[0-9]*"
-                className="w-28 rounded-lg border border-black/20 bg-white px-2 py-1 text-right text-sm font-semibold text-black focus:border-black focus:outline-none"
+                className="w-24 rounded-lg border border-black/20 bg-white px-2 py-1 text-right text-sm font-semibold text-black focus:border-black focus:outline-none sm:w-28"
                 value={String(dailyTips[date] ?? 0)}
                 onChange={(event) => {
                   const value = Number(event.target.value.replace(/\D/g, ""));

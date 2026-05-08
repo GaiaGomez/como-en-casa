@@ -36,7 +36,7 @@ export default function TipsPage() {
                   <p className="truncate text-base font-semibold text-black">
                     Semana {getWeekLabel(week.startDate, week.endDate)}
                   </p>
-                  <p className="mt-1 text-sm text-gray-500">
+                  <p className="mt-1 text-sm text-black/45">
                     {summary.paid} pagados · {summary.pending} pendientes
                   </p>
                 </div>
@@ -44,7 +44,7 @@ export default function TipsPage() {
                   <span className={`tag ${isOpen ? "tag-active" : ""}`}>
                     {isOpen ? "Abierta" : "Cerrada"}
                   </span>
-                  <ArrowRight className="size-4 text-gray-400" />
+                  <ArrowRight className="size-4 text-black/45" />
                 </div>
               </div>
               <p className="mt-2 text-2xl font-semibold text-black">

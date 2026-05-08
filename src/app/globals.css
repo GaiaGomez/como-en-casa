@@ -5,6 +5,7 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
+  --color-black: var(--matte-black);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, sans-serif;
@@ -49,13 +50,14 @@
 }
 
 :root {
-  --background: oklch(0.06 0 0);
+  --matte-black: #191919;
+  --background: #191919;
   --foreground: oklch(1 0 0);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.1 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.1 0 0);
-  --primary: oklch(0.1 0 0);
+  --primary: #191919;
   --primary-foreground: oklch(1 0 0);
   --secondary: oklch(0.96 0 0);
   --secondary-foreground: oklch(0.1 0 0);
@@ -68,11 +70,11 @@
   --input: oklch(0 0 0 / 12%);
   --ring: oklch(0 0 0 / 25%);
   --radius: 1rem;
-  --sidebar: oklch(0.06 0 0);
+  --sidebar: #191919;
   --sidebar-foreground: oklch(1 0 0);
   --sidebar-primary: oklch(1 0 0);
   --sidebar-primary-foreground: oklch(0.1 0 0);
-  --sidebar-accent: oklch(0.12 0 0);
+  --sidebar-accent: #252525;
   --sidebar-accent-foreground: oklch(1 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(1 0 0 / 30%);
@@ -119,5 +121,22 @@
     background: #111;
     color: #fff;
     border-color: #111;
+  }
+
+  /* Consistent text colors */
+  .text-primary {
+    color: #000; /* Negro fuerte para principales en fondos claros */
+  }
+
+  .text-secondary {
+    color: rgba(0, 0, 0, 0.7); /* Gris claro para secundarios en fondos claros */
+  }
+
+  .text-primary-dark {
+    color: #fff; /* Blanco para principales en fondos oscuros */
+  }
+
+  .text-secondary-dark {
+    color: rgba(255, 255, 255, 0.7); /* Gris claro para secundarios en fondos oscuros */
   }
 }
