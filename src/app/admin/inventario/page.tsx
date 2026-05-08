@@ -133,7 +133,7 @@ export default function InventoryPage() {
                       <AutoResizeTextarea
                         value={item.name}
                         onChange={(value) => updateItemField(item.id, "name", value)}
-                        className="block w-full resize-none bg-transparent border-0 p-0 text-[0.8125rem] leading-4 break-words font-medium text-black outline-none focus:ring-0"
+                        className="block w-full resize-none bg-transparent border-0 p-0 text-base leading-5 break-words font-medium text-black outline-none focus:ring-0 sm:text-[0.8125rem] sm:leading-4"
                       />
                     </div>
 
@@ -145,7 +145,7 @@ export default function InventoryPage() {
                         step={1}
                         value={stocks[item.id] ?? item.currentStock}
                         onChange={(e) => updateStock(item.id, Number(e.target.value))}
-                        className="h-7 w-10 rounded-[8px] border border-black/20 bg-white text-center text-xs font-bold text-black outline-none focus:border-black/50 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                        className="h-7 w-10 rounded-[8px] border border-black/20 bg-white text-center text-base font-bold text-black outline-none focus:border-black/50 sm:text-xs [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                       />
                       <span className="text-[0.65rem] text-black/45">{item.unit}</span>
                     </div>
@@ -158,7 +158,7 @@ export default function InventoryPage() {
                         step={1}
                         value={item.idealStock}
                         onChange={(e) => updateItemField(item.id, "idealStock", Number(e.target.value))}
-                        className="h-7 w-10 rounded-[8px] border border-black/20 bg-white text-center text-xs text-black outline-none focus:border-black/50 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                        className="h-7 w-10 rounded-[8px] border border-black/20 bg-white text-center text-base text-black outline-none focus:border-black/50 sm:text-xs [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                       />
                       <span className="ml-1">{item.unit}</span>
                     </span>

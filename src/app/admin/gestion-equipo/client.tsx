@@ -332,9 +332,9 @@ export function TeamManagementClient() {
 
   return (
     <section className="w-full lg:mx-auto lg:max-w-5xl xl:max-w-6xl">
-      <PageHeader eyebrow="Equipo" title="Gestión equipo" meta={weekRange} />
+      <PageHeader eyebrow="Equipo" title="Gestión equipo" />
 
-      <div className="mb-3 flex items-center justify-between gap-2 rounded-[18px] border border-white/10 bg-white/[0.03] p-1.5">
+      <div className="mb-3 flex items-center justify-between gap-2 rounded-[16px] border border-white/10 bg-white/[0.03] p-1">
         <button
           type="button"
           onClick={() => setWeekIndex((current) => Math.max(0, current - 1))}
