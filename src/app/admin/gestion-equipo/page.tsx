@@ -344,16 +344,18 @@ export default function TeamManagementPage() {
 
       {activeTab === "dias" ? (
         <section className="panel overflow-hidden">
-          <div className="overflow-x-auto">
-            <div className="grid min-w-[346px] grid-cols-[70px_repeat(7,24px)_18px] gap-x-2 gap-y-2 p-3 text-sm sm:min-w-[400px] sm:grid-cols-[90px_repeat(7,24px)_18px] sm:gap-x-2.5">
+          <div className="overflow-x-auto" style={{ WebkitOverflowScrolling: "touch" } as React.CSSProperties}>
+            <div
+              className="grid gap-x-1.5 gap-y-1.5 p-2.5"
+              style={{ gridTemplateColumns: "minmax(64px, 1fr) repeat(7, 24px) 20px" }}
+            >
               <div className="sticky left-0 z-10 bg-white" aria-hidden="true" />
               {workWeek.map((day) => (
                 <div
                   key={day.date}
                   className="flex h-6 items-center justify-center text-[0.65rem] font-semibold text-black/35"
                 >
-                  <span className="sm:hidden">{getDayShortLabel(day.label)}</span>
-                  <span className="hidden sm:inline">{day.shortLabel.slice(0, 3)}</span>
+                  {getDayShortLabel(day.label)}
                 </div>
               ))}
               <div aria-hidden="true" />
@@ -367,7 +369,7 @@ export default function TeamManagementPage() {
                     {employees.map((employee) => (
                       <div key={employee.id} className="contents">
                         <div className="sticky left-0 z-10 flex min-h-8 min-w-0 items-center bg-white pr-1">
-                          <p className="truncate text-[0.85rem] font-normal leading-5 text-black">
+                          <p className="truncate text-[0.8rem] font-normal leading-5 text-black">
                             {getEmployeeDisplayName(employee.name)}
                           </p>
                         </div>
