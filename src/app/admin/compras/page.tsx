@@ -124,7 +124,7 @@ export default function PurchasesPage() {
   }
 
   return (
-    <>
+    <section className="w-full lg:mx-auto lg:max-w-4xl xl:max-w-5xl">
       <div className="mb-3 flex items-center gap-2">
         {(["category", "supplier"] as const).map((mode) => (
           <button
@@ -195,7 +195,7 @@ export default function PurchasesPage() {
 
       <form
         onSubmit={addManualItem}
-        className="mt-3 grid grid-cols-[minmax(0,1fr)_72px_72px] gap-1.5 rounded-[16px] border border-black/10 bg-white p-2 sm:grid-cols-[minmax(0,1fr)_88px_88px_120px_auto]"
+        className="mt-3 grid grid-cols-[minmax(0,1fr)_72px_72px] gap-1.5 rounded-[16px] border border-black/10 bg-white p-2 sm:grid-cols-[minmax(0,1fr)_88px_88px_120px_auto] lg:grid-cols-[minmax(220px,1fr)_96px_96px_160px_auto] lg:gap-2"
       >
         <input
           name="name"
@@ -228,6 +228,6 @@ export default function PurchasesPage() {
           <span className="hidden sm:inline">Agregar</span>
         </button>
       </form>
-    </>
+    </section>
   );
 }

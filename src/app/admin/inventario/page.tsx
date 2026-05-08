@@ -85,7 +85,7 @@ export default function InventoryPage() {
   const toBuyCount = computedItems.filter((i) => getBuyQty(i) > 0).length;
 
   return (
-    <>
+    <section className="w-full lg:mx-auto lg:max-w-5xl xl:max-w-6xl">
       <p className="mb-4 text-sm text-white/50">
         <span className="font-semibold text-white">{criticalCount}</span> críticos
         <span className="mx-2 text-white/25">·</span>
@@ -104,7 +104,7 @@ export default function InventoryPage() {
               Single grid on container — minmax(0,1fr) gives name column priority;
               auto columns size to content width across all rows.
             */}
-            <div className="grid items-start grid-cols-[minmax(0,1fr)_auto_auto_auto] overflow-hidden rounded-[16px] border border-black/10 bg-white">
+            <div className="grid items-start grid-cols-[minmax(0,1fr)_auto_auto_auto] overflow-hidden rounded-[16px] border border-black/10 bg-white lg:grid-cols-[minmax(280px,1fr)_96px_96px_128px]">
 
               {/* Column headers */}
               <span className="border-b border-black/[0.07] pl-4 pr-2 py-2 text-[0.6rem] font-semibold uppercase tracking-wider text-black/35">Producto</span>
@@ -162,6 +162,6 @@ export default function InventoryPage() {
           </section>
         );
       })}
-    </>
+    </section>
   );
 }

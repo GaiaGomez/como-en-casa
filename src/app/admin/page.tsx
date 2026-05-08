@@ -18,7 +18,7 @@ const pendingShoppingCount = toBuyCount + pendingManualCount;
 
 export default function AdminDashboardPage() {
   return (
-    <div className="space-y-2">
+    <section className="w-full space-y-2 lg:mx-auto lg:max-w-5xl lg:space-y-3 xl:max-w-6xl">
       {/* Semana */}
       <article className="panel flex items-center justify-between px-4 py-3">
         <p className="text-[0.65rem] font-medium uppercase tracking-widest text-black/40">Semana</p>
@@ -56,7 +56,7 @@ export default function AdminDashboardPage() {
         <AccessCard href="/admin/inventario" icon={Box} label="Inventario" />
         <AccessCard href="/admin/compras" icon={ShoppingCart} label="Compras" />
       </div>
-    </div>
+    </section>
   );
 }
 
