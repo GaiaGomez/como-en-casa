@@ -343,7 +343,7 @@ export default function TeamManagementPage() {
       </div>
 
       {activeTab === "dias" ? (
-        <section className="panel overflow-hidden">
+        <section className="panel w-full max-w-full overflow-hidden">
           <div className="overflow-x-auto" style={{ WebkitOverflowScrolling: "touch" } as React.CSSProperties}>
             <div
               className="grid gap-x-1.5 gap-y-1.5 p-2.5"
@@ -499,7 +499,7 @@ export default function TeamManagementPage() {
                 id="status"
                 name="status"
                 defaultValue={dialogEmployee?.status ?? "activo"}
-                className="w-full rounded-[10px] border border-black/15 bg-white px-3 py-2 text-sm text-black outline-none focus:border-black/40"
+                className="w-full rounded-[10px] border border-black/15 bg-white px-3 py-2 text-base text-black outline-none focus:border-black/40 sm:text-sm"
               >
                 <option value="activo">Activo</option>
                 <option value="descanso">Descanso</option>
@@ -535,7 +535,7 @@ function FormField({
         name={id}
         defaultValue={defaultValue}
         required={required}
-        className="h-9 w-full rounded-[10px] border border-black/15 bg-white px-3 text-sm text-black outline-none focus:border-black/40"
+        className="h-9 w-full rounded-[10px] border border-black/15 bg-white px-3 text-base text-black outline-none focus:border-black/40 sm:text-sm"
       />
     </div>
   );
@@ -561,7 +561,7 @@ function TipInputRow({
           inputMode="numeric"
           pattern="[0-9]*"
           aria-label={`Editar propinas de ${label}`}
-          className="h-7 w-24 rounded-[8px] border border-black/30 bg-white px-2 text-right text-xs font-bold text-black outline-none transition focus:border-black focus:ring-2 focus:ring-black/10"
+          className="h-7 w-24 rounded-[8px] border border-black/30 bg-white px-2 text-right text-base font-bold text-black outline-none transition focus:border-black focus:ring-2 focus:ring-black/10 sm:text-xs"
           value={String(value)}
           onChange={(event) => {
             const parsed = Number(event.target.value.replace(/\D/g, ""));
