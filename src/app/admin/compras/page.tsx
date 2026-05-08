@@ -3,6 +3,7 @@
 import { type FormEvent, useMemo, useState } from "react";
 import { Check, Plus } from "lucide-react";
 
+import { PageHeader } from "@/components/admin/page-header";
 import {
   getBuyQty,
   inventory,
@@ -125,13 +126,15 @@ export default function PurchasesPage() {
 
   return (
     <section className="w-full lg:mx-auto lg:max-w-4xl xl:max-w-5xl">
-      <div className="mb-3 flex items-center gap-2">
+      <PageHeader eyebrow="Operación" title="Compras" meta={`${items.length} pendientes`} />
+
+      <div className="mb-3 grid grid-cols-2 gap-1.5 rounded-[18px] border border-white/10 bg-white/[0.03] p-1.5">
         {(["category", "supplier"] as const).map((mode) => (
           <button
             key={mode}
             type="button"
             onClick={() => setGroupBy(mode)}
-            className={`rounded-[10px] border px-3 py-1.5 text-sm font-medium leading-none transition ${
+            className={`h-8 rounded-[12px] border px-3 text-sm font-medium leading-none transition ${
               groupBy === mode
                 ? "border-white bg-white text-black"
                 : "border-white/25 bg-black text-white/70 hover:border-white/50 hover:text-white"
@@ -151,12 +154,12 @@ export default function PurchasesPage() {
             <p className="mb-1.5 text-[0.6rem] font-semibold uppercase tracking-wider text-white/50">
               {group}
             </p>
-            <div className="overflow-hidden rounded-[16px] border border-black/10 bg-white">
+            <div className="overflow-hidden rounded-[20px] border border-black/10 bg-white">
               {groupItems.map((item) => {
                 return (
 	                  <div
 	                    key={item.id}
-	                    className="flex items-center gap-3 px-4 py-1.5 leading-5"
+	                    className="flex items-center gap-3 border-b border-black/[0.05] px-4 py-3 leading-5 last:border-b-0"
 	                  >
 	                    <button
 	                      type="button"
@@ -195,7 +198,7 @@ export default function PurchasesPage() {
 
       <form
         onSubmit={addManualItem}
-        className="mt-3 grid grid-cols-[minmax(0,1fr)_72px_72px] gap-1.5 rounded-[16px] border border-black/10 bg-white p-2 sm:grid-cols-[minmax(0,1fr)_88px_88px_120px_auto] lg:grid-cols-[minmax(220px,1fr)_96px_96px_160px_auto] lg:gap-2"
+        className="mt-3 grid grid-cols-[minmax(0,1fr)_72px_72px] gap-1.5 rounded-[20px] border border-black/10 bg-white p-2 sm:grid-cols-[minmax(0,1fr)_88px_88px_120px_auto] lg:grid-cols-[minmax(220px,1fr)_96px_96px_160px_auto] lg:gap-2"
       >
         <input
           name="name"

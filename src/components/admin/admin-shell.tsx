@@ -17,10 +17,10 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-dvh bg-black text-white">
       <div>
         <header className="sticky top-0 z-20 border-b border-white/10 bg-black backdrop-blur-sm">
-          <div className="flex min-h-12 items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
+          <div className="mx-auto flex min-h-12 max-w-7xl items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
             <img
               src="/logo-como-en-casa.png"
               alt="Como en Casa"
@@ -37,7 +37,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
             </div>
           </div>
         </header>
-        <main className="mx-auto max-w-7xl px-4 pb-[calc(env(safe-area-inset-bottom)+70px)] pt-5 sm:px-6 lg:px-8">
+        <main className="mx-auto w-full max-w-7xl px-4 pb-[calc(env(safe-area-inset-bottom)+86px)] pt-5 sm:px-6 lg:px-8">
           {children}
         </main>
         <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-white/10 bg-black/95 px-2 pt-2 pb-[calc(env(safe-area-inset-bottom)+14px)] backdrop-blur">

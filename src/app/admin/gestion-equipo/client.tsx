@@ -4,6 +4,7 @@ import { type FormEvent, useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Check, Pencil, Plus } from "lucide-react";
 
+import { PageHeader } from "@/components/admin/page-header";
 import {
   Dialog,
   DialogContent,
@@ -331,7 +332,9 @@ export function TeamManagementClient() {
 
   return (
     <section className="w-full lg:mx-auto lg:max-w-5xl xl:max-w-6xl">
-      <div className="mb-3 flex items-center justify-between gap-2">
+      <PageHeader eyebrow="Equipo" title="Gestión equipo" meta={weekRange} />
+
+      <div className="mb-3 flex items-center justify-between gap-2 rounded-[18px] border border-white/10 bg-white/[0.03] p-1.5">
         <button
           type="button"
           onClick={() => setWeekIndex((current) => Math.max(0, current - 1))}
@@ -356,13 +359,13 @@ export function TeamManagementClient() {
       </div>
 
       {/* Tabs */}
-      <div className="mb-3 flex gap-1.5">
+      <div className="mb-3 grid grid-cols-3 gap-1.5">
         {(["dias", "propinas", "gestion"] as const).map((tab) => (
           <button
             key={tab}
             type="button"
             onClick={() => selectTab(tab)}
-            className={`h-7 rounded-[10px] border px-3 text-sm font-medium leading-none transition ${
+            className={`h-8 rounded-[12px] border px-3 text-sm font-medium leading-none transition ${
               activeTab === tab
                 ? "border-white bg-white text-black"
                 : "border-white/25 bg-black text-white/70 hover:border-white/50 hover:text-white"
@@ -374,7 +377,7 @@ export function TeamManagementClient() {
       </div>
 
       {activeTab === "dias" ? (
-        <section className="panel w-full max-w-full overflow-hidden">
+        <section className="panel w-full max-w-full overflow-hidden rounded-[20px]">
           <div className="overflow-x-auto" style={{ WebkitOverflowScrolling: "touch" } as React.CSSProperties}>
             <div
               className="grid gap-0 p-2.5 [grid-template-columns:minmax(72px,0.8fr)_repeat(7,minmax(26px,1fr))_24px] lg:mx-auto lg:w-max lg:gap-x-2 lg:p-4 lg:[grid-template-columns:minmax(120px,180px)_repeat(7,minmax(36px,44px))_32px]"
@@ -439,7 +442,7 @@ export function TeamManagementClient() {
         </section>
       ) : activeTab === "propinas" ? (
         <section className="space-y-3 lg:mx-auto lg:max-w-2xl">
-          <div className="panel overflow-hidden">
+          <div className="panel overflow-hidden rounded-[20px]">
             {dailyTipRows.map(([date]) => (
               <TipInputRow
                 key={date}
@@ -451,7 +454,7 @@ export function TeamManagementClient() {
             <MoneyRow label="Total semana" value={formatCurrency(weeklyTipTotal)} strong />
           </div>
 
-          <div className="panel overflow-hidden">
+          <div className="panel overflow-hidden rounded-[20px]">
             {tipDistribution.map((item) => (
               <MoneyRow
                 key={item.employee.id}
@@ -465,11 +468,11 @@ export function TeamManagementClient() {
         </section>
       ) : (
         <section className="space-y-3 lg:mx-auto lg:max-w-3xl">
-          <div className="panel overflow-hidden">
+          <div className="panel overflow-hidden rounded-[20px]">
             {team.map((employee, index) => (
               <div
                 key={employee.id}
-                className={`flex items-center justify-between gap-3 px-3 py-2 ${index > 0 ? "border-t border-black/[0.07]" : ""}`}
+                className={`flex items-center justify-between gap-3 px-4 py-3 ${index > 0 ? "border-t border-black/[0.07]" : ""}`}
               >
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-semibold text-black">{employee.name}</p>
@@ -496,7 +499,7 @@ export function TeamManagementClient() {
           </div>
           <button
             type="button"
-            className="inline-flex h-7 items-center gap-1.5 rounded-[10px] border border-black/20 bg-white px-3 text-sm font-semibold text-black hover:border-black/40"
+            className="inline-flex h-9 items-center gap-1.5 rounded-[14px] border border-black/20 bg-white px-4 text-sm font-semibold text-black hover:border-black/40"
             onClick={openAddEmployee}
           >
             <Plus className="size-4" />
@@ -586,7 +589,7 @@ function TipInputRow({
   onChange: (value: number) => void;
 }) {
   return (
-    <div className="flex items-center justify-between gap-3 px-3 py-2">
+    <div className="flex items-center justify-between gap-3 border-b border-black/[0.05] px-4 py-3 last:border-b-0">
       <span className="text-sm text-black">{label}</span>
       <div className="flex shrink-0 items-center gap-1">
         <span className="text-sm font-semibold text-black">$</span>
@@ -637,7 +640,7 @@ function MoneyRow({
   label: string; meta?: string; value: string; strong?: boolean; subtle?: boolean;
 }) {
   return (
-    <div className="flex items-baseline justify-between gap-3 px-3 py-2">
+    <div className="flex items-baseline justify-between gap-3 border-b border-black/[0.05] px-4 py-3 last:border-b-0">
       <div className="flex min-w-0 items-baseline gap-2">
         <span className={strong ? "font-bold text-black" : subtle ? "text-sm text-black/45" : "block min-w-0 truncate text-sm text-black"}>
           {label}

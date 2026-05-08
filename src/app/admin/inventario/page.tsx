@@ -2,6 +2,7 @@
 
 import { Fragment, useLayoutEffect, useMemo, useRef, useState } from "react";
 
+import { PageHeader } from "@/components/admin/page-header";
 import {
   getBuyQty,
   getStockLevel,
@@ -86,11 +87,22 @@ export default function InventoryPage() {
 
   return (
     <section className="w-full lg:mx-auto lg:max-w-5xl xl:max-w-6xl">
-      <p className="mb-4 text-sm text-white/50">
-        <span className="font-semibold text-white">{criticalCount}</span> críticos
-        <span className="mx-2 text-white/25">·</span>
-        <span className="font-semibold text-white">{toBuyCount}</span> por comprar
-      </p>
+      <PageHeader
+        eyebrow="Operación"
+        title="Inventario"
+        meta={`${criticalCount} críticos · ${toBuyCount} por comprar`}
+      />
+
+      <div className="mb-4 grid grid-cols-2 gap-2">
+        <div className="rounded-[18px] border border-white/10 bg-white/[0.04] px-4 py-3">
+          <p className="text-[0.65rem] font-semibold uppercase tracking-widest text-white/35">Críticos</p>
+          <p className="mt-1 text-2xl font-semibold leading-none text-white">{criticalCount}</p>
+        </div>
+        <div className="rounded-[18px] border border-white/10 bg-white/[0.04] px-4 py-3">
+          <p className="text-[0.65rem] font-semibold uppercase tracking-widest text-white/35">Por comprar</p>
+          <p className="mt-1 text-2xl font-semibold leading-none text-white">{toBuyCount}</p>
+        </div>
+      </div>
 
       {categories.map((category) => {
         const catItems = computedItems.filter((i) => i.category === category);
@@ -104,7 +116,7 @@ export default function InventoryPage() {
               Single grid on container — minmax(0,1fr) gives name column priority;
               auto columns size to content width across all rows.
             */}
-            <div className="grid items-start grid-cols-[minmax(0,1fr)_auto_auto_auto] overflow-hidden rounded-[16px] border border-black/10 bg-white lg:grid-cols-[minmax(280px,1fr)_96px_96px_128px]">
+            <div className="grid items-start grid-cols-[minmax(0,1fr)_auto_auto_auto] overflow-hidden rounded-[20px] border border-black/10 bg-white lg:grid-cols-[minmax(280px,1fr)_96px_96px_128px]">
 
               {/* Column headers */}
               <span className="border-b border-black/[0.07] pl-4 pr-2 py-2 text-[0.6rem] font-semibold uppercase tracking-wider text-black/35">Producto</span>
@@ -117,7 +129,7 @@ export default function InventoryPage() {
                 return (
                   <Fragment key={item.id}>
                     {/* Producto */}
-                    <div className="min-w-0 pl-4 pr-2 py-1">
+                    <div className="min-w-0 border-b border-black/[0.04] py-2 pl-4 pr-2">
                       <AutoResizeTextarea
                         value={item.name}
                         onChange={(value) => updateItemField(item.id, "name", value)}
@@ -126,7 +138,7 @@ export default function InventoryPage() {
                     </div>
 
                     {/* Actual */}
-                    <div className="flex items-center gap-0.5 px-2 py-1">
+                    <div className="flex items-center gap-0.5 border-b border-black/[0.04] px-2 py-2">
                       <input
                         type="number"
                         min={0}
@@ -139,7 +151,7 @@ export default function InventoryPage() {
                     </div>
 
                     {/* Ideal */}
-                    <span className="flex items-center flex-nowrap px-2 py-1 text-xs text-black/45">
+                    <span className="flex items-center flex-nowrap border-b border-black/[0.04] px-2 py-2 text-xs text-black/45">
                       <input
                         type="number"
                         min={0}
@@ -152,7 +164,7 @@ export default function InventoryPage() {
                     </span>
 
                     {/* Comprar */}
-                    <span className={`flex items-center pl-2 pr-3 py-1 text-xs ${buyQty > 0 ? "font-semibold text-black" : "text-black/20"}`}>
+                    <span className={`flex items-center border-b border-black/[0.04] py-2 pl-2 pr-3 text-xs ${buyQty > 0 ? "font-semibold text-black" : "text-black/20"}`}>
                       {buyQty > 0 ? `+${buyQty} ${item.unit}` : "—"}
                     </span>
                   </Fragment>

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Box, CalendarDays, HandCoins, ShoppingCart } from "lucide-react";
 
+import { PageHeader } from "@/components/admin/page-header";
 import {
   currentWorkWeek,
   getBuyQty,
@@ -18,9 +19,11 @@ const pendingShoppingCount = toBuyCount + pendingManualCount;
 
 export default function AdminDashboardPage() {
   return (
-    <section className="w-full space-y-2 lg:mx-auto lg:max-w-5xl lg:space-y-3 xl:max-w-6xl">
+    <section className="w-full space-y-3 lg:mx-auto lg:max-w-5xl lg:space-y-4 xl:max-w-6xl">
+      <PageHeader eyebrow="Inicio" title="Como en Casa" meta={weekLabel} />
+
       {/* Semana */}
-      <article className="panel flex items-center justify-between px-4 py-3">
+      <article className="panel flex items-center justify-between rounded-[20px] px-4 py-3">
         <p className="text-[0.65rem] font-medium uppercase tracking-widest text-black/40">Semana</p>
         <p className="text-sm font-bold text-black">{weekLabel}</p>
       </article>
@@ -29,7 +32,7 @@ export default function AdminDashboardPage() {
       <div className="grid grid-cols-3 gap-2">
         <Link
           href="/admin/compras"
-          className="panel col-span-2 flex flex-col justify-between px-4 py-4 transition active:scale-[0.99]"
+          className="panel col-span-2 flex min-h-[104px] flex-col justify-between rounded-[20px] px-4 py-4 transition active:scale-[0.99]"
         >
           <p className="text-[0.65rem] font-medium uppercase tracking-widest text-black/40">Compras</p>
           <div>
@@ -39,7 +42,7 @@ export default function AdminDashboardPage() {
         </Link>
         <Link
           href="/admin/compras"
-          className="panel flex flex-col justify-between px-3 py-4 transition active:scale-[0.99]"
+          className="panel flex min-h-[104px] flex-col justify-between rounded-[20px] px-3 py-4 transition active:scale-[0.99]"
         >
           <p className="text-[0.65rem] font-medium uppercase tracking-widest text-black/40">Críticos</p>
           <div>
@@ -72,7 +75,7 @@ function AccessCard({
   return (
     <Link
       href={href}
-      className="panel flex flex-col items-start gap-3 px-4 py-4 transition active:scale-[0.99]"
+      className="panel flex min-h-[94px] flex-col items-start justify-between gap-3 rounded-[20px] px-4 py-4 transition active:scale-[0.99]"
     >
       <span className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-black text-white">
         <Icon className="size-4" />
