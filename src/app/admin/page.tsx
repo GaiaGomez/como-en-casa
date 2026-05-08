@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { ArrowRight, Box, HandCoins, ShoppingCart, Users } from "lucide-react";
 
-import { PageHeader } from "@/components/admin/page-header";
 import {
   calculateTipDistribution,
   currentWorkWeek,
@@ -35,8 +34,6 @@ const pendingShoppingCount = toBuyCount + pendingManualCount;
 export default function AdminDashboardPage() {
   return (
     <>
-      <PageHeader title="Inicio" description="Resumen semanal" />
-
       {/* Stats row */}
       <section className="grid grid-cols-2 gap-2 sm:grid-cols-5">
         <StatCard label="Semana" value={weekLabel} />

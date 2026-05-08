@@ -3,7 +3,6 @@
 import { type FormEvent, useMemo, useState } from "react";
 import { Check, Pencil, Plus } from "lucide-react";
 
-import { PageHeader } from "@/components/admin/page-header";
 import {
   Dialog,
   DialogContent,
@@ -35,14 +34,6 @@ const statusLabels: Record<string, string> = {
 
 const openTipWeek = tipWeeks.find((w) => w.status === "abierta") ?? tipWeeks[0];
 
-function getWeekRangeLabel(week: WorkDay[]) {
-  const start = week[0]?.date;
-  const end = week[week.length - 1]?.date;
-  if (!start || !end) return "";
-  const fmt = new Intl.DateTimeFormat("es-CO", { day: "numeric", month: "long" });
-  return `${fmt.format(new Date(`${start}T00:00:00`))} al ${fmt.format(new Date(`${end}T00:00:00`))}`;
-}
-
 export default function TeamManagementPage() {
   const [team, setTeam] = useState<Employee[]>(mockEmployees);
   const [workWeek, setWorkWeek] = useState<WorkDay[]>(currentWorkWeek);
@@ -56,8 +47,6 @@ export default function TeamManagementPage() {
     () => team.filter((employee) => employee.status === "activo"),
     [team]
   );
-
-  const weekRange = getWeekRangeLabel(workWeek);
 
   const dailyTipRows = useMemo(
     () => Object.entries(dailyTips).sort(([a], [b]) => a.localeCompare(b)),
@@ -91,6 +80,11 @@ export default function TeamManagementPage() {
       };
     });
   }, [workWeek, activeTeam, totalWorkedDays, weeklyTipTotal]);
+
+  const displayedTipTotal = useMemo(
+    () => tipDistribution.reduce((sum, item) => sum + item.amount, 0),
+    [tipDistribution]
+  );
 
   function toggleWorked(employeeId: string, date: string) {
     setWorkWeek((week) =>
@@ -172,17 +166,6 @@ export default function TeamManagementPage() {
 
   return (
     <>
-      <PageHeader
-        title="Equipo"
-        description={
-          activeTab === "dias"
-            ? weekRange
-            : activeTab === "propinas"
-              ? openTipWeek?.label ?? "Sin semana abierta"
-              : "Gestiona la lista de empleados"
-        }
-      />
-
       {/* Tabs */}
       <div className="mb-3 flex gap-1.5">
         {(["dias", "propinas", "gestion"] as const).map((tab) => (
@@ -193,7 +176,7 @@ export default function TeamManagementPage() {
             className={`rounded-[10px] border px-3 py-1.5 text-sm font-medium leading-none transition ${
               activeTab === tab
                 ? "border-white bg-white text-black"
-                : "border-white/15 text-white/50 hover:text-white/80"
+                : "border-white/25 bg-black text-white/70 hover:border-white/50 hover:text-white"
             }`}
           >
             {tab === "dias" ? "Horario" : tab === "propinas" ? "Propinas" : "Personal"}
@@ -214,7 +197,7 @@ export default function TeamManagementPage() {
                   key={day.date}
                   className="py-2 text-center text-xs font-semibold leading-tight text-black/40"
                 >
-                  <span className="inline-flex h-6 w-6 items-center justify-center rounded-md bg-black/5 text-black/70 sm:hidden">
+                  <span className="inline-flex h-6 w-6 items-center justify-center rounded-md border border-black/20 bg-white text-black sm:hidden">
                     {getDayShortLabel(day.label)}
                   </span>
                   <span className="hidden sm:block">{day.shortLabel}</span>
@@ -247,15 +230,15 @@ export default function TeamManagementPage() {
                         aria-label={`${employee.name} ${worked ? "trabajó" : "no trabajó"} el ${day.label}`}
                         className={`mx-auto my-auto flex h-6 w-6 items-center justify-center rounded-lg transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/30 focus-visible:ring-offset-2 sm:h-8 sm:w-8 ${
                           worked
-                            ? "bg-black text-white"
-                            : "border border-black/[0.12] bg-black/[0.04] text-transparent hover:bg-black/[0.08]"
+                            ? "border border-black bg-black text-white"
+                            : "border border-black/20 bg-white text-transparent hover:border-black/40"
                         }`}
                       >
                         {worked ? <Check className="size-3 stroke-[3]" aria-hidden="true" /> : null}
                       </button>
                     );
                   })}
-                  <div className="mx-auto my-auto flex h-6 w-6 items-center justify-center rounded-lg bg-black/[0.05] text-xs font-semibold text-black sm:h-8 sm:w-8">
+                  <div className="mx-auto my-auto flex h-6 w-6 items-center justify-center rounded-lg border border-black/20 bg-white text-xs font-semibold text-black sm:h-8 sm:w-8">
                     {getEmployeeDays(employee.id, workWeek)}
                   </div>
                 </div>
@@ -266,9 +249,6 @@ export default function TeamManagementPage() {
       ) : activeTab === "propinas" ? (
         <section className="space-y-3">
           <div className="panel p-4">
-            <p className="mb-2 text-xs font-semibold uppercase tracking-[0.08em] text-black/45">
-              Propinas por día · toca el valor para editar
-            </p>
             {dailyTipRows.map(([date]) => (
               <TipInputRow
                 key={date}
@@ -282,7 +262,7 @@ export default function TeamManagementPage() {
                 }}
               />
             ))}
-            <MoneyRow label="Semana" value={formatCurrency(weeklyTipTotal)} strong />
+            <MoneyRow label="Total semana" value={formatCurrency(weeklyTipTotal)} strong />
           </div>
 
           <div className="panel p-4">
@@ -294,7 +274,7 @@ export default function TeamManagementPage() {
                 value={formatCurrency(item.amount)}
               />
             ))}
-            <MoneyRow label="Días trabajados" value={`${totalWorkedDays}`} subtle />
+            <MoneyRow label="Total" value={formatCurrency(displayedTipTotal)} strong />
           </div>
         </section>
       ) : (
@@ -426,7 +406,7 @@ function TipInputRow({
           inputMode="numeric"
           pattern="[0-9]*"
           aria-label={`Editar propinas de ${label}`}
-          className="h-8 w-28 rounded-[8px] border border-black/40 bg-black/[0.04] px-2 text-right text-sm font-bold text-black outline-none transition focus:border-black focus:bg-white focus:ring-2 focus:ring-black/10"
+          className="h-8 w-28 rounded-[8px] border border-black/30 bg-white px-2 text-right text-sm font-bold text-black outline-none transition focus:border-black focus:ring-2 focus:ring-black/10"
           value={String(value)}
           onChange={(event) => {
             const parsed = Number(event.target.value.replace(/\D/g, ""));
@@ -483,7 +463,11 @@ function MoneyRow({
 }
 
 function getDayLabel(date: string) {
-  const formatter = new Intl.DateTimeFormat("es-CO", { weekday: "short", day: "numeric" });
-  const label = formatter.format(new Date(`${date}T00:00:00`)).replace(".", "");
-  return label.charAt(0).toUpperCase() + label.slice(1);
+  const formatter = new Intl.DateTimeFormat("es-CO", {
+    weekday: "long",
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
+  return formatter.format(new Date(`${date}T00:00:00`)).replace(",", "");
 }

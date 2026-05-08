@@ -4,7 +4,6 @@ import { useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, CheckCircle2, Wallet } from "lucide-react";
 
-import { PageHeader } from "@/components/admin/page-header";
 import {
   calculateTipDistribution,
   currentWorkWeek,
@@ -47,19 +46,18 @@ export function TipDetailClient({ week }: { week: TipWeek }) {
 
   return (
     <>
-      <PageHeader
-        title={`Semana ${getWeekLabel(week.startDate, week.endDate)}`}
-        description="Por días trabajados"
-        action={
-          <Link
-            href="/admin/propinas"
-            className="inline-flex h-8 items-center gap-1.5 rounded-[10px] border border-white/15 px-3 text-sm text-white/70 transition-colors hover:text-white"
-          >
-            <ArrowLeft className="size-4" />
-            Volver
-          </Link>
-        }
-      />
+      <div className="mb-3 flex items-center justify-between gap-3">
+        <p className="min-w-0 truncate text-sm font-medium text-white/55">
+          Semana {getWeekLabel(week.startDate, week.endDate)}
+        </p>
+        <Link
+          href="/admin/propinas"
+          className="inline-flex h-8 shrink-0 items-center gap-1.5 rounded-[10px] border border-black/20 bg-white px-3 text-sm font-medium text-black transition-colors hover:border-black/40"
+        >
+          <ArrowLeft className="size-4" />
+          Volver
+        </Link>
+      </div>
 
       {/* Summary */}
       <section className="panel flex items-center justify-between gap-4 px-4 py-3">
@@ -84,7 +82,7 @@ export function TipDetailClient({ week }: { week: TipWeek }) {
                 type="text"
                 inputMode="numeric"
                 pattern="[0-9]*"
-                className="w-28 rounded-lg border border-black/10 bg-black/[0.03] px-2 py-1 text-right text-sm font-semibold text-black focus:border-black/20 focus:bg-white focus:outline-none"
+                className="w-28 rounded-lg border border-black/20 bg-white px-2 py-1 text-right text-sm font-semibold text-black focus:border-black focus:outline-none"
                 value={String(dailyTips[date] ?? 0)}
                 onChange={(event) => {
                   const value = Number(event.target.value.replace(/\D/g, ""));
@@ -123,8 +121,8 @@ export function TipDetailClient({ week }: { week: TipWeek }) {
                 onClick={() => togglePayment(item.employee.id)}
                 className={`shrink-0 inline-flex h-8 items-center gap-1.5 rounded-[10px] px-3 text-xs font-semibold transition-colors ${
                   isPaid
-                    ? "bg-black/[0.06] text-black hover:bg-black/10"
-                    : "bg-black text-white hover:bg-black/85"
+                    ? "border border-black/20 bg-white text-black hover:border-black/40"
+                    : "border border-black bg-black text-white hover:bg-black/85"
                 }`}
               >
                 {isPaid ? <CheckCircle2 className="size-3.5" /> : <Wallet className="size-3.5" />}

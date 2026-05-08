@@ -104,10 +104,10 @@
     display: inline-flex;
     align-items: center;
     gap: 0.25rem;
-    border: 1px solid rgba(0, 0, 0, 0.14);
+    border: 1px solid rgba(0, 0, 0, 0.2);
     border-radius: 8px;
-    background: transparent;
-    color: rgba(0, 0, 0, 0.5);
+    background: #fff;
+    color: rgba(0, 0, 0, 0.7);
     font-size: 0.7rem;
     line-height: 1;
     padding: 3px 8px;

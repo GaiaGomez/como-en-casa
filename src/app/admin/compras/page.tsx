@@ -3,7 +3,6 @@
 import { type FormEvent, useMemo, useState } from "react";
 import { Check, Plus } from "lucide-react";
 
-import { PageHeader } from "@/components/admin/page-header";
 import {
   getBuyQty,
   inventory,
@@ -122,8 +121,6 @@ export default function PurchasesPage() {
 
   return (
     <>
-      <PageHeader title="Compras" />
-
       <div className="mb-3 flex items-center gap-2">
         {(["category", "supplier"] as const).map((mode) => (
           <button
@@ -133,7 +130,7 @@ export default function PurchasesPage() {
             className={`rounded-[10px] border px-3 py-1.5 text-sm font-medium leading-none transition ${
               groupBy === mode
                 ? "border-white bg-white text-black"
-                : "border-white/15 text-white/50 hover:text-white/80"
+                : "border-white/25 bg-black text-white/70 hover:border-white/50 hover:text-white"
             }`}
           >
             {mode === "category" ? "Categoría" : "Proveedor"}
@@ -161,7 +158,7 @@ export default function PurchasesPage() {
                       type="button"
                       onClick={() => completeItem(item)}
                       aria-label={`Marcar ${item.name} como comprado`}
-                      className="flex h-4 w-4 shrink-0 items-center justify-center rounded-[3px] border-2 border-black/25 bg-transparent transition-colors hover:border-black/50"
+                      className="flex h-4 w-4 shrink-0 items-center justify-center rounded-[3px] border-2 border-black/25 bg-white transition-colors hover:border-black/50"
                     >
                       <Check className="size-2.5 stroke-[3] text-transparent" />
                     </button>
@@ -194,7 +191,7 @@ export default function PurchasesPage() {
         <input
           name="name"
           placeholder="Item manual"
-          className="h-8 min-w-0 rounded-[10px] border border-black/10 bg-black/[0.03] px-2 text-sm font-medium text-black outline-none placeholder:text-black/30 focus:border-black/25 focus:bg-white"
+          className="h-8 min-w-0 rounded-[10px] border border-black/20 bg-white px-2 text-sm font-medium text-black outline-none placeholder:text-black/30 focus:border-black"
         />
         <input
           name="quantity"
@@ -202,17 +199,17 @@ export default function PurchasesPage() {
           min={0}
           step={1}
           placeholder="Cant."
-          className="h-8 min-w-0 rounded-[10px] border border-black/10 bg-black/[0.03] px-2 text-sm font-medium text-black outline-none placeholder:text-black/30 focus:border-black/25 focus:bg-white"
+          className="h-8 min-w-0 rounded-[10px] border border-black/20 bg-white px-2 text-sm font-medium text-black outline-none placeholder:text-black/30 focus:border-black"
         />
         <input
           name="unit"
           placeholder="Und."
-          className="h-8 min-w-0 rounded-[10px] border border-black/10 bg-black/[0.03] px-2 text-sm font-medium text-black outline-none placeholder:text-black/30 focus:border-black/25 focus:bg-white"
+          className="h-8 min-w-0 rounded-[10px] border border-black/20 bg-white px-2 text-sm font-medium text-black outline-none placeholder:text-black/30 focus:border-black"
         />
         <input
           name="category"
           placeholder="Categoría"
-          className="col-span-2 h-8 min-w-0 rounded-[10px] border border-black/10 bg-black/[0.03] px-2 text-sm font-medium text-black outline-none placeholder:text-black/30 focus:border-black/25 focus:bg-white sm:col-span-1"
+          className="col-span-2 h-8 min-w-0 rounded-[10px] border border-black/20 bg-white px-2 text-sm font-medium text-black outline-none placeholder:text-black/30 focus:border-black sm:col-span-1"
         />
         <button
           type="submit"

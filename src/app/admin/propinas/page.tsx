@@ -1,25 +1,20 @@
 import Link from "next/link";
 import { ArrowRight, Plus } from "lucide-react";
 
-import { PageHeader } from "@/components/admin/page-header";
 import { formatCurrency, getPaymentSummary, getWeekLabel, tipWeeks } from "@/lib/mock-data";
 
 export default function TipsPage() {
   return (
     <>
-      <PageHeader
-        title="Propinas"
-        description="Reparto semanal del equipo"
-        action={
-          <Link
-            href="/admin/propinas/nueva"
-            className="inline-flex h-8 items-center gap-1 rounded-[10px] bg-white px-3 text-sm font-semibold text-black hover:bg-white/90"
-          >
-            <Plus className="size-4" />
-            Nueva semana
-          </Link>
-        }
-      />
+      <div className="mb-3 flex justify-end">
+        <Link
+          href="/admin/propinas/nueva"
+          className="inline-flex h-8 items-center gap-1 rounded-[10px] bg-white px-3 text-sm font-semibold text-black hover:bg-white/90"
+        >
+          <Plus className="size-4" />
+          Nueva semana
+        </Link>
+      </div>
 
       <section className="space-y-3">
         {tipWeeks.map((week) => {

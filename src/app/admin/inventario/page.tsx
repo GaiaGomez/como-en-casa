@@ -2,7 +2,6 @@
 
 import { Fragment, useMemo, useState } from "react";
 
-import { PageHeader } from "@/components/admin/page-header";
 import {
   getBuyQty,
   getStockLevel,
@@ -32,8 +31,6 @@ export default function InventoryPage() {
 
   return (
     <>
-      <PageHeader title="Inventario" description="Stock actual del café" />
-
       <p className="mb-4 text-sm text-white/50">
         <span className="font-semibold text-white">{criticalCount}</span> críticos
         <span className="mx-2 text-white/25">·</span>
