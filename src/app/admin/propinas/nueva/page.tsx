@@ -6,7 +6,7 @@ export default function NewTipsPage() {
     <>
       <PageHeader
         title="Nueva"
-        description="Total Fudo → Reparto"
+        description="Total semana → días"
       />
       <TipCalculator />
     </>

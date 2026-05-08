@@ -2,14 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  CalendarDays,
-  Coffee,
-  HandCoins,
-  LogOut,
-  Sun,
-  Users,
-} from "lucide-react";
+import { Coffee, HandCoins, LogOut, Users } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -17,10 +10,8 @@ import { cafeInfo } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
 
 const navItems = [
-  { href: "/admin", label: "Hoy", icon: Sun },
-  { href: "/admin/horarios", label: "Semana", icon: CalendarDays },
+  { href: "/admin/gestion-equipo", label: "Gestión equipo", icon: Users },
   { href: "/admin/propinas", label: "Propinas", icon: HandCoins },
-  { href: "/admin/empleados", label: "Equipo", icon: Users },
 ];
 
 export function AdminShell({ children }: { children: React.ReactNode }) {
@@ -64,10 +55,9 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
           })}
         </nav>
 
-        <div className="mt-auto rounded-3xl border border-white/10 bg-[#211e19] p-4 text-sm text-[#bdb6ae]">
-          <p className="font-semibold text-white">{cafeInfo.todayLabel}</p>
-          <p className="mt-2 text-2xl font-semibold text-[#d98b3a]">{cafeInfo.todayHours}</p>
-        </div>
+        <p className="mt-auto px-2 text-xs font-medium text-[#8f8780]">
+          {cafeInfo.todayLabel}
+        </p>
       </aside>
 
       <div className="lg:pl-64">
@@ -93,7 +83,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
               </Button>
             </div>
           </div>
-          <nav className="flex gap-1 overflow-x-auto px-4 pb-3 lg:hidden">
+          <nav className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-2 gap-2 border-t border-white/10 bg-[#11100e]/95 px-4 py-3 backdrop-blur lg:hidden">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive =
@@ -105,7 +95,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    "flex h-10 shrink-0 items-center gap-2 rounded-2xl px-3 text-sm font-medium text-[#bdb6ae]",
+                    "flex h-12 items-center justify-center gap-2 rounded-2xl px-3 text-sm font-medium text-[#bdb6ae]",
                     isActive && "bg-[#d98b3a] text-[#17100b]"
                   )}
                 >
@@ -116,7 +106,9 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
             })}
           </nav>
         </header>
-        <main className="mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8">{children}</main>
+        <main className="mx-auto max-w-7xl px-4 pb-24 pt-5 sm:px-6 lg:px-8 lg:pb-8">
+          {children}
+        </main>
       </div>
     </div>
   );

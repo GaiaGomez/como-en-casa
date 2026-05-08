@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowLeft, CheckCircle2, Clock, HandCoins, Wallet } from "lucide-react";
+import { ArrowLeft, CheckCircle2, HandCoins, Wallet } from "lucide-react";
 import { notFound } from "next/navigation";
 
 import { PageHeader } from "@/components/admin/page-header";
@@ -11,7 +11,7 @@ import {
   formatCurrency,
   getPaymentSummary,
   getTipWeek,
-  getWeekTotalHours,
+  getWeekTotalDays,
   tipWeeks,
 } from "@/lib/mock-data";
 
@@ -38,7 +38,7 @@ export default async function TipDetailPage({
     <>
       <PageHeader
         title={week.label}
-        description="Fudo → Horas → Reparto → Pagos"
+        description="Por días trabajados"
         action={
           <Button variant="outline" className="rounded-2xl border-white/10 bg-white/5 text-white hover:bg-white/10 hover:text-white" asChild>
             <Link href="/admin/propinas">
@@ -49,44 +49,23 @@ export default async function TipDetailPage({
         }
       />
 
-      <section className="grid gap-4 lg:grid-cols-3">
+      <section>
         <Card className="rounded-[2rem] border-white/10 bg-[#1b1814]">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-sm font-medium text-[#bdb6ae]">
               <HandCoins className="size-4 text-[#d98b3a]" />
-              Total Fudo
+              Total semana
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-4">
             <p className="text-4xl font-semibold tracking-tight text-white">{formatCurrency(week.totalTips)}</p>
-          </CardContent>
-        </Card>
-
-        <Card className="rounded-[2rem] border-white/10 bg-[#1b1814]">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-sm font-medium text-[#bdb6ae]">
-              <Clock className="size-4 text-[#d98b3a]" />
-              Horas
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-4xl font-semibold tracking-tight text-white">{getWeekTotalHours()} h</p>
-          </CardContent>
-        </Card>
-
-        <Card className="rounded-[2rem] border-white/10 bg-[#1b1814]">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-sm font-medium text-[#bdb6ae]">
-              <CheckCircle2 className="size-4 text-[#6ee68a]" />
-              Pagos
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-4xl font-semibold tracking-tight text-white">
-              {summary.paid}/{summary.total}
-            </p>
-            <div className="mt-3 flex gap-2">
-              <Badge className="rounded-full bg-[#1f4d32] text-[#9df2b1]">Pagado</Badge>
+            <div className="flex flex-wrap gap-2">
+              <Badge className="rounded-full bg-[#2b251d] text-[#d98b3a]">
+                {getWeekTotalDays()} días
+              </Badge>
+              <Badge className="rounded-full bg-[#1f4d32] text-[#9df2b1]">
+                {summary.paid} pagados
+              </Badge>
               <Badge className="rounded-full bg-[#3c2b11] text-[#ffbd63]">
                 {summary.pending} pendientes
               </Badge>
@@ -107,7 +86,7 @@ export default async function TipDetailPage({
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <p className="text-lg font-semibold text-white">{item.employee.name}</p>
-                  <p className="mt-1 text-sm text-[#a8a09a]">{item.hours} h · {item.daysWorked} días</p>
+                  <p className="mt-1 text-sm text-[#a8a09a]">{item.daysWorked} días</p>
                 </div>
                 <Badge
                   className={

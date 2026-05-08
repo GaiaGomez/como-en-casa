@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import {
   calculateTipDistribution,
   formatCurrency,
-  getWeekTotalHours,
+  getWeekTotalDays,
 } from "@/lib/mock-data";
 
 export function TipCalculator() {
@@ -20,16 +20,16 @@ export function TipCalculator() {
     () => calculateTipDistribution(totalTips),
     [totalTips]
   );
-  const totalHours = getWeekTotalHours();
+  const totalDays = getWeekTotalDays();
   const distributed = distribution.reduce((sum, item) => sum + item.amount, 0);
 
   return (
-    <div className="grid gap-4 lg:grid-cols-[380px_1fr]">
+    <div className="grid gap-4 lg:grid-cols-[360px_1fr]">
       <Card className="rounded-[2rem] border-white/10 bg-[#1b1814]">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-sm font-medium text-[#bdb6ae]">
             <Calculator className="size-4 text-[#d98b3a]" />
-            Total de Fudo
+            Total semana
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-5">
@@ -50,8 +50,8 @@ export function TipCalculator() {
 
           <div className="grid gap-3">
             <div className="rounded-3xl border border-white/10 bg-white/[0.04] px-4 py-3">
-              <p className="text-sm text-[#a8a09a]">Horas</p>
-              <p className="mt-1 text-3xl font-semibold text-white">{totalHours} h</p>
+              <p className="text-sm text-[#a8a09a]">Días</p>
+              <p className="mt-1 text-3xl font-semibold text-white">{totalDays}</p>
             </div>
             <div className="rounded-3xl border border-white/10 bg-white/[0.04] px-4 py-3">
               <p className="text-sm text-[#a8a09a]">Reparto</p>
@@ -68,41 +68,24 @@ export function TipCalculator() {
         </CardContent>
       </Card>
 
-      <section className="overflow-hidden rounded-[2rem] border border-white/10 bg-[#1b1814]">
-        <div className="grid grid-cols-[1.4fr_0.6fr_0.6fr_0.8fr_0.8fr] gap-3 bg-white/[0.04] px-4 py-3 text-sm font-semibold text-[#bdb6ae] max-lg:hidden">
-          <span>Persona</span>
-          <span>Días</span>
-          <span>Horas</span>
-          <span className="text-right">Recibe</span>
-          <span className="text-right">Pago</span>
-        </div>
-        <div className="divide-y divide-white/10">
+      <section className="space-y-3">
           {distribution.map((item) => (
             <div
               key={item.employee.id}
-              className="grid gap-3 px-4 py-4 lg:grid-cols-[1.4fr_0.6fr_0.6fr_0.8fr_0.8fr] lg:items-center"
+              className="rounded-[1.75rem] border border-white/10 bg-[#1b1814] p-4"
             >
-              <div>
-                <p className="text-base font-semibold text-white">{item.employee.name}</p>
-                <p className="text-sm text-[#a8a09a]">{item.employee.baseShift}</p>
-              </div>
-              <p className="text-sm text-white">
-                <span className="text-[#a8a09a] lg:hidden">Días: </span>
-                <span className="font-semibold">{item.daysWorked}</span>
-              </p>
-              <p className="text-sm text-white">
-                <span className="text-[#a8a09a] lg:hidden">Horas: </span>
-                <span className="font-semibold">{item.hours} h</span>
-              </p>
-              <p className="text-lg font-semibold text-white lg:text-right">
-                {formatCurrency(item.amount)}
-              </p>
-              <div className="lg:text-right">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="text-base font-semibold text-white">{item.employee.name}</p>
+                  <p className="text-sm text-[#a8a09a]">{item.daysWorked} días</p>
+                </div>
                 <Badge className="rounded-full bg-[#3c2b11] text-[#ffbd63]">Pendiente</Badge>
               </div>
+              <p className="mt-4 text-3xl font-semibold tracking-tight text-white">
+                {formatCurrency(item.amount)}
+              </p>
             </div>
           ))}
-        </div>
       </section>
     </div>
   );

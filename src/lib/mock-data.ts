@@ -13,10 +13,11 @@ export type Employee = {
   baseShift: string;
 };
 
-export type ShiftDay = {
+export type WorkDay = {
   date: string;
   label: string;
-  hours: Record<string, number>;
+  shortLabel: string;
+  worked: Record<string, boolean>;
 };
 
 export type TipWeek = {
@@ -25,13 +26,13 @@ export type TipWeek = {
   startDate: string;
   endDate: string;
   totalTips: number;
+  dailyTips: Record<string, number>;
   status: TipStatus;
   payments: Record<string, PaymentStatus>;
 };
 
 export type TipDistribution = {
   employee: Employee;
-  hours: number;
   daysWorked: number;
   amount: number;
   paymentStatus: PaymentStatus;
@@ -100,41 +101,48 @@ export const employees: Employee[] = [
   },
 ];
 
-export const currentShiftWeek: ShiftDay[] = [
+export const currentWorkWeek: WorkDay[] = [
   {
     date: "2026-05-04",
     label: "Lunes",
-    hours: { ana: 8, luis: 7, maria: 8, camilo: 0, valentina: 6 },
+    shortLabel: "Lun",
+    worked: { ana: true, luis: true, maria: true, camilo: false, valentina: true },
   },
   {
     date: "2026-05-05",
     label: "Martes",
-    hours: { ana: 8, luis: 7, maria: 8, camilo: 6, valentina: 0 },
+    shortLabel: "Mar",
+    worked: { ana: true, luis: true, maria: true, camilo: true, valentina: false },
   },
   {
     date: "2026-05-06",
     label: "Miércoles",
-    hours: { ana: 0, luis: 7, maria: 8, camilo: 6, valentina: 7 },
+    shortLabel: "Mié",
+    worked: { ana: false, luis: true, maria: true, camilo: true, valentina: true },
   },
   {
     date: "2026-05-07",
     label: "Jueves",
-    hours: { ana: 8, luis: 0, maria: 8, camilo: 6, valentina: 7 },
+    shortLabel: "Jue",
+    worked: { ana: true, luis: false, maria: true, camilo: true, valentina: true },
   },
   {
     date: "2026-05-08",
     label: "Viernes",
-    hours: { ana: 9, luis: 8, maria: 8, camilo: 6, valentina: 7 },
+    shortLabel: "Vie",
+    worked: { ana: true, luis: true, maria: true, camilo: true, valentina: true },
   },
   {
     date: "2026-05-09",
     label: "Sábado",
-    hours: { ana: 10, luis: 8, maria: 9, camilo: 7, valentina: 8 },
+    shortLabel: "Sáb",
+    worked: { ana: true, luis: true, maria: true, camilo: true, valentina: true },
   },
   {
     date: "2026-05-10",
     label: "Domingo",
-    hours: { ana: 6, luis: 0, maria: 7, camilo: 0, valentina: 6 },
+    shortLabel: "Dom",
+    worked: { ana: true, luis: false, maria: true, camilo: false, valentina: true },
   },
 ];
 
@@ -145,6 +153,15 @@ export const tipWeeks: TipWeek[] = [
     startDate: "2026-05-04",
     endDate: "2026-05-10",
     totalTips: 1280000,
+    dailyTips: {
+      "2026-05-04": 145000,
+      "2026-05-05": 158000,
+      "2026-05-06": 162000,
+      "2026-05-07": 175000,
+      "2026-05-08": 210000,
+      "2026-05-09": 268000,
+      "2026-05-10": 162000,
+    },
     status: "abierta",
     payments: {
       ana: "pendiente",
@@ -160,6 +177,15 @@ export const tipWeeks: TipWeek[] = [
     startDate: "2026-04-27",
     endDate: "2026-05-03",
     totalTips: 1165000,
+    dailyTips: {
+      "2026-04-27": 120000,
+      "2026-04-28": 135000,
+      "2026-04-29": 142000,
+      "2026-04-30": 151000,
+      "2026-05-01": 205000,
+      "2026-05-02": 260000,
+      "2026-05-03": 152000,
+    },
     status: "cerrada",
     payments: {
       ana: "pagado",
@@ -179,17 +205,13 @@ export function formatCurrency(value: number) {
   }).format(value);
 }
 
-export function getEmployeeHours(employeeId: string, week = currentShiftWeek) {
-  return week.reduce((total, day) => total + (day.hours[employeeId] ?? 0), 0);
+export function getEmployeeDaysWorked(employeeId: string, week = currentWorkWeek) {
+  return week.filter((day) => day.worked[employeeId]).length;
 }
 
-export function getEmployeeDaysWorked(employeeId: string, week = currentShiftWeek) {
-  return week.filter((day) => (day.hours[employeeId] ?? 0) > 0).length;
-}
-
-export function getWeekTotalHours(week = currentShiftWeek) {
+export function getWeekTotalDays(week = currentWorkWeek) {
   return employees.reduce((total, employee) => {
-    return total + getEmployeeHours(employee.id, week);
+    return total + getEmployeeDaysWorked(employee.id, week);
   }, 0);
 }
 
@@ -197,17 +219,16 @@ export function calculateTipDistribution(
   totalTips: number,
   payments: Record<string, PaymentStatus> = {}
 ): TipDistribution[] {
-  const totalHours = getWeekTotalHours();
+  const totalDays = getWeekTotalDays();
 
   return employees.map((employee) => {
-    const hours = getEmployeeHours(employee.id);
-    const rawAmount = totalHours === 0 ? 0 : (totalTips * hours) / totalHours;
+    const daysWorked = getEmployeeDaysWorked(employee.id);
+    const rawAmount = totalDays === 0 ? 0 : (totalTips * daysWorked) / totalDays;
 
     return {
       employee,
-      hours,
-      daysWorked: getEmployeeDaysWorked(employee.id),
-      amount: Math.round(rawAmount / 100) * 100,
+      daysWorked,
+      amount: Math.round(rawAmount / 1000) * 1000,
       paymentStatus: payments[employee.id] ?? "pendiente",
     };
   });
@@ -222,7 +243,7 @@ export function getOpenTipWeek() {
 }
 
 export function getTodayShift() {
-  return currentShiftWeek.find((day) => day.date === cafeInfo.todayDate);
+  return currentWorkWeek.find((day) => day.date === cafeInfo.todayDate);
 }
 
 export function getEmployeesWorkingToday() {
@@ -235,13 +256,13 @@ export function getEmployeesWorkingToday() {
   return employees
     .map((employee) => ({
       employee,
-      hours: today.hours[employee.id] ?? 0,
+      worked: today.worked[employee.id] ?? false,
     }))
-    .filter((item) => item.hours > 0);
+    .filter((item) => item.worked);
 }
 
-export function getDayTotalHours(day: ShiftDay) {
-  return Object.values(day.hours).reduce((sum, hours) => sum + hours, 0);
+export function getDayTotalWorked(day: WorkDay) {
+  return Object.values(day.worked).filter(Boolean).length;
 }
 
 export function getPaymentSummary(payments: Record<string, PaymentStatus>) {

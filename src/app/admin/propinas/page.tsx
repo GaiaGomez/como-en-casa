@@ -9,23 +9,19 @@ import {
   calculateTipDistribution,
   formatCurrency,
   getPaymentSummary,
-  getWeekTotalHours,
+  getWeekTotalDays,
   tipWeeks,
 } from "@/lib/mock-data";
 
 export default function TipsPage() {
   const currentWeek = tipWeeks[0];
-  const currentDistribution = calculateTipDistribution(
-    currentWeek.totalTips,
-    currentWeek.payments
-  );
   const currentSummary = getPaymentSummary(currentWeek.payments);
 
   return (
     <>
       <PageHeader
         title="Propinas"
-        description="Fudo → Horas → Reparto → Pagos"
+        description="Total semana → días → pagos"
         action={
           <Button className="rounded-2xl bg-[#d98b3a] font-semibold text-[#17100b] hover:bg-[#eda24f]" asChild>
             <Link href="/admin/propinas/nueva">
@@ -50,7 +46,7 @@ export default function TipsPage() {
               {formatCurrency(currentWeek.totalTips)}
             </p>
             <div className="mt-4 grid gap-3 sm:grid-cols-3">
-              <MiniStat label="Horas" value={`${getWeekTotalHours()} h`} />
+              <MiniStat label="Días" value={`${getWeekTotalDays()}`} />
               <MiniStat label="Pagados" value={`${currentSummary.paid}/${currentSummary.total}`} />
               <MiniStat label="Pendientes" value={`${currentSummary.pending}`} />
             </div>
@@ -68,7 +64,7 @@ export default function TipsPage() {
             <CardTitle className="text-sm font-medium text-[#bdb6ae]">Flujo</CardTitle>
           </CardHeader>
           <CardContent className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            {["Fudo", "Horas", "Reparto", "Pagos"].map((step, index) => (
+            {["Total", "Días", "Reparto", "Pagos"].map((step, index) => (
               <div key={step} className="rounded-3xl border border-white/10 bg-white/[0.04] px-4 py-5">
                 <p className="text-3xl font-semibold text-[#d98b3a]">{index + 1}</p>
                 <p className="mt-2 text-sm font-semibold text-white">{step}</p>
