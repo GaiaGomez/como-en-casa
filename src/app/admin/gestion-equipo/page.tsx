@@ -347,7 +347,7 @@ export default function TeamManagementPage() {
           <div className="overflow-x-auto" style={{ WebkitOverflowScrolling: "touch" } as React.CSSProperties}>
             <div
               className="grid gap-x-1.5 gap-y-1.5 p-2.5"
-              style={{ gridTemplateColumns: "minmax(64px, 1fr) repeat(7, 24px) 20px" }}
+              style={{ gridTemplateColumns: "minmax(72px, 0.8fr) repeat(7, minmax(26px, 1fr)) 24px" }}
             >
               <div className="sticky left-0 z-10 bg-white" aria-hidden="true" />
               {workWeek.map((day) => (
