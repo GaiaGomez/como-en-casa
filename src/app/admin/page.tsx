@@ -1,92 +1,83 @@
 import Link from "next/link";
-import { ArrowRight, Box, HandCoins, ShoppingCart, Users } from "lucide-react";
+import { Box, CalendarDays, HandCoins, ShoppingCart } from "lucide-react";
 
 import {
-  calculateTipDistribution,
   currentWorkWeek,
-  employees,
-  formatCurrency,
   getBuyQty,
   getStockLevel,
   getWeekLabel,
   inventory,
   manualShoppingItems,
-  tipWeeks,
 } from "@/lib/mock-data";
 
 const weekLabel = getWeekLabel(currentWorkWeek[0].date, currentWorkWeek[currentWorkWeek.length - 1].date);
-const activeEmployeeList = employees.filter((employee) => employee.status === "activo");
-const activeEmployees = activeEmployeeList.length;
-const openWeek = tipWeeks.find((w) => w.status === "abierta");
-const currentWeekTipsTotal = openWeek
-  ? Object.values(openWeek.dailyTips).reduce((sum, amount) => sum + amount, 0)
-  : 0;
-const pendingTips = openWeek
-  ? calculateTipDistribution(currentWeekTipsTotal, openWeek.payments, currentWorkWeek, activeEmployeeList)
-      .filter((d) => d.paymentStatus === "pendiente")
-      .reduce((sum, d) => sum + d.amount, 0)
-  : 0;
 const criticalCount = inventory.filter((i) => getStockLevel(i) === "crítico").length;
-const toBuyCount    = inventory.filter((i) => getBuyQty(i) > 0).length;
+const toBuyCount = inventory.filter((i) => getBuyQty(i) > 0).length;
 const pendingManualCount = manualShoppingItems.filter((item) => item.status === "pendiente").length;
 const pendingShoppingCount = toBuyCount + pendingManualCount;
 
 export default function AdminDashboardPage() {
   return (
-    <>
-      {/* Stats row */}
-      <section className="grid grid-cols-2 gap-2 sm:grid-cols-5">
-        <StatCard label="Semana" value={weekLabel} />
-        <StatCard label="Empleados activos" value={`${activeEmployees}`} />
-        <StatCard label="Propinas semana" value={formatCurrency(currentWeekTipsTotal)} />
-        <StatCard label="Propinas por pagar" value={formatCurrency(pendingTips)} />
-        <StatCard label={`Críticos · ${pendingShoppingCount} pendientes`} value={`${criticalCount}`} wide />
-      </section>
+    <div className="space-y-2">
+      {/* Semana */}
+      <article className="panel flex items-center justify-between px-4 py-3">
+        <p className="text-[0.65rem] font-medium uppercase tracking-widest text-black/40">Semana</p>
+        <p className="text-sm font-bold text-black">{weekLabel}</p>
+      </article>
 
-      {/* Nav links */}
-      <section className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
-        <NavCard href="/admin/gestion-equipo" icon={Users}   title="Equipo"     description="Horario y gestión de empleados" />
-        <NavCard href="/admin/propinas"        icon={HandCoins} title="Propinas" description="Reparto semanal del equipo" />
-        <NavCard href="/admin/inventario"      icon={Box}     title="Inventario" description="Controla productos bajos en stock" />
-        <NavCard href="/admin/compras"         icon={ShoppingCart} title="Compras" description="Sigue las compras pendientes" />
-      </section>
-    </>
+      {/* Compras featured + Críticos small */}
+      <div className="grid grid-cols-3 gap-2">
+        <Link
+          href="/admin/compras"
+          className="panel col-span-2 flex flex-col justify-between px-4 py-4 transition active:scale-[0.99]"
+        >
+          <p className="text-[0.65rem] font-medium uppercase tracking-widest text-black/40">Compras</p>
+          <div>
+            <p className="mt-3 text-3xl font-bold leading-none text-black">{pendingShoppingCount}</p>
+            <p className="mt-1 text-xs text-black/40">por comprar</p>
+          </div>
+        </Link>
+        <Link
+          href="/admin/compras"
+          className="panel flex flex-col justify-between px-3 py-4 transition active:scale-[0.99]"
+        >
+          <p className="text-[0.65rem] font-medium uppercase tracking-widest text-black/40">Críticos</p>
+          <div>
+            <p className="mt-3 text-2xl font-bold leading-none text-black">{criticalCount}</p>
+            <p className="mt-1 text-xs text-black/40">críticos</p>
+          </div>
+        </Link>
+      </div>
+
+      {/* Accesos 2×2 */}
+      <div className="grid grid-cols-2 gap-2">
+        <AccessCard href="/admin/gestion-equipo" icon={CalendarDays} label="Horario" />
+        <AccessCard href="/admin/gestion-equipo" icon={HandCoins} label="Propinas" />
+        <AccessCard href="/admin/inventario" icon={Box} label="Inventario" />
+        <AccessCard href="/admin/compras" icon={ShoppingCart} label="Compras" />
+      </div>
+    </div>
   );
 }
 
-function StatCard({ label, value, wide }: { label: string; value: string; wide?: boolean }) {
-  return (
-    <article className={`panel px-4 py-3${wide ? " col-span-2 sm:col-span-1" : ""}`}>
-      <p className="text-[0.65rem] font-medium uppercase tracking-wide text-black/45">{label}</p>
-      <p className="mt-0.5 text-lg font-bold text-black">{value}</p>
-    </article>
-  );
-}
-
-function NavCard({
+function AccessCard({
   href,
   icon: Icon,
-  title,
-  description,
+  label,
 }: {
   href: string;
-  icon: typeof Users;
-  title: string;
-  description: string;
+  icon: typeof CalendarDays;
+  label: string;
 }) {
   return (
     <Link
       href={href}
-      className="panel flex items-center gap-3 px-4 py-3 transition hover:shadow-sm active:scale-[0.99]"
+      className="panel flex flex-col items-start gap-3 px-4 py-4 transition active:scale-[0.99]"
     >
-      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] bg-black text-white">
+      <span className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-black text-white">
         <Icon className="size-4" />
       </span>
-      <div className="min-w-0 flex-1">
-        <p className="text-sm font-bold text-black">{title}</p>
-        <p className="text-xs text-black/45">{description}</p>
-      </div>
-      <ArrowRight className="size-4 shrink-0 text-black/45" />
+      <p className="text-sm font-bold text-black">{label}</p>
     </Link>
   );
 }
