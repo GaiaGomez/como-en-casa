@@ -50,6 +50,7 @@ export default function TeamManagementPage() {
   const [dialogMode, setDialogMode] = useState<"add" | "edit">("add");
   const [dialogEmployee, setDialogEmployee] = useState<Employee | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [dailyTips, setDailyTips] = useState<Record<string, number>>(openTipWeek.dailyTips);
 
   const activeTeam = useMemo(
     () => team.filter((employee) => employee.status === "activo"),
@@ -59,15 +60,12 @@ export default function TeamManagementPage() {
   const weekRange = getWeekRangeLabel(workWeek);
 
   const dailyTipRows = useMemo(
-    () =>
-      openTipWeek
-        ? Object.entries(openTipWeek.dailyTips).sort(([a], [b]) => a.localeCompare(b))
-        : [],
-    []
+    () => Object.entries(dailyTips).sort(([a], [b]) => a.localeCompare(b)),
+    [dailyTips]
   );
   const weeklyTipTotal = useMemo(
-    () => dailyTipRows.reduce((total, [, amount]) => total + amount, 0),
-    [dailyTipRows]
+    () => Object.values(dailyTips).reduce((total, amount) => total + amount, 0),
+    [dailyTips]
   );
 
   const totalWorkedDays = useMemo(
@@ -268,8 +266,31 @@ export default function TeamManagementPage() {
       ) : activeTab === "propinas" ? (
         <section className="space-y-3">
           <div className="panel p-4">
-            {dailyTipRows.map(([date, amount]) => (
-              <MoneyRow key={date} label={getDayLabel(date)} value={formatCurrency(amount)} />
+            {dailyTipRows.map(([date]) => (
+              <div
+                key={date}
+                className="flex items-center justify-between gap-3 border-b border-black/[0.07] py-2 last:border-b-0"
+              >
+                <span className="text-sm text-black/70">{getDayLabel(date)}</span>
+
+                <label className="flex shrink-0 items-center gap-1">
+                  <span className="text-sm font-semibold text-black">$</span>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    className="h-8 w-28 rounded-[8px] border border-black/40 bg-black/[0.04] px-2 text-right text-sm font-bold text-black outline-none transition focus:border-black focus:bg-white focus:ring-2 focus:ring-black/10"
+                    value={String(dailyTips[date] ?? 0)}
+                    onChange={(event) => {
+                      const parsed = Number(event.target.value.replace(/\D/g, ""));
+                      setDailyTips((current) => ({
+                        ...current,
+                        [date]: Number.isFinite(parsed) ? parsed : 0,
+                      }));
+                    }}
+                  />
+                </label>
+              </div>
             ))}
             <MoneyRow label="Semana" value={formatCurrency(weeklyTipTotal)} strong />
           </div>
