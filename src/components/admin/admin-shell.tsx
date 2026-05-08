@@ -37,10 +37,10 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
             </div>
           </div>
         </header>
-        <main className="mx-auto max-w-7xl px-4 pb-24 pt-5 sm:px-6 lg:px-8">
+        <main className="mx-auto max-w-7xl px-4 pb-[calc(env(safe-area-inset-bottom)+70px)] pt-5 sm:px-6 lg:px-8">
           {children}
         </main>
-        <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-white/10 bg-black/95 px-1.5 py-1.5 backdrop-blur">
+        <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-white/10 bg-black/95 px-2 pt-2 pb-[calc(env(safe-area-inset-bottom)+14px)] backdrop-blur">
           <div className="mx-auto grid max-w-xl grid-cols-4 gap-0.5">
             {navItems.map((item) => {
               const Icon = item.icon;
@@ -53,13 +53,13 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    "flex h-7 items-center justify-center gap-0.5 rounded-[10px] border border-transparent px-1 text-[0.66rem] font-medium leading-none whitespace-nowrap overflow-hidden transition-colors hover:text-white sm:gap-1 sm:text-xs",
+                    "flex h-11 items-center justify-center gap-1 rounded-xl border px-1 text-[0.7rem] font-medium leading-none whitespace-nowrap overflow-hidden transition-colors hover:text-white sm:h-8 sm:rounded-[10px]",
                     isActive
                       ? "border-white bg-white text-black hover:text-black"
                       : "border-white/25 bg-black text-white/70 hover:border-white/50 hover:text-white"
                   )}
                 >
-                  <Icon className="size-3" />
+                  <Icon className="size-3.5 sm:size-3" />
                   {item.label}
                 </Link>
               );
