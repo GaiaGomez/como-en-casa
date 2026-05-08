@@ -7,8 +7,11 @@ import { ArrowLeft, CheckCircle2, Wallet } from "lucide-react";
 import { PageHeader } from "@/components/admin/page-header";
 import {
   calculateTipDistribution,
+  currentWorkWeek,
+  employees,
   formatCurrency,
   getPaymentSummary,
+  getWeekLabel,
   type PaymentStatus,
   type TipWeek,
 } from "@/lib/mock-data";
@@ -29,7 +32,8 @@ export function TipDetailClient({ week }: { week: TipWeek }) {
   const [dailyTips, setDailyTips] = useState<Record<string, number>>(week.dailyTips);
 
   const totalTips = Object.values(dailyTips).reduce((sum, v) => sum + v, 0);
-  const distribution = calculateTipDistribution(totalTips, payments);
+  const activeTeam = employees.filter((employee) => employee.status === "activo");
+  const distribution = calculateTipDistribution(totalTips, payments, currentWorkWeek, activeTeam);
   const summary = getPaymentSummary(payments);
 
   const sortedDays = Object.entries(dailyTips).sort(([a], [b]) => a.localeCompare(b));
@@ -44,7 +48,7 @@ export function TipDetailClient({ week }: { week: TipWeek }) {
   return (
     <>
       <PageHeader
-        title={week.label}
+        title={`Semana ${getWeekLabel(week.startDate, week.endDate)}`}
         description="Por días trabajados"
         action={
           <Link

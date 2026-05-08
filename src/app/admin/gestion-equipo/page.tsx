@@ -46,11 +46,11 @@ function getWeekRangeLabel(week: WorkDay[]) {
 export default function TeamManagementPage() {
   const [team, setTeam] = useState<Employee[]>(mockEmployees);
   const [workWeek, setWorkWeek] = useState<WorkDay[]>(currentWorkWeek);
+  const [dailyTips, setDailyTips] = useState<Record<string, number>>(openTipWeek.dailyTips);
   const [activeTab, setActiveTab] = useState<"dias" | "propinas" | "gestion">("dias");
   const [dialogMode, setDialogMode] = useState<"add" | "edit">("add");
   const [dialogEmployee, setDialogEmployee] = useState<Employee | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [dailyTips, setDailyTips] = useState<Record<string, number>>(openTipWeek.dailyTips);
 
   const activeTeam = useMemo(
     () => team.filter((employee) => employee.status === "activo"),
@@ -266,31 +266,21 @@ export default function TeamManagementPage() {
       ) : activeTab === "propinas" ? (
         <section className="space-y-3">
           <div className="panel p-4">
+            <p className="mb-2 text-xs font-semibold uppercase tracking-[0.08em] text-black/45">
+              Propinas por día · toca el valor para editar
+            </p>
             {dailyTipRows.map(([date]) => (
-              <div
+              <TipInputRow
                 key={date}
-                className="flex items-center justify-between gap-3 border-b border-black/[0.07] py-2 last:border-b-0"
-              >
-                <span className="text-sm text-black/70">{getDayLabel(date)}</span>
-
-                <label className="flex shrink-0 items-center gap-1">
-                  <span className="text-sm font-semibold text-black">$</span>
-                  <input
-                    type="text"
-                    inputMode="numeric"
-                    pattern="[0-9]*"
-                    className="h-8 w-28 rounded-[8px] border border-black/40 bg-black/[0.04] px-2 text-right text-sm font-bold text-black outline-none transition focus:border-black focus:bg-white focus:ring-2 focus:ring-black/10"
-                    value={String(dailyTips[date] ?? 0)}
-                    onChange={(event) => {
-                      const parsed = Number(event.target.value.replace(/\D/g, ""));
-                      setDailyTips((current) => ({
-                        ...current,
-                        [date]: Number.isFinite(parsed) ? parsed : 0,
-                      }));
-                    }}
-                  />
-                </label>
-              </div>
+                label={getDayLabel(date)}
+                value={dailyTips[date] ?? 0}
+                onChange={(value) => {
+                  setDailyTips((current) => ({
+                    ...current,
+                    [date]: value,
+                  }));
+                }}
+              />
             ))}
             <MoneyRow label="Semana" value={formatCurrency(weeklyTipTotal)} strong />
           </div>
@@ -412,6 +402,38 @@ function FormField({
         required={required}
         className="h-9 w-full rounded-[10px] border border-black/15 bg-white px-3 text-sm text-black outline-none focus:border-black/40"
       />
+    </div>
+  );
+}
+
+
+function TipInputRow({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: number;
+  onChange: (value: number) => void;
+}) {
+  return (
+    <div className="flex items-center justify-between gap-3 border-b border-black/[0.07] py-2 last:border-b-0">
+      <span className="text-sm text-black/70">{label}</span>
+      <div className="flex shrink-0 items-center gap-1">
+        <span className="text-sm font-semibold text-black">$</span>
+        <input
+          type="text"
+          inputMode="numeric"
+          pattern="[0-9]*"
+          aria-label={`Editar propinas de ${label}`}
+          className="h-8 w-28 rounded-[8px] border border-black/40 bg-black/[0.04] px-2 text-right text-sm font-bold text-black outline-none transition focus:border-black focus:bg-white focus:ring-2 focus:ring-black/10"
+          value={String(value)}
+          onChange={(event) => {
+            const parsed = Number(event.target.value.replace(/\D/g, ""));
+            onChange(Number.isFinite(parsed) ? parsed : 0);
+          }}
+        />
+      </div>
     </div>
   );
 }

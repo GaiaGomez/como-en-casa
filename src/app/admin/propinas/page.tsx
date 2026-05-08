@@ -2,7 +2,7 @@ import Link from "next/link";
 import { ArrowRight, Plus } from "lucide-react";
 
 import { PageHeader } from "@/components/admin/page-header";
-import { formatCurrency, getPaymentSummary, tipWeeks } from "@/lib/mock-data";
+import { formatCurrency, getPaymentSummary, getWeekLabel, tipWeeks } from "@/lib/mock-data";
 
 export default function TipsPage() {
   return (
@@ -25,6 +25,10 @@ export default function TipsPage() {
         {tipWeeks.map((week) => {
           const summary = getPaymentSummary(week.payments);
           const isOpen = week.status === "abierta";
+          const totalTips = Object.values(week.dailyTips).reduce(
+            (sum, amount) => sum + amount,
+            0
+          );
 
           return (
             <Link
@@ -34,7 +38,9 @@ export default function TipsPage() {
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <p className="truncate text-base font-semibold text-black">{week.label}</p>
+                  <p className="truncate text-base font-semibold text-black">
+                    Semana {getWeekLabel(week.startDate, week.endDate)}
+                  </p>
                   <p className="mt-1 text-sm text-gray-500">
                     {summary.paid} pagados · {summary.pending} pendientes
                   </p>
@@ -47,7 +53,7 @@ export default function TipsPage() {
                 </div>
               </div>
               <p className="mt-2 text-2xl font-semibold text-black">
-                {formatCurrency(week.totalTips)}
+                {formatCurrency(totalTips)}
               </p>
             </Link>
           );

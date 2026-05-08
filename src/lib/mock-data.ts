@@ -2,6 +2,7 @@ export type EmployeeRole = "barista" | "cocina" | "servicio" | "caja" | (string 
 export type EmployeeStatus = "activo" | "descanso" | "inactivo";
 export type TipStatus = "abierta" | "cerrada";
 export type PaymentStatus = "pagado" | "pendiente";
+export type PurchaseStatus = "pendiente";
 
 export type Employee = {
   id: string;
@@ -45,6 +46,15 @@ export type TipDistribution = {
   daysWorked: number;
   amount: number;
   paymentStatus: PaymentStatus;
+};
+
+export type ManualShoppingItem = {
+  id: string;
+  name: string;
+  quantity: number;
+  unit: string;
+  category?: string;
+  status: PurchaseStatus;
 };
 
 export const cafeInfo = {
@@ -157,64 +167,64 @@ export const employees: Employee[] = [
 
 export const currentWorkWeek: WorkDay[] = [
   {
-    date: "2026-05-11",
-    label: "Lunes",
-    shortLabel: "Lun 11/05",
+    date: "2026-05-02",
+    label: "Sábado",
+    shortLabel: "Sáb 02/05",
     worked: { ana: true, luis: true, maria: true, camilo: false, valentina: true },
   },
   {
-    date: "2026-05-12",
-    label: "Martes",
-    shortLabel: "Mar 12/05",
+    date: "2026-05-03",
+    label: "Domingo",
+    shortLabel: "Dom 03/05",
     worked: { ana: true, luis: true, maria: true, camilo: true, valentina: false },
   },
   {
-    date: "2026-05-13",
-    label: "Miércoles",
-    shortLabel: "Mié 13/05",
+    date: "2026-05-04",
+    label: "Lunes",
+    shortLabel: "Lun 04/05",
     worked: { ana: false, luis: true, maria: true, camilo: true, valentina: true },
   },
   {
-    date: "2026-05-14",
-    label: "Jueves",
-    shortLabel: "Jue 14/05",
+    date: "2026-05-05",
+    label: "Martes",
+    shortLabel: "Mar 05/05",
     worked: { ana: true, luis: false, maria: true, camilo: true, valentina: true },
   },
   {
-    date: "2026-05-15",
+    date: "2026-05-06",
+    label: "Miércoles",
+    shortLabel: "Mié 06/05",
+    worked: { ana: true, luis: true, maria: true, camilo: true, valentina: true },
+  },
+  {
+    date: "2026-05-07",
+    label: "Jueves",
+    shortLabel: "Jue 07/05",
+    worked: { ana: true, luis: true, maria: true, camilo: true, valentina: true },
+  },
+  {
+    date: "2026-05-08",
     label: "Viernes",
-    shortLabel: "Vie 15/05",
-    worked: { ana: true, luis: true, maria: true, camilo: true, valentina: true },
-  },
-  {
-    date: "2026-05-16",
-    label: "Sábado",
-    shortLabel: "Sáb 16/05",
-    worked: { ana: true, luis: true, maria: true, camilo: true, valentina: true },
-  },
-  {
-    date: "2026-05-17",
-    label: "Domingo",
-    shortLabel: "Dom 17/05",
+    shortLabel: "Vie 08/05",
     worked: { ana: true, luis: false, maria: true, camilo: false, valentina: true },
   },
 ];
 
 export const tipWeeks: TipWeek[] = [
   {
-    id: "tips-2026-05-04",
-    label: "Semana 4 al 10 de mayo",
-    startDate: "2026-05-04",
-    endDate: "2026-05-10",
+    id: "tips-2026-05-02",
+    label: "Semana 2 al 8 de mayo",
+    startDate: "2026-05-02",
+    endDate: "2026-05-08",
     totalTips: 1280000,
     dailyTips: {
+      "2026-05-02": 268000,
+      "2026-05-03": 162000,
       "2026-05-04": 145000,
       "2026-05-05": 158000,
       "2026-05-06": 162000,
       "2026-05-07": 175000,
       "2026-05-08": 210000,
-      "2026-05-09": 268000,
-      "2026-05-10": 162000,
     },
     status: "abierta",
     payments: {
@@ -226,19 +236,19 @@ export const tipWeeks: TipWeek[] = [
     },
   },
   {
-    id: "tips-2026-04-27",
-    label: "Semana 27 de abril al 3 de mayo",
-    startDate: "2026-04-27",
-    endDate: "2026-05-03",
+    id: "tips-2026-04-25",
+    label: "Semana 25 de abril al 1 de mayo",
+    startDate: "2026-04-25",
+    endDate: "2026-05-01",
     totalTips: 1165000,
     dailyTips: {
+      "2026-04-25": 260000,
+      "2026-04-26": 152000,
       "2026-04-27": 120000,
       "2026-04-28": 135000,
       "2026-04-29": 142000,
       "2026-04-30": 151000,
       "2026-05-01": 205000,
-      "2026-05-02": 260000,
-      "2026-05-03": 152000,
     },
     status: "cerrada",
     payments: {
@@ -255,23 +265,93 @@ export type InventoryItem = {
   id: string;
   name: string;
   category: string;
+  supplier?: string;
   unit: string;
   currentStock: number;
   idealStock: number;
 };
 
 export const inventory: InventoryItem[] = [
-  { id: "leche",        name: "Leche entera",    category: "Lácteos",        unit: "L",   currentStock: 4,    idealStock: 10   },
-  { id: "crema",        name: "Crema de leche",  category: "Lácteos",        unit: "L",   currentStock: 2,    idealStock: 6    },
-  { id: "mantequilla",  name: "Mantequilla",      category: "Lácteos",        unit: "un",  currentStock: 3,    idealStock: 8    },
-  { id: "cafe",         name: "Café molido",      category: "Abarrotes",      unit: "g",   currentStock: 1500, idealStock: 2000 },
-  { id: "azucar",       name: "Azúcar",           category: "Abarrotes",      unit: "kg",  currentStock: 2,    idealStock: 5    },
-  { id: "harina",       name: "Harina de trigo",  category: "Abarrotes",      unit: "kg",  currentStock: 1,    idealStock: 5    },
-  { id: "huevos",       name: "Huevos",            category: "Proteínas",      unit: "un",  currentStock: 25,   idealStock: 30   },
-  { id: "servilletas",  name: "Servilletas",       category: "Insumos y aseo", unit: "pkg", currentStock: 1,    idealStock: 5    },
+  { id: "pollo-100",          name: "Pollo corte 100 gr",                 category: "Proteínas",          supplier: "Supermercado OR",    unit: "un",    currentStock: 14,   idealStock: 24   },
+  { id: "pollo-150",          name: "Pollo corte 150 gr",                 category: "Proteínas",          supplier: "Supermercado OR",    unit: "un",    currentStock: 8,    idealStock: 18   },
+  { id: "res-mariposa-200",   name: "Carne res corte mariposa 200 gr",    category: "Proteínas",          supplier: "Supermercado OR",    unit: "un",    currentStock: 6,    idealStock: 14   },
+  { id: "huevos",             name: "Huevos",                             category: "Proteínas",          supplier: "Supermercado OR",    unit: "un",    currentStock: 25,   idealStock: 30   },
+  { id: "tomate",             name: "Tomate",                             category: "Verduras y frutas",  supplier: "Mario",              unit: "kg",    currentStock: 1,    idealStock: 4    },
+  { id: "lechuga",            name: "Lechuga",                            category: "Verduras y frutas",  supplier: "Mario",              unit: "un",    currentStock: 2,    idealStock: 6    },
+  { id: "cebolla-roja",       name: "Cebolla roja",                       category: "Verduras y frutas",  supplier: "Mario",              unit: "kg",    currentStock: 1,    idealStock: 3    },
+  { id: "banano",             name: "Banano",                             category: "Verduras y frutas",  supplier: "Mario",              unit: "un",    currentStock: 8,    idealStock: 20   },
+  { id: "fresa",              name: "Fresa",                              category: "Verduras y frutas",  supplier: "Mario",              unit: "g",     currentStock: 400,  idealStock: 1000 },
+  { id: "leche",              name: "Leche entera",                       category: "Lácteos",            supplier: "D1",                 unit: "L",     currentStock: 4,    idealStock: 10   },
+  { id: "crema",              name: "Crema de leche",                     category: "Lácteos",            supplier: "D1",                 unit: "L",     currentStock: 2,    idealStock: 6    },
+  { id: "mantequilla",        name: "Mantequilla",                        category: "Lácteos",            supplier: "D1",                 unit: "un",    currentStock: 3,    idealStock: 8    },
+  { id: "harina",             name: "Harina de trigo",                    category: "Harinas y panadería", supplier: "D1",                 unit: "kg",    currentStock: 1,    idealStock: 5    },
+  { id: "pan-hamburguesa",    name: "Pan hamburguesa",                    category: "Harinas y panadería", supplier: "Sin proveedor",      unit: "un",    currentStock: 10,   idealStock: 24   },
+  { id: "cafe",               name: "Café molido",                        category: "Abarrotes",          supplier: "Sin proveedor",      unit: "g",     currentStock: 1500, idealStock: 2000 },
+  { id: "azucar",             name: "Azúcar",                             category: "Abarrotes",          supplier: "D1",                 unit: "kg",    currentStock: 2,    idealStock: 5    },
+  { id: "nachos",             name: "Nachos",                             category: "Abarrotes",          supplier: "Distribuidora La 50", unit: "kg",    currentStock: 1,    idealStock: 4    },
+  { id: "salsa-bbq",          name: "Salsa BBQ",                          category: "Salsas y aderezos",  supplier: "D1",                 unit: "un",    currentStock: 1,    idealStock: 3    },
+  { id: "mayonesa",           name: "Mayonesa",                           category: "Salsas y aderezos",  supplier: "D1",                 unit: "un",    currentStock: 1,    idealStock: 3    },
+  { id: "servilletas",        name: "Servilletas",                        category: "Insumos y aseo",     supplier: "Distribuidora La 50", unit: "pkg",   currentStock: 1,    idealStock: 5    },
+  { id: "bolsas-basura",      name: "Bolsas de basura",                   category: "Insumos y aseo",     supplier: "Distribuidora La 50", unit: "rollo", currentStock: 0,    idealStock: 2    },
+  { id: "gaseosas",           name: "Gaseosas surtidas",                  category: "Bebidas",            supplier: "Sin proveedor",      unit: "un",    currentStock: 12,   idealStock: 24   },
+  { id: "producto-pendiente", name: "Producto por clasificar",            category: "Sin categoría",      supplier: "Sin proveedor",      unit: "un",    currentStock: 0,    idealStock: 1    },
 ];
 
-export type PurchaseStatus = "pendiente" | "pedido" | "entregado";
+export const manualShoppingItems: ManualShoppingItem[] = [
+  {
+    id: "manual-velas-cumpleanos",
+    name: "Velas de cumpleaños",
+    quantity: 1,
+    unit: "paq",
+    category: "Sin categoría",
+    status: "pendiente",
+  },
+];
+
+const dayNames = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
+const shortDayNames = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
+
+export function addDays(dateStr: string, days: number) {
+  const date = new Date(`${dateStr}T00:00:00`);
+  date.setDate(date.getDate() + days);
+  return date.toISOString().slice(0, 10);
+}
+
+export function getSaturdayWeekStart(dateStr: string) {
+  const date = new Date(`${dateStr}T00:00:00`);
+  const daysSinceSaturday = (date.getDay() + 1) % 7;
+  date.setDate(date.getDate() - daysSinceSaturday);
+  return date.toISOString().slice(0, 10);
+}
+
+export function getFridayWeekEnd(startDate: string) {
+  return addDays(startDate, 6);
+}
+
+export function getWeekDateRange(startDate: string) {
+  return Array.from({ length: 7 }, (_, index) => addDays(startDate, index));
+}
+
+export function getWeekLabel(startDate: string, endDate = getFridayWeekEnd(startDate)) {
+  const formatter = new Intl.DateTimeFormat("es-CO", {
+    day: "numeric",
+    month: "long",
+  });
+
+  return `${formatter.format(new Date(`${startDate}T00:00:00`))} al ${formatter.format(new Date(`${endDate}T00:00:00`))}`;
+}
+
+export function getWorkDayLabel(dateStr: string) {
+  const date = new Date(`${dateStr}T00:00:00`);
+  return dayNames[date.getDay()];
+}
+
+export function getWorkDayShortLabel(dateStr: string) {
+  const date = new Date(`${dateStr}T00:00:00`);
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  return `${shortDayNames[date.getDay()]} ${day}/${month}`;
+}
 
 export function getBuyQty(item: InventoryItem): number {
   return Math.max(item.idealStock - item.currentStock, 0);
@@ -300,26 +380,28 @@ export function getEmployeeDaysWorked(employeeId: string, week = currentWorkWeek
   return week.filter((day) => day.worked[employeeId]).length;
 }
 
-export function getWeekTotalDays(week = currentWorkWeek) {
-  return employees.reduce((total, employee) => {
+export function getWeekTotalDays(week = currentWorkWeek, team = employees) {
+  return team.reduce((total, employee) => {
     return total + getEmployeeDaysWorked(employee.id, week);
   }, 0);
 }
 
 export function calculateTipDistribution(
   totalTips: number,
-  payments: Record<string, PaymentStatus> = {}
+  payments: Record<string, PaymentStatus> = {},
+  week = currentWorkWeek,
+  team = employees
 ): TipDistribution[] {
-  const totalDays = getWeekTotalDays();
+  const totalDays = getWeekTotalDays(week, team);
 
-  return employees.map((employee) => {
-    const daysWorked = getEmployeeDaysWorked(employee.id);
+  return team.map((employee) => {
+    const daysWorked = getEmployeeDaysWorked(employee.id, week);
     const rawAmount = totalDays === 0 ? 0 : (totalTips * daysWorked) / totalDays;
 
     return {
       employee,
       daysWorked,
-      amount: Math.round(rawAmount / 1000) * 1000,
+      amount: Math.round(rawAmount),
       paymentStatus: payments[employee.id] ?? "pendiente",
     };
   });

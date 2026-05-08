@@ -1,117 +1,175 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { Check } from "lucide-react";
+import { type FormEvent, useMemo, useState } from "react";
+import { Check, Plus } from "lucide-react";
 
 import { PageHeader } from "@/components/admin/page-header";
-import { getBuyQty, inventory, type PurchaseStatus } from "@/lib/mock-data";
+import {
+  getBuyQty,
+  inventory,
+  manualShoppingItems,
+  type ManualShoppingItem,
+} from "@/lib/mock-data";
 
 type ShopItem = {
   id: string;
   name: string;
   category: string;
+  supplier: string;
   unit: string;
   buyQty: number;
+  source: "inventory";
 };
 
-const initialItems: ShopItem[] = inventory
-  .filter((item) => getBuyQty(item) > 0)
-  .map((item) => ({
-    id: item.id,
-    name: item.name,
-    category: item.category,
-    unit: item.unit,
-    buyQty: getBuyQty(item),
-  }));
+type PendingShopItem =
+  | ShopItem
+  | {
+      id: string;
+      name: string;
+      category: string;
+      supplier: string;
+      unit: string;
+      buyQty: number;
+      source: "manual";
+    };
 
-const categories = [...new Set(initialItems.map((i) => i.category))];
+type GroupBy = "category" | "supplier";
 
 export default function PurchasesPage() {
-  const [statuses, setStatuses] = useState<Record<string, PurchaseStatus>>(
-    () => Object.fromEntries(initialItems.map((i) => [i.id, "pendiente" as PurchaseStatus]))
+  const [groupBy, setGroupBy] = useState<GroupBy>("category");
+  const [stocks, setStocks] = useState<Record<string, number>>(
+    () => Object.fromEntries(inventory.map((i) => [i.id, i.currentStock]))
+  );
+  const [manualItems, setManualItems] = useState<ManualShoppingItem[]>(
+    () => manualShoppingItems
   );
 
-  const items = useMemo(
-    () => initialItems.map((i) => ({ ...i, status: statuses[i.id] ?? ("pendiente" as PurchaseStatus) })),
-    [statuses]
+  const inventoryItems = useMemo<ShopItem[]>(
+    () =>
+      inventory
+        .map((item) => ({ ...item, currentStock: stocks[item.id] ?? item.currentStock }))
+        .filter((item) => getBuyQty(item) > 0)
+        .map((item) => ({
+          id: item.id,
+          name: item.name,
+          category: item.category,
+          supplier: item.supplier?.trim() || "Sin proveedor",
+          unit: item.unit,
+          buyQty: getBuyQty(item),
+          source: "inventory" as const,
+        })),
+    [stocks]
   );
 
-  const pending   = items.filter((i) => i.status === "pendiente").length;
-  const ordered   = items.filter((i) => i.status === "pedido").length;
-  const delivered = items.filter((i) => i.status === "entregado").length;
+  const items = useMemo<PendingShopItem[]>(
+    () => [
+      ...inventoryItems,
+      ...manualItems
+        .filter((item) => item.status === "pendiente")
+        .map((item) => ({
+          id: item.id,
+          name: item.name,
+          category: item.category?.trim() || "Manual",
+          supplier: "Sin proveedor",
+          unit: item.unit,
+          buyQty: item.quantity,
+          source: "manual" as const,
+        })),
+    ],
+    [inventoryItems, manualItems]
+  );
 
-  function toggleDone(id: string) {
-    setStatuses((prev) => {
-      const current = prev[id] ?? "pendiente";
-      return { ...prev, [id]: current === "entregado" ? "pendiente" : "entregado" };
-    });
+  const groups = useMemo(
+    () => [...new Set(items.map((i) => (groupBy === "supplier" ? i.supplier : i.category)))],
+    [groupBy, items]
+  );
+
+  function completeItem(item: PendingShopItem) {
+    if (item.source === "inventory") {
+      const inventoryItem = inventory.find((candidate) => candidate.id === item.id);
+      if (!inventoryItem) return;
+      setStocks((current) => ({ ...current, [item.id]: inventoryItem.idealStock }));
+      return;
+    }
+
+    setManualItems((current) => current.filter((manualItem) => manualItem.id !== item.id));
   }
 
-  function toggleOrdered(id: string) {
-    setStatuses((prev) => {
-      const current = prev[id] ?? "pendiente";
-      if (current === "entregado") return prev;
-      return { ...prev, [id]: current === "pedido" ? "pendiente" : "pedido" };
-    });
+  function addManualItem(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const formData = new FormData(form);
+    const name = String(formData.get("name") ?? "").trim();
+    const quantity = Number(formData.get("quantity") ?? 0);
+    const unit = String(formData.get("unit") ?? "").trim();
+    const category = String(formData.get("category") ?? "").trim();
+
+    if (!name || !unit || !Number.isFinite(quantity) || quantity <= 0) return;
+
+    setManualItems((current) => [
+      ...current,
+      {
+        id: `manual-${Date.now()}`,
+        name,
+        quantity,
+        unit,
+        category: category || undefined,
+        status: "pendiente",
+      },
+    ]);
+    form.reset();
   }
 
   return (
     <>
-      <PageHeader title="Compras" description="Lo que hay que pedir" />
+      <PageHeader title="Compras" />
 
-      <p className="mb-4 text-sm text-white/50">
-        <span className="font-semibold text-white">{pending}</span> por pedir
-        <span className="mx-2 text-white/25">·</span>
-        <span className="font-semibold text-white">{ordered}</span> pedido
-        <span className="mx-2 text-white/25">·</span>
-        <span className="font-semibold text-white">{delivered}</span> entregado
-      </p>
+      <div className="mb-3 flex items-center gap-2">
+        {(["category", "supplier"] as const).map((mode) => (
+          <button
+            key={mode}
+            type="button"
+            onClick={() => setGroupBy(mode)}
+            className={`rounded-[10px] border px-3 py-1.5 text-sm font-medium leading-none transition ${
+              groupBy === mode
+                ? "border-white bg-white text-black"
+                : "border-white/15 text-white/50 hover:text-white/80"
+            }`}
+          >
+            {mode === "category" ? "Categoría" : "Proveedor"}
+          </button>
+        ))}
+      </div>
 
-      {categories.map((category) => {
-        const catItems = items.filter((i) => i.category === category);
+      {groups.map((group) => {
+        const groupItems = items.filter((i) =>
+          groupBy === "supplier" ? i.supplier === group : i.category === group
+        );
         return (
-          <section key={category} className="mb-3">
+          <section key={group} className="mb-3">
             <p className="mb-1.5 text-xs font-semibold uppercase tracking-widest text-white/50">
-              {category}
+              {group}
             </p>
             <div className="overflow-hidden rounded-[16px] border border-black/10 bg-white">
-              {catItems.map((item) => {
-                const isDone    = item.status === "entregado";
-                const isOrdered = item.status === "pedido";
+              {groupItems.map((item) => {
                 return (
                   <div
                     key={item.id}
-                    className={`flex items-center gap-3 px-4 py-2 transition-opacity ${isDone ? "opacity-40" : ""}`}
+                    className="flex items-center gap-3 px-4 py-2"
                   >
-                    {/* Checkbox — toggles entregado */}
                     <button
                       type="button"
-                      onClick={() => toggleDone(item.id)}
-                      aria-label={isDone ? `Desmarcar ${item.name}` : `Marcar ${item.name} como entregado`}
-                      className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-[3px] border-2 transition-colors ${
-                        isDone
-                          ? "border-black bg-black"
-                          : "border-black/25 bg-transparent hover:border-black/50"
-                      }`}
+                      onClick={() => completeItem(item)}
+                      aria-label={`Marcar ${item.name} como comprado`}
+                      className="flex h-4 w-4 shrink-0 items-center justify-center rounded-[3px] border-2 border-black/25 bg-transparent transition-colors hover:border-black/50"
                     >
-                      {isDone && <Check className="size-2.5 stroke-[3] text-white" />}
+                      <Check className="size-2.5 stroke-[3] text-transparent" />
                     </button>
 
-                    {/* Name — tap to toggle pedido */}
-                    <button
-                      type="button"
-                      onClick={() => toggleOrdered(item.id)}
-                      className={`min-w-0 flex-1 text-left text-[0.8125rem] font-medium transition-colors ${
-                        isDone ? "line-through text-black/35" : "text-black"
-                      }`}
-                    >
+                    <p className="min-w-0 flex-1 text-left text-[0.8125rem] font-medium text-black">
                       <span className="truncate">{item.name}</span>
-                      {isOrdered && (
-                        <span className="ml-2 text-[0.65rem] font-normal text-black/35">pedido</span>
-                      )}
-                    </button>
+                    </p>
 
-                    {/* Qty */}
                     <span className="shrink-0 text-xs text-black/40">
                       {item.buyQty} {item.unit}
                     </span>
@@ -122,6 +180,48 @@ export default function PurchasesPage() {
           </section>
         );
       })}
+
+      {items.length === 0 ? (
+        <section className="rounded-[16px] border border-white/10 px-4 py-6 text-center text-sm text-white/45">
+          Sin compras pendientes
+        </section>
+      ) : null}
+
+      <form
+        onSubmit={addManualItem}
+        className="mt-3 grid grid-cols-[minmax(0,1fr)_72px_72px] gap-1.5 rounded-[16px] border border-black/10 bg-white p-2 sm:grid-cols-[minmax(0,1fr)_88px_88px_120px_auto]"
+      >
+        <input
+          name="name"
+          placeholder="Item manual"
+          className="h-8 min-w-0 rounded-[10px] border border-black/10 bg-black/[0.03] px-2 text-sm font-medium text-black outline-none placeholder:text-black/30 focus:border-black/25 focus:bg-white"
+        />
+        <input
+          name="quantity"
+          type="number"
+          min={0}
+          step={1}
+          placeholder="Cant."
+          className="h-8 min-w-0 rounded-[10px] border border-black/10 bg-black/[0.03] px-2 text-sm font-medium text-black outline-none placeholder:text-black/30 focus:border-black/25 focus:bg-white"
+        />
+        <input
+          name="unit"
+          placeholder="Und."
+          className="h-8 min-w-0 rounded-[10px] border border-black/10 bg-black/[0.03] px-2 text-sm font-medium text-black outline-none placeholder:text-black/30 focus:border-black/25 focus:bg-white"
+        />
+        <input
+          name="category"
+          placeholder="Categoría"
+          className="col-span-2 h-8 min-w-0 rounded-[10px] border border-black/10 bg-black/[0.03] px-2 text-sm font-medium text-black outline-none placeholder:text-black/30 focus:border-black/25 focus:bg-white sm:col-span-1"
+        />
+        <button
+          type="submit"
+          className="inline-flex h-8 items-center justify-center gap-1 rounded-[10px] bg-black px-3 text-sm font-semibold text-white hover:bg-black/85"
+        >
+          <Plus className="size-4" />
+          <span className="hidden sm:inline">Agregar</span>
+        </button>
+      </form>
     </>
   );
 }

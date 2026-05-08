@@ -9,20 +9,28 @@ import {
   formatCurrency,
   getBuyQty,
   getStockLevel,
+  getWeekLabel,
   inventory,
+  manualShoppingItems,
   tipWeeks,
 } from "@/lib/mock-data";
 
 const weekLabel = getWeekLabel(currentWorkWeek[0].date, currentWorkWeek[currentWorkWeek.length - 1].date);
-const activeEmployees = employees.filter((employee) => employee.status === "activo").length;
+const activeEmployeeList = employees.filter((employee) => employee.status === "activo");
+const activeEmployees = activeEmployeeList.length;
 const openWeek = tipWeeks.find((w) => w.status === "abierta");
+const currentWeekTipsTotal = openWeek
+  ? Object.values(openWeek.dailyTips).reduce((sum, amount) => sum + amount, 0)
+  : 0;
 const pendingTips = openWeek
-  ? calculateTipDistribution(openWeek.totalTips, openWeek.payments)
+  ? calculateTipDistribution(currentWeekTipsTotal, openWeek.payments, currentWorkWeek, activeEmployeeList)
       .filter((d) => d.paymentStatus === "pendiente")
       .reduce((sum, d) => sum + d.amount, 0)
   : 0;
 const criticalCount = inventory.filter((i) => getStockLevel(i) === "crítico").length;
 const toBuyCount    = inventory.filter((i) => getBuyQty(i) > 0).length;
+const pendingManualCount = manualShoppingItems.filter((item) => item.status === "pendiente").length;
+const pendingShoppingCount = toBuyCount + pendingManualCount;
 
 export default function AdminDashboardPage() {
   return (
@@ -30,11 +38,12 @@ export default function AdminDashboardPage() {
       <PageHeader title="Inicio" description="Resumen semanal" />
 
       {/* Stats row */}
-      <section className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+      <section className="grid grid-cols-2 gap-2 sm:grid-cols-5">
         <StatCard label="Semana" value={weekLabel} />
         <StatCard label="Empleados activos" value={`${activeEmployees}`} />
+        <StatCard label="Propinas semana" value={formatCurrency(currentWeekTipsTotal)} />
         <StatCard label="Propinas por pagar" value={formatCurrency(pendingTips)} />
-        <StatCard label={`Críticos · ${toBuyCount} por comprar`} value={`${criticalCount}`} />
+        <StatCard label={`Críticos · ${pendingShoppingCount} pendientes`} value={`${criticalCount}`} />
       </section>
 
       {/* Nav links */}
@@ -83,13 +92,4 @@ function NavCard({
       <ArrowRight className="size-4 shrink-0 text-black/25" />
     </Link>
   );
-}
-
-function getWeekLabel(startDate: string, endDate: string) {
-  const formatter = new Intl.DateTimeFormat("es-CO", {
-    day: "numeric",
-    month: "long",
-  });
-
-  return `${formatter.format(new Date(startDate))} – ${formatter.format(new Date(endDate))}`;
 }
