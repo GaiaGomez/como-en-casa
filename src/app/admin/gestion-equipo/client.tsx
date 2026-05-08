@@ -377,18 +377,18 @@ export function TeamManagementClient() {
         <section className="panel w-full max-w-full overflow-hidden">
           <div className="overflow-x-auto" style={{ WebkitOverflowScrolling: "touch" } as React.CSSProperties}>
             <div
-              className="grid gap-x-1.5 gap-y-1.5 p-2.5 [grid-template-columns:minmax(72px,0.8fr)_repeat(7,minmax(26px,1fr))_24px] lg:mx-auto lg:w-max lg:gap-x-2 lg:gap-y-0 lg:p-4 lg:[grid-template-columns:minmax(120px,180px)_repeat(7,minmax(36px,44px))_32px]"
+              className="grid gap-0 p-2.5 [grid-template-columns:minmax(72px,0.8fr)_repeat(7,minmax(26px,1fr))_24px] lg:mx-auto lg:w-max lg:gap-x-2 lg:p-4 lg:[grid-template-columns:minmax(120px,180px)_repeat(7,minmax(36px,44px))_32px]"
             >
-              <div className="sticky left-0 z-10 bg-white lg:border-b lg:border-black/[0.06]" aria-hidden="true" />
+              <div className="sticky left-0 z-10 border-b border-black/[0.04] bg-white lg:border-black/[0.06]" aria-hidden="true" />
               {workWeek.map((day) => (
                 <div
                   key={day.date}
-                  className="flex h-6 items-center justify-center text-[0.65rem] font-semibold text-black/35 lg:border-b lg:border-l lg:border-black/[0.06] lg:pb-2"
+                  className="flex h-6 items-center justify-center border-b border-l border-black/[0.04] text-[0.65rem] font-semibold text-black/35 lg:border-black/[0.06] lg:pb-2"
                 >
                   {getDayShortLabel(day.label)}
                 </div>
               ))}
-              <div className="lg:border-b lg:border-l lg:border-black/[0.06]" aria-hidden="true" />
+              <div className="border-b border-l border-black/[0.04] lg:border-black/[0.06]" aria-hidden="true" />
 
               {areaGroups.map((group) => {
                 const employees = groupedActiveTeam[group.role];
@@ -398,7 +398,7 @@ export function TeamManagementClient() {
                   <div key={group.role} className="contents">
                     {employees.map((employee) => (
                       <div key={employee.id} className="contents">
-                        <div className="sticky left-0 z-10 flex min-h-8 min-w-0 items-center bg-white pr-1 lg:min-h-10 lg:border-b lg:border-black/[0.05]">
+                        <div className="sticky left-0 z-10 flex min-h-8 min-w-0 items-center border-b border-black/[0.04] bg-white pr-1 lg:min-h-10 lg:border-black/[0.05]">
                           <p className="truncate text-[0.8rem] font-normal leading-5 text-black">
                             {getEmployeeDisplayName(employee.name)}
                           </p>
@@ -408,7 +408,7 @@ export function TeamManagementClient() {
                           return (
                             <div
                               key={day.date}
-                              className="flex min-h-8 items-center justify-center lg:min-h-10 lg:border-b lg:border-l lg:border-black/[0.05]"
+                              className="flex min-h-8 items-center justify-center border-b border-l border-black/[0.04] lg:min-h-10 lg:border-black/[0.05]"
                             >
                               <button
                                 type="button"
@@ -426,7 +426,7 @@ export function TeamManagementClient() {
                             </div>
                           );
                         })}
-                        <div className="flex min-h-8 items-center justify-center text-xs font-semibold text-black/45 lg:min-h-10 lg:border-b lg:border-l lg:border-black/[0.05]">
+                        <div className="flex min-h-8 items-center justify-center border-b border-l border-black/[0.04] text-xs font-semibold text-black/45 lg:min-h-10 lg:border-black/[0.05]">
                           {getEmployeeDays(employee.id, workWeek)}
                         </div>
                       </div>
