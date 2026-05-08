@@ -1,131 +1,58 @@
 import Link from "next/link";
-import { ArrowRight, CheckCircle2, CircleDollarSign, Plus } from "lucide-react";
+import { ArrowRight, Plus } from "lucide-react";
 
 import { PageHeader } from "@/components/admin/page-header";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  calculateTipDistribution,
-  formatCurrency,
-  getPaymentSummary,
-  getWeekTotalDays,
-  tipWeeks,
-} from "@/lib/mock-data";
+import { formatCurrency, getPaymentSummary, tipWeeks } from "@/lib/mock-data";
 
 export default function TipsPage() {
-  const currentWeek = tipWeeks[0];
-  const currentSummary = getPaymentSummary(currentWeek.payments);
-
   return (
     <>
       <PageHeader
         title="Propinas"
-        description="Total semana → días → pagos"
+        description="Reparto semanal del equipo"
         action={
-          <Button className="rounded-2xl bg-[#d98b3a] font-semibold text-[#17100b] hover:bg-[#eda24f]" asChild>
-            <Link href="/admin/propinas/nueva">
-              <Plus className="size-4" />
-              Nueva
-            </Link>
-          </Button>
+          <Link
+            href="/admin/propinas/nueva"
+            className="inline-flex h-8 items-center gap-1 rounded-[10px] bg-white px-3 text-sm font-semibold text-black hover:bg-white/90"
+          >
+            <Plus className="size-4" />
+            Nueva semana
+          </Link>
         }
       />
 
-      <section className="grid gap-4 lg:grid-cols-[0.95fr_1.05fr]">
-        <Card className="rounded-[2rem] border-white/10 bg-[#1b1814]">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-sm font-medium text-[#bdb6ae]">
-              <CircleDollarSign className="size-4 text-[#d98b3a]" />
-              Abierta
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm font-medium text-[#a8a09a]">{currentWeek.label}</p>
-            <p className="mt-2 text-4xl font-semibold tracking-tight text-white sm:text-5xl">
-              {formatCurrency(currentWeek.totalTips)}
-            </p>
-            <div className="mt-4 grid gap-3 sm:grid-cols-3">
-              <MiniStat label="Días" value={`${getWeekTotalDays()}`} />
-              <MiniStat label="Pagados" value={`${currentSummary.paid}/${currentSummary.total}`} />
-              <MiniStat label="Pendientes" value={`${currentSummary.pending}`} />
-            </div>
-            <Button className="mt-5 rounded-2xl bg-[#d98b3a] font-semibold text-[#17100b] hover:bg-[#eda24f]" asChild>
-              <Link href={`/admin/propinas/${currentWeek.id}`}>
-                Abrir
-                <ArrowRight className="size-4" />
-              </Link>
-            </Button>
-          </CardContent>
-        </Card>
-
-        <Card className="rounded-[2rem] border-white/10 bg-[#1b1814]">
-          <CardHeader>
-            <CardTitle className="text-sm font-medium text-[#bdb6ae]">Flujo</CardTitle>
-          </CardHeader>
-          <CardContent className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            {["Total", "Días", "Reparto", "Pagos"].map((step, index) => (
-              <div key={step} className="rounded-3xl border border-white/10 bg-white/[0.04] px-4 py-5">
-                <p className="text-3xl font-semibold text-[#d98b3a]">{index + 1}</p>
-                <p className="mt-2 text-sm font-semibold text-white">{step}</p>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-      </section>
-
-      <section className="mt-6 space-y-3">
+      <section className="space-y-3">
         {tipWeeks.map((week) => {
-          const distribution = calculateTipDistribution(week.totalTips, week.payments);
-          const paidCount = distribution.filter(
-            (item) => item.paymentStatus === "pagado"
-          ).length;
-          const isClosed = paidCount === distribution.length;
+          const summary = getPaymentSummary(week.payments);
+          const isOpen = week.status === "abierta";
 
           return (
             <Link
               key={week.id}
               href={`/admin/propinas/${week.id}`}
-              className="flex flex-col gap-4 rounded-[2rem] border border-white/10 bg-[#1b1814] p-4 transition-colors hover:bg-[#211e19] sm:flex-row sm:items-center sm:justify-between"
+              className="panel block p-4 transition hover:shadow-sm"
             >
-              <div>
-                <div className="flex flex-wrap items-center gap-2">
-                  <h3 className="text-lg font-semibold text-white">{week.label}</h3>
-                  <Badge
-                    className={
-                      isClosed
-                        ? "rounded-full bg-[#1f4d32] text-[#9df2b1]"
-                        : "rounded-full bg-[#3c2b11] text-[#ffbd63]"
-                    }
-                  >
-                    {isClosed ? "Pagada" : "Pendiente"}
-                  </Badge>
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="truncate text-base font-semibold text-black">{week.label}</p>
+                  <p className="mt-1 text-sm text-gray-500">
+                    {summary.paid} pagados · {summary.pending} pendientes
+                  </p>
                 </div>
-                <p className="mt-1 text-sm text-[#a8a09a]">
-                  {formatCurrency(week.totalTips)} · {paidCount}/{distribution.length}
-                </p>
+                <div className="flex shrink-0 items-center gap-2">
+                  <span className={`tag ${isOpen ? "tag-active" : ""}`}>
+                    {isOpen ? "Abierta" : "Cerrada"}
+                  </span>
+                  <ArrowRight className="size-4 text-gray-400" />
+                </div>
               </div>
-              <div className="flex items-center gap-2 font-semibold text-[#d98b3a]">
-                Abrir
-                {isClosed ? (
-                  <CheckCircle2 className="size-4 text-[#6ee68a]" />
-                ) : (
-                  <ArrowRight className="size-4" />
-                )}
-              </div>
+              <p className="mt-2 text-2xl font-semibold text-black">
+                {formatCurrency(week.totalTips)}
+              </p>
             </Link>
           );
         })}
       </section>
     </>
-  );
-}
-
-function MiniStat({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-3xl border border-white/10 bg-white/[0.04] px-4 py-3">
-      <p className="text-sm text-[#a8a09a]">{label}</p>
-      <p className="mt-1 text-2xl font-semibold text-white">{value}</p>
-    </div>
   );
 }

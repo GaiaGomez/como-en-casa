@@ -251,6 +251,43 @@ export const tipWeeks: TipWeek[] = [
   },
 ];
 
+export type InventoryItem = {
+  id: string;
+  name: string;
+  category: string;
+  unit: string;
+  currentStock: number;
+  idealStock: number;
+};
+
+export const inventory: InventoryItem[] = [
+  { id: "leche",        name: "Leche entera",    category: "Lácteos",        unit: "L",   currentStock: 4,    idealStock: 10   },
+  { id: "crema",        name: "Crema de leche",  category: "Lácteos",        unit: "L",   currentStock: 2,    idealStock: 6    },
+  { id: "mantequilla",  name: "Mantequilla",      category: "Lácteos",        unit: "un",  currentStock: 3,    idealStock: 8    },
+  { id: "cafe",         name: "Café molido",      category: "Abarrotes",      unit: "g",   currentStock: 1500, idealStock: 2000 },
+  { id: "azucar",       name: "Azúcar",           category: "Abarrotes",      unit: "kg",  currentStock: 2,    idealStock: 5    },
+  { id: "harina",       name: "Harina de trigo",  category: "Abarrotes",      unit: "kg",  currentStock: 1,    idealStock: 5    },
+  { id: "huevos",       name: "Huevos",            category: "Proteínas",      unit: "un",  currentStock: 25,   idealStock: 30   },
+  { id: "servilletas",  name: "Servilletas",       category: "Insumos y aseo", unit: "pkg", currentStock: 1,    idealStock: 5    },
+];
+
+export type PurchaseStatus = "pendiente" | "pedido" | "entregado";
+
+export function getBuyQty(item: InventoryItem): number {
+  return Math.max(item.idealStock - item.currentStock, 0);
+}
+
+export function getStockRatio(item: InventoryItem): number {
+  return item.idealStock === 0 ? 1 : item.currentStock / item.idealStock;
+}
+
+export function getStockLevel(item: InventoryItem): "bien" | "bajo" | "crítico" {
+  const ratio = getStockRatio(item);
+  if (ratio >= 0.7) return "bien";
+  if (ratio >= 0.4) return "bajo";
+  return "crítico";
+}
+
 export function formatCurrency(value: number) {
   return new Intl.NumberFormat("es-CO", {
     style: "currency",
