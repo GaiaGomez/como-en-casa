@@ -1,4 +1,4 @@
-export type EmployeeRole = "barista" | "cocina" | "servicio" | "caja";
+export type EmployeeRole = "barista" | "cocina" | "servicio" | "caja" | (string & {});
 export type EmployeeStatus = "activo" | "descanso" | "inactivo";
 export type TipStatus = "abierta" | "cerrada";
 export type PaymentStatus = "pagado" | "pendiente";
@@ -11,6 +11,15 @@ export type Employee = {
   status: EmployeeStatus;
   hiredAt: string;
   baseShift: string;
+  contractType: string;
+  salaryBase: string;
+  eps: string;
+  arl: string;
+  pensionFund: string;
+  emergencyContact: string;
+  emergencyPhone: string;
+  emergencyRelation: string;
+  internalNotes: string;
 };
 
 export type WorkDay = {
@@ -62,6 +71,15 @@ export const employees: Employee[] = [
     status: "activo",
     hiredAt: "2024-09-12",
     baseShift: "Servicio de tarde",
+    contractType: "Tiempo parcial",
+    salaryBase: "Por turno",
+    eps: "Sura",
+    arl: "Positiva",
+    pensionFund: "Protección",
+    emergencyContact: "Claudia Ríos",
+    emergencyPhone: "300 111 9821",
+    emergencyRelation: "Mamá",
+    internalNotes: "Prefiere turnos de tarde.",
   },
   {
     id: "luis",
@@ -71,6 +89,15 @@ export const employees: Employee[] = [
     status: "activo",
     hiredAt: "2023-11-03",
     baseShift: "Café y cierre",
+    contractType: "Indefinido",
+    salaryBase: "$1.600.000",
+    eps: "Nueva EPS",
+    arl: "Sura",
+    pensionFund: "Porvenir",
+    emergencyContact: "Diana Cano",
+    emergencyPhone: "311 000 4490",
+    emergencyRelation: "Hermana",
+    internalNotes: "Responsable de cierre y máquina.",
   },
   {
     id: "maria",
@@ -80,6 +107,15 @@ export const employees: Employee[] = [
     status: "activo",
     hiredAt: "2022-05-18",
     baseShift: "Producción",
+    contractType: "Indefinido",
+    salaryBase: "$1.800.000",
+    eps: "Sanitas",
+    arl: "Positiva",
+    pensionFund: "Colfondos",
+    emergencyContact: "José Pérez",
+    emergencyPhone: "315 222 1140",
+    emergencyRelation: "Papá",
+    internalNotes: "Apoya compras de cocina.",
   },
   {
     id: "camilo",
@@ -89,6 +125,15 @@ export const employees: Employee[] = [
     status: "descanso",
     hiredAt: "2025-01-27",
     baseShift: "Cierre",
+    contractType: "Tiempo parcial",
+    salaryBase: "Por turno",
+    eps: "Coosalud",
+    arl: "Sura",
+    pensionFund: "Porvenir",
+    emergencyContact: "Laura Restrepo",
+    emergencyPhone: "302 900 1803",
+    emergencyRelation: "Pareja",
+    internalNotes: "Disponible fines de semana.",
   },
   {
     id: "valentina",
@@ -98,50 +143,59 @@ export const employees: Employee[] = [
     status: "activo",
     hiredAt: "2024-02-10",
     baseShift: "Tarde",
+    contractType: "Prestación de servicios",
+    salaryBase: "Por día",
+    eps: "Sura",
+    arl: "Positiva",
+    pensionFund: "Protección",
+    emergencyContact: "Marcela Gómez",
+    emergencyPhone: "320 500 9442",
+    emergencyRelation: "Tía",
+    internalNotes: "Muy buena con atención en mesa.",
   },
 ];
 
 export const currentWorkWeek: WorkDay[] = [
   {
-    date: "2026-05-04",
+    date: "2026-05-11",
     label: "Lunes",
-    shortLabel: "Lun",
+    shortLabel: "Lun 11/05",
     worked: { ana: true, luis: true, maria: true, camilo: false, valentina: true },
   },
   {
-    date: "2026-05-05",
+    date: "2026-05-12",
     label: "Martes",
-    shortLabel: "Mar",
+    shortLabel: "Mar 12/05",
     worked: { ana: true, luis: true, maria: true, camilo: true, valentina: false },
   },
   {
-    date: "2026-05-06",
+    date: "2026-05-13",
     label: "Miércoles",
-    shortLabel: "Mié",
+    shortLabel: "Mié 13/05",
     worked: { ana: false, luis: true, maria: true, camilo: true, valentina: true },
   },
   {
-    date: "2026-05-07",
+    date: "2026-05-14",
     label: "Jueves",
-    shortLabel: "Jue",
+    shortLabel: "Jue 14/05",
     worked: { ana: true, luis: false, maria: true, camilo: true, valentina: true },
   },
   {
-    date: "2026-05-08",
+    date: "2026-05-15",
     label: "Viernes",
-    shortLabel: "Vie",
+    shortLabel: "Vie 15/05",
     worked: { ana: true, luis: true, maria: true, camilo: true, valentina: true },
   },
   {
-    date: "2026-05-09",
+    date: "2026-05-16",
     label: "Sábado",
-    shortLabel: "Sáb",
+    shortLabel: "Sáb 16/05",
     worked: { ana: true, luis: true, maria: true, camilo: true, valentina: true },
   },
   {
-    date: "2026-05-10",
+    date: "2026-05-17",
     label: "Domingo",
-    shortLabel: "Dom",
+    shortLabel: "Dom 17/05",
     worked: { ana: true, luis: false, maria: true, camilo: false, valentina: true },
   },
 ];
