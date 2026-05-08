@@ -27,8 +27,6 @@ function parseDayLabel(dateStr: string): string {
 export function TipDetailClient({ week }: { week: TipWeek }) {
   const [payments, setPayments] = useState<Record<string, PaymentStatus>>(week.payments);
   const [dailyTips, setDailyTips] = useState<Record<string, number>>(week.dailyTips);
-  const [editingDay, setEditingDay] = useState<string | null>(null);
-  const [editValue, setEditValue] = useState("");
 
   const totalTips = Object.values(dailyTips).reduce((sum, v) => sum + v, 0);
   const distribution = calculateTipDistribution(totalTips, payments);
@@ -41,20 +39,6 @@ export function TipDetailClient({ week }: { week: TipWeek }) {
       ...current,
       [employeeId]: current[employeeId] === "pagado" ? "pendiente" : "pagado",
     }));
-  }
-
-  function handleDayFocus(date: string) {
-    setEditingDay(date);
-    setEditValue(String(dailyTips[date] ?? 0));
-  }
-
-  function handleDayBlur(date: string) {
-    const parsed = parseInt(editValue.replace(/\D/g, ""), 10);
-    setDailyTips((prev) => ({
-      ...prev,
-      [date]: isNaN(parsed) ? 0 : parsed,
-    }));
-    setEditingDay(null);
   }
 
   return (
@@ -95,11 +79,16 @@ export function TipDetailClient({ week }: { week: TipWeek }) {
               <input
                 type="text"
                 inputMode="numeric"
+                pattern="[0-9]*"
                 className="w-28 rounded-lg border border-black/10 bg-black/[0.03] px-2 py-1 text-right text-sm font-semibold text-black focus:border-black/20 focus:bg-white focus:outline-none"
-                value={editingDay === date ? editValue : formatNumber(amount)}
-                onFocus={() => handleDayFocus(date)}
-                onBlur={() => handleDayBlur(date)}
-                onChange={(e) => setEditValue(e.target.value)}
+                value={String(dailyTips[date] ?? 0)}
+                onChange={(event) => {
+                  const value = Number(event.target.value.replace(/\D/g, ""));
+                  setDailyTips((current) => ({
+                    ...current,
+                    [date]: Number.isFinite(value) ? value : 0,
+                  }));
+                }}
               />
             </div>
           </div>
