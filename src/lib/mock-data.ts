@@ -37,15 +37,30 @@ export type TipDistribution = {
   paymentStatus: PaymentStatus;
 };
 
+export const cafeInfo = {
+  name: "Como en Casa",
+  description: "Café y repostería familiar",
+  address: "Carrera 49 #54-47, Bello",
+  todayDate: "2026-05-08",
+  todayLabel: "Viernes 8 de mayo",
+  hours: [
+    { days: "Lunes a jueves", time: "4:30 p.m. - 9:00 p.m." },
+    { days: "Viernes", time: "4:30 p.m. - 10:00 p.m." },
+    { days: "Sábado", time: "11:00 a.m. - 10:00 p.m." },
+    { days: "Domingos y festivos", time: "3:00 p.m. - 10:00 p.m." },
+  ],
+  todayHours: "4:30 p.m. - 10:00 p.m.",
+};
+
 export const employees: Employee[] = [
   {
     id: "ana",
-    name: "Ana Maria Rios",
+    name: "Ana María Ríos",
     role: "servicio",
     phone: "300 481 2219",
     status: "activo",
     hiredAt: "2024-09-12",
-    baseShift: "Manana y almuerzo",
+    baseShift: "Servicio de tarde",
   },
   {
     id: "luis",
@@ -54,16 +69,16 @@ export const employees: Employee[] = [
     phone: "311 260 4490",
     status: "activo",
     hiredAt: "2023-11-03",
-    baseShift: "Apertura",
+    baseShift: "Café y cierre",
   },
   {
     id: "maria",
-    name: "Maria Jose Perez",
+    name: "María José Pérez",
     role: "cocina",
     phone: "315 090 1140",
     status: "activo",
     hiredAt: "2022-05-18",
-    baseShift: "Produccion",
+    baseShift: "Producción",
   },
   {
     id: "camilo",
@@ -76,7 +91,7 @@ export const employees: Employee[] = [
   },
   {
     id: "valentina",
-    name: "Valentina Gomez",
+    name: "Valentina Gómez",
     role: "servicio",
     phone: "320 881 9442",
     status: "activo",
@@ -88,37 +103,37 @@ export const employees: Employee[] = [
 export const currentShiftWeek: ShiftDay[] = [
   {
     date: "2026-05-04",
-    label: "Lun",
+    label: "Lunes",
     hours: { ana: 8, luis: 7, maria: 8, camilo: 0, valentina: 6 },
   },
   {
     date: "2026-05-05",
-    label: "Mar",
+    label: "Martes",
     hours: { ana: 8, luis: 7, maria: 8, camilo: 6, valentina: 0 },
   },
   {
     date: "2026-05-06",
-    label: "Mie",
+    label: "Miércoles",
     hours: { ana: 0, luis: 7, maria: 8, camilo: 6, valentina: 7 },
   },
   {
     date: "2026-05-07",
-    label: "Jue",
+    label: "Jueves",
     hours: { ana: 8, luis: 0, maria: 8, camilo: 6, valentina: 7 },
   },
   {
     date: "2026-05-08",
-    label: "Vie",
+    label: "Viernes",
     hours: { ana: 9, luis: 8, maria: 8, camilo: 6, valentina: 7 },
   },
   {
     date: "2026-05-09",
-    label: "Sab",
+    label: "Sábado",
     hours: { ana: 10, luis: 8, maria: 9, camilo: 7, valentina: 8 },
   },
   {
     date: "2026-05-10",
-    label: "Dom",
+    label: "Domingo",
     hours: { ana: 6, luis: 0, maria: 7, camilo: 0, valentina: 6 },
   },
 ];
@@ -126,7 +141,7 @@ export const currentShiftWeek: ShiftDay[] = [
 export const tipWeeks: TipWeek[] = [
   {
     id: "tips-2026-05-04",
-    label: "Semana 4-10 mayo",
+    label: "Semana 4 al 10 de mayo",
     startDate: "2026-05-04",
     endDate: "2026-05-10",
     totalTips: 1280000,
@@ -141,7 +156,7 @@ export const tipWeeks: TipWeek[] = [
   },
   {
     id: "tips-2026-04-27",
-    label: "Semana 27 abril-3 mayo",
+    label: "Semana 27 de abril al 3 de mayo",
     startDate: "2026-04-27",
     endDate: "2026-05-03",
     totalTips: 1165000,
@@ -204,4 +219,38 @@ export function getTipWeek(id: string) {
 
 export function getOpenTipWeek() {
   return tipWeeks.find((week) => week.status === "abierta");
+}
+
+export function getTodayShift() {
+  return currentShiftWeek.find((day) => day.date === cafeInfo.todayDate);
+}
+
+export function getEmployeesWorkingToday() {
+  const today = getTodayShift();
+
+  if (!today) {
+    return [];
+  }
+
+  return employees
+    .map((employee) => ({
+      employee,
+      hours: today.hours[employee.id] ?? 0,
+    }))
+    .filter((item) => item.hours > 0);
+}
+
+export function getDayTotalHours(day: ShiftDay) {
+  return Object.values(day.hours).reduce((sum, hours) => sum + hours, 0);
+}
+
+export function getPaymentSummary(payments: Record<string, PaymentStatus>) {
+  const values = Object.values(payments);
+  const paid = values.filter((status) => status === "pagado").length;
+
+  return {
+    paid,
+    pending: values.length - paid,
+    total: values.length,
+  };
 }

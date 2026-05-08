@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ArrowLeft, CheckCircle2, Clock, HandCoins, Wallet } from "lucide-react";
 import { notFound } from "next/navigation";
 
 import { PageHeader } from "@/components/admin/page-header";
@@ -6,16 +7,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
   calculateTipDistribution,
   formatCurrency,
+  getPaymentSummary,
   getTipWeek,
   getWeekTotalHours,
   tipWeeks,
@@ -38,88 +32,114 @@ export default async function TipDetailPage({
   }
 
   const distribution = calculateTipDistribution(week.totalTips, week.payments);
-  const paidCount = distribution.filter(
-    (item) => item.paymentStatus === "pagado"
-  ).length;
+  const summary = getPaymentSummary(week.payments);
 
   return (
     <>
       <PageHeader
         title={week.label}
-        description={`${week.startDate} a ${week.endDate}. Reparto calculado desde las horas registradas en horarios mock.`}
+        description="Fudo → Horas → Reparto → Pagos"
         action={
-          <Button variant="outline" asChild>
-            <Link href="/admin/propinas">Volver</Link>
+          <Button variant="outline" className="rounded-2xl border-white/10 bg-white/5 text-white hover:bg-white/10 hover:text-white" asChild>
+            <Link href="/admin/propinas">
+              <ArrowLeft className="size-4" />
+              Volver
+            </Link>
           </Button>
         }
       />
 
-      <section className="mb-4 grid gap-4 md:grid-cols-3">
-        <Card className="border-[#eadccb] bg-[#fffaf2]">
+      <section className="grid gap-4 lg:grid-cols-3">
+        <Card className="rounded-[2rem] border-white/10 bg-[#1b1814]">
           <CardHeader>
-            <CardTitle>Total Fudo</CardTitle>
+            <CardTitle className="flex items-center gap-2 text-sm font-medium text-[#bdb6ae]">
+              <HandCoins className="size-4 text-[#d98b3a]" />
+              Total Fudo
+            </CardTitle>
           </CardHeader>
-          <CardContent className="text-2xl font-semibold">
-            {formatCurrency(week.totalTips)}
+          <CardContent>
+            <p className="text-4xl font-semibold tracking-tight text-white">{formatCurrency(week.totalTips)}</p>
           </CardContent>
         </Card>
-        <Card className="border-[#eadccb] bg-[#fffaf2]">
+
+        <Card className="rounded-[2rem] border-white/10 bg-[#1b1814]">
           <CardHeader>
-            <CardTitle>Horas repartidas</CardTitle>
+            <CardTitle className="flex items-center gap-2 text-sm font-medium text-[#bdb6ae]">
+              <Clock className="size-4 text-[#d98b3a]" />
+              Horas
+            </CardTitle>
           </CardHeader>
-          <CardContent className="text-2xl font-semibold">
-            {getWeekTotalHours()} h
+          <CardContent>
+            <p className="text-4xl font-semibold tracking-tight text-white">{getWeekTotalHours()} h</p>
           </CardContent>
         </Card>
-        <Card className="border-[#eadccb] bg-[#fffaf2]">
+
+        <Card className="rounded-[2rem] border-white/10 bg-[#1b1814]">
           <CardHeader>
-            <CardTitle>Estado</CardTitle>
+            <CardTitle className="flex items-center gap-2 text-sm font-medium text-[#bdb6ae]">
+              <CheckCircle2 className="size-4 text-[#6ee68a]" />
+              Pagos
+            </CardTitle>
           </CardHeader>
-          <CardContent className="flex items-center gap-2">
-            <Badge variant={week.status === "abierta" ? "outline" : "secondary"}>
-              {week.status}
-            </Badge>
-            <span className="text-sm text-[#6f5a47]">
-              {paidCount}/{distribution.length} pagados
-            </span>
+          <CardContent>
+            <p className="text-4xl font-semibold tracking-tight text-white">
+              {summary.paid}/{summary.total}
+            </p>
+            <div className="mt-3 flex gap-2">
+              <Badge className="rounded-full bg-[#1f4d32] text-[#9df2b1]">Pagado</Badge>
+              <Badge className="rounded-full bg-[#3c2b11] text-[#ffbd63]">
+                {summary.pending} pendientes
+              </Badge>
+            </div>
           </CardContent>
         </Card>
       </section>
 
-      <Card className="border-[#eadccb] bg-[#fffaf2]">
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Empleado</TableHead>
-                <TableHead>Dias trabajados</TableHead>
-                <TableHead>Horas</TableHead>
-                <TableHead className="text-right">Propina</TableHead>
-                <TableHead>Pago</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {distribution.map((item) => (
-                <TableRow key={item.employee.id}>
-                  <TableCell className="font-medium">{item.employee.name}</TableCell>
-                  <TableCell>{item.daysWorked}</TableCell>
-                  <TableCell>{item.hours} h</TableCell>
-                  <TableCell className="text-right font-semibold">
-                    {formatCurrency(item.amount)}
-                  </TableCell>
-                  <TableCell>
-                    <Badge
-                      variant={item.paymentStatus === "pagado" ? "secondary" : "outline"}
-                    >
-                      {item.paymentStatus}
-                    </Badge>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+      <section className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        {distribution.map((item) => {
+          const isPaid = item.paymentStatus === "pagado";
+
+          return (
+            <article
+              key={item.employee.id}
+              className="rounded-[2rem] border border-white/10 bg-[#1b1814] p-4"
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="text-lg font-semibold text-white">{item.employee.name}</p>
+                  <p className="mt-1 text-sm text-[#a8a09a]">{item.hours} h · {item.daysWorked} días</p>
+                </div>
+                <Badge
+                  className={
+                    isPaid
+                      ? "rounded-full bg-[#1f4d32] text-[#9df2b1]"
+                      : "rounded-full bg-[#3c2b11] text-[#ffbd63]"
+                  }
+                >
+                  {isPaid ? "Pagado" : "Pendiente"}
+                </Badge>
+              </div>
+              <p className="mt-6 text-4xl font-semibold tracking-tight text-white">
+                {formatCurrency(item.amount)}
+              </p>
+              <Button
+                className={
+                  isPaid
+                    ? "mt-5 h-11 w-full rounded-2xl bg-[#1f4d32] font-semibold text-[#9df2b1] hover:bg-[#28663f]"
+                    : "mt-5 h-11 w-full rounded-2xl bg-[#d98b3a] font-semibold text-[#17100b] hover:bg-[#eda24f]"
+                }
+              >
+                {isPaid ? (
+                  <CheckCircle2 className="size-4" />
+                ) : (
+                  <Wallet className="size-4" />
+                )}
+                {isPaid ? "Listo" : "Pagar"}
+              </Button>
+            </article>
+          );
+        })}
+      </section>
     </>
   );
 }

@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Como en Casa Admin",
-  description: "Internal operations for Como en Casa",
+  title: "Como en Casa",
+  description: "Operación interna de Como en Casa",
 };
 
 export default function RootLayout({

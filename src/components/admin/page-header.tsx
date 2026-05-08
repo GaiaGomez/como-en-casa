@@ -6,18 +6,20 @@ export function PageHeader({
   action,
 }: {
   title: string;
-  description: string;
+  description?: string;
   action?: ReactNode;
 }) {
   return (
-    <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+    <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
       <div>
-        <h2 className="text-2xl font-semibold tracking-tight text-[#2c2118]">
+        <h2 className="text-4xl font-semibold tracking-tight text-white sm:text-5xl">
           {title}
         </h2>
-        <p className="mt-1 max-w-2xl text-sm leading-6 text-[#6f5a47]">
-          {description}
-        </p>
+        {description ? (
+          <p className="mt-2 max-w-2xl text-sm font-medium text-[#a8a09a]">
+            {description}
+          </p>
+        ) : null}
       </div>
       {action}
     </div>

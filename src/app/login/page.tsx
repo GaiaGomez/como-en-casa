@@ -8,27 +8,43 @@ import { Label } from "@/components/ui/label";
 
 export default function LoginPage() {
   return (
-    <main className="flex min-h-screen items-center justify-center bg-[#f8f3ea] px-4 py-10 text-[#2c2118]">
-      <Card className="w-full max-w-sm border-[#eadccb] bg-[#fffaf2] shadow-sm">
-        <CardHeader>
-          <div className="mb-2 flex size-11 items-center justify-center rounded-lg bg-[#6f4e37] text-white">
+    <main className="flex min-h-screen items-center justify-center bg-[#11100e] px-4 py-10 text-[#f7f1e8]">
+      <Card className="w-full max-w-sm rounded-[2rem] border-white/10 bg-[#1b1814] shadow-2xl shadow-black/30">
+        <CardHeader className="space-y-5">
+          <div className="flex size-14 items-center justify-center rounded-3xl bg-[#d98b3a] text-[#17100b]">
             <Coffee className="size-5" />
           </div>
-          <CardTitle className="text-xl">Como en Casa Admin</CardTitle>
-          <p className="text-sm leading-6 text-[#6f5a47]">
-            Entrada interna para revisar turnos y repartir propinas semanales.
-          </p>
+          <CardTitle className="text-4xl font-semibold tracking-tight text-white">
+            Admin
+          </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="email">Correo</Label>
-            <Input id="email" type="email" defaultValue="duena@comoencasa.co" />
+            <Label htmlFor="email" className="text-[#bdb6ae]">
+              Correo
+            </Label>
+            <Input
+              id="email"
+              type="email"
+              defaultValue="duena@comoencasa.co"
+              className="h-12 rounded-2xl border-white/10 bg-white/5 text-white"
+            />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="password">Contrasena</Label>
-            <Input id="password" type="password" defaultValue="admin-demo" />
+            <Label htmlFor="password" className="text-[#bdb6ae]">
+              Clave
+            </Label>
+            <Input
+              id="password"
+              type="password"
+              defaultValue="admin-demo"
+              className="h-12 rounded-2xl border-white/10 bg-white/5 text-white"
+            />
           </div>
-          <Button className="w-full bg-[#6f4e37] hover:bg-[#5d412f]" asChild>
+          <Button
+            className="h-12 w-full rounded-2xl bg-[#d98b3a] font-semibold text-[#17100b] hover:bg-[#eda24f]"
+            asChild
+          >
             <Link href="/admin">
               <LockKeyhole className="size-4" />
               Entrar
