@@ -1,5 +1,5 @@
-import { TipCalculator } from "@/components/admin/tip-calculator";
+import { redirect } from "next/navigation";
 
 export default function NewTipsPage() {
-  return <TipCalculator />;
+  redirect("/admin/gestion-equipo?tab=propinas");
 }

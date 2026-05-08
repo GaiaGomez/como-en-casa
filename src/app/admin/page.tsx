@@ -52,7 +52,7 @@ export default function AdminDashboardPage() {
       {/* Accesos 2×2 */}
       <div className="grid grid-cols-2 gap-2">
         <AccessCard href="/admin/gestion-equipo" icon={CalendarDays} label="Horario" />
-        <AccessCard href="/admin/gestion-equipo" icon={HandCoins} label="Propinas" />
+        <AccessCard href="/admin/gestion-equipo?tab=propinas" icon={HandCoins} label="Propinas" />
         <AccessCard href="/admin/inventario" icon={Box} label="Inventario" />
         <AccessCard href="/admin/compras" icon={ShoppingCart} label="Compras" />
       </div>
