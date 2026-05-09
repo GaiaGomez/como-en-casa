@@ -30,7 +30,7 @@ ALTER TABLE employees ADD COLUMN IF NOT EXISTS internal_notes   TEXT;
 -- Unique index on local_key (partial: only non-null rows).
 -- Provides the ON CONFLICT target below.
 CREATE UNIQUE INDEX IF NOT EXISTS employees_local_key_idx
-  ON employees (local_key) WHERE local_key IS NOT NULL;
+  ON employees (local_key);
 
 INSERT INTO employees (
   local_key, name, role, phone, active,
