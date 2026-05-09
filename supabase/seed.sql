@@ -8,26 +8,32 @@
 
 -- =============================================================
 -- 1. TABLE: employees
--- Existing columns: id, name, short_name, role, phone,
---                   active, created_at
--- Adding all remaining Employee fields from mock-data.ts.
--- short_name is left untouched (may already have real values).
+-- employees.id is UUID (Supabase default). We do not touch it.
+-- local_key stores the stable slug ('lilina', 'sandra', …)
+-- used as the app-level employee identifier in all JSONB
+-- references (tip_weeks.work_days, tip_weeks.payments, etc.).
 -- =============================================================
 
-ALTER TABLE employees ADD COLUMN IF NOT EXISTS hired_at          DATE;
-ALTER TABLE employees ADD COLUMN IF NOT EXISTS base_shift        TEXT;
-ALTER TABLE employees ADD COLUMN IF NOT EXISTS contract_type     TEXT;
-ALTER TABLE employees ADD COLUMN IF NOT EXISTS salary_base       TEXT;
-ALTER TABLE employees ADD COLUMN IF NOT EXISTS eps               TEXT;
-ALTER TABLE employees ADD COLUMN IF NOT EXISTS arl               TEXT;
-ALTER TABLE employees ADD COLUMN IF NOT EXISTS pension_fund      TEXT;
-ALTER TABLE employees ADD COLUMN IF NOT EXISTS emergency_contact TEXT;
-ALTER TABLE employees ADD COLUMN IF NOT EXISTS emergency_phone   TEXT;
+ALTER TABLE employees ADD COLUMN IF NOT EXISTS local_key        TEXT;
+ALTER TABLE employees ADD COLUMN IF NOT EXISTS hired_at         DATE;
+ALTER TABLE employees ADD COLUMN IF NOT EXISTS base_shift       TEXT;
+ALTER TABLE employees ADD COLUMN IF NOT EXISTS contract_type    TEXT;
+ALTER TABLE employees ADD COLUMN IF NOT EXISTS salary_base      TEXT;
+ALTER TABLE employees ADD COLUMN IF NOT EXISTS eps              TEXT;
+ALTER TABLE employees ADD COLUMN IF NOT EXISTS arl              TEXT;
+ALTER TABLE employees ADD COLUMN IF NOT EXISTS pension_fund     TEXT;
+ALTER TABLE employees ADD COLUMN IF NOT EXISTS emergency_contact  TEXT;
+ALTER TABLE employees ADD COLUMN IF NOT EXISTS emergency_phone    TEXT;
 ALTER TABLE employees ADD COLUMN IF NOT EXISTS emergency_relation TEXT;
-ALTER TABLE employees ADD COLUMN IF NOT EXISTS internal_notes    TEXT;
+ALTER TABLE employees ADD COLUMN IF NOT EXISTS internal_notes   TEXT;
+
+-- Unique index on local_key (partial: only non-null rows).
+-- Provides the ON CONFLICT target below.
+CREATE UNIQUE INDEX IF NOT EXISTS employees_local_key_idx
+  ON employees (local_key) WHERE local_key IS NOT NULL;
 
 INSERT INTO employees (
-  id, name, role, phone, active,
+  local_key, name, role, phone, active,
   hired_at, base_shift, contract_type, salary_base,
   eps, arl, pension_fund,
   emergency_contact, emergency_phone, emergency_relation,
@@ -42,7 +48,7 @@ INSERT INTO employees (
   ('yeral',   'Yeral',   'reposteria', '', true, '2026-01-01', 'Repostería', 'Pendiente', 'Pendiente', 'Pendiente', 'Pendiente', 'Pendiente', 'Pendiente', '', 'Pendiente', 'Tip eligible.'),
   ('huber',   'Huber',   'mesero',     '', true, '2026-01-01', 'Mesero',     'Pendiente', 'Pendiente', 'Pendiente', 'Pendiente', 'Pendiente', 'Pendiente', '', 'Pendiente', 'Tip eligible.'),
   ('wilton',  'Wilton',  'mesero',     '', true, '2026-01-01', 'Mesero',     'Pendiente', 'Pendiente', 'Pendiente', 'Pendiente', 'Pendiente', 'Pendiente', '', 'Pendiente', 'Tip eligible.')
-ON CONFLICT (id) DO UPDATE SET
+ON CONFLICT (local_key) DO UPDATE SET
   name              = EXCLUDED.name,
   role              = EXCLUDED.role,
   phone             = EXCLUDED.phone,
@@ -59,9 +65,12 @@ ON CONFLICT (id) DO UPDATE SET
   emergency_relation   = EXCLUDED.emergency_relation,
   internal_notes       = EXCLUDED.internal_notes;
 
+-- NOTE: short_name is not set here to preserve any values already in Supabase.
+
 
 -- =============================================================
 -- 2. TABLE: inventory (88 items across 7 categories)
+-- id is TEXT here — we create this table, so no UUID conflict.
 -- =============================================================
 
 CREATE TABLE IF NOT EXISTS inventory (
@@ -183,7 +192,7 @@ ON CONFLICT (id) DO UPDATE SET
 
 -- =============================================================
 -- 3. TABLE: manual_shopping_items
--- Represents one-off purchase requests not tied to inventory.
+-- id is TEXT — no UUID conflict.
 -- =============================================================
 
 CREATE TABLE IF NOT EXISTS manual_shopping_items (
@@ -208,18 +217,9 @@ ON CONFLICT (id) DO UPDATE SET
 
 -- =============================================================
 -- 4. TABLE: tip_weeks
--- Stores weekly tip totals, per-day amounts, per-employee
--- payment status, and daily work attendance.
---
--- daily_tips:  { "YYYY-MM-DD": amount_COP, ... }
--- payments:    { "employee_id": "pagado"|"pendiente", ... }
--- work_days:   [ { "date": "YYYY-MM-DD",
---                  "worked": { "employee_id": true|false, ... }
---                }, ... ]
---
--- work_days for the closed week (tips-2026-04-25) is stored as
--- [] because that schedule only exists in client.tsx, not in
--- mock-data.ts. Fill it in manually if needed.
+-- id is TEXT — no UUID conflict.
+-- Employee references in daily_tips / payments / work_days
+-- use local_key values ('lilina', 'sandra', …), not UUIDs.
 -- =============================================================
 
 CREATE TABLE IF NOT EXISTS tip_weeks (

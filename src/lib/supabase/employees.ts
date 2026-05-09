@@ -3,6 +3,7 @@ import { supabase } from "./client";
 
 type SupabaseEmployeeRow = {
   id: string;
+  local_key: string | null;
   name: string;
   short_name: string | null;
   role: string;
@@ -13,7 +14,7 @@ type SupabaseEmployeeRow = {
 
 function mapRow(row: SupabaseEmployeeRow): Employee {
   return {
-    id: row.id,
+    id: row.local_key ?? row.id,
     name: row.name,
     short_name: row.short_name ?? undefined,
     role: row.role,
@@ -36,7 +37,7 @@ function mapRow(row: SupabaseEmployeeRow): Employee {
 export async function getEmployees(): Promise<Employee[]> {
   const { data, error } = await supabase
     .from("employees")
-    .select("id, name, short_name, role, phone, active, created_at")
+    .select("id, local_key, name, short_name, role, phone, active, created_at")
     .order("name");
 
   if (error || !data || data.length === 0) {
