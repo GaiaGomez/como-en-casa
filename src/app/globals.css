@@ -86,6 +86,7 @@
   }
   html {
     @apply font-sans overflow-x-hidden;
+    font-size: 17px;
   }
   body {
     @apply bg-background text-foreground overflow-x-hidden;

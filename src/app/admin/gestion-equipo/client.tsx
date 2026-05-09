@@ -641,12 +641,12 @@ function MoneyRow({
   return (
     <div className="flex items-baseline justify-between gap-3 border-b border-black/[0.05] px-4 py-3 last:border-b-0">
       <div className="flex min-w-0 items-baseline gap-2">
-        <span className={strong ? "font-bold text-black" : subtle ? "text-sm text-black/45" : "block min-w-0 truncate text-sm text-black"}>
+        <span className={strong ? "font-bold text-black text-[16px]" : subtle ? "text-sm text-black/45" : "block min-w-0 truncate text-sm text-black"}>
           {label}
         </span>
         {meta ? <span className="text-xs text-black/45">{meta}</span> : null}
       </div>
-      <span className={strong ? "shrink-0 font-bold text-black" : subtle ? "shrink-0 text-sm text-black/45" : "shrink-0 text-sm font-medium text-black"}>
+      <span className={strong ? "shrink-0 font-bold text-black text-[16px]" : subtle ? "shrink-0 text-sm text-black/45" : "shrink-0 text-sm font-medium text-black"}>
         {value}
       </span>
     </div>
