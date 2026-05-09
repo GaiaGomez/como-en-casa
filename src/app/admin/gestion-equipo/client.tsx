@@ -16,7 +16,6 @@ import {
   currentWorkWeek,
   employees as mockEmployees,
   formatCurrency,
-  getWeekLabel,
   getWorkDayLabel,
   getWorkDayShortLabel,
   tipWeeks,
@@ -136,11 +135,11 @@ const teamWeeks: TeamWeek[] = [
   },
 ];
 
-export function TeamManagementClient() {
+export function TeamManagementClient({ initialEmployees }: { initialEmployees: Employee[] }) {
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [team, setTeam] = useState<Employee[]>(mockEmployees);
+  const [team, setTeam] = useState<Employee[]>(initialEmployees);
   const [weekIndex, setWeekIndex] = useState(1);
   const [weeks, setWeeks] = useState<TeamWeek[]>(teamWeeks);
   const [activeTab, setActiveTab] = useState<TeamTab>("dias");
@@ -403,7 +402,7 @@ export function TeamManagementClient() {
                       <div key={employee.id} className="contents">
                         <div className="sticky left-0 z-10 flex min-h-8 min-w-0 items-center border-b border-black/[0.04] bg-white pr-1 lg:min-h-10 lg:border-black/[0.05]">
                           <p className="truncate text-[0.8rem] font-normal leading-5 text-black">
-                            {getEmployeeDisplayName(employee.name)}
+                            {getEmployeeDisplayName(employee.short_name ?? employee.name)}
                           </p>
                         </div>
                         {workWeek.map((day) => {

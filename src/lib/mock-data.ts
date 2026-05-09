@@ -7,6 +7,7 @@ export type PurchaseStatus = "pendiente";
 export type Employee = {
   id: string;
   name: string;
+  short_name?: string;
   role: EmployeeRole;
   phone: string;
   status: EmployeeStatus;

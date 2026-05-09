@@ -1,11 +1,13 @@
 import { Suspense } from "react";
 
+import { getEmployees } from "@/lib/supabase/employees";
 import { TeamManagementClient } from "./client";
 
-export default function TeamManagementPage() {
+export default async function TeamManagementPage() {
+  const employees = await getEmployees();
   return (
     <Suspense fallback={null}>
-      <TeamManagementClient />
+      <TeamManagementClient initialEmployees={employees} />
     </Suspense>
   );
 }
