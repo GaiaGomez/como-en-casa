@@ -16,7 +16,6 @@ import {
 import {
   addDays,
   currentWorkWeek,
-  employees as mockEmployees,
   formatCurrency,
   getWorkDayLabel,
   getWorkDayShortLabel,
@@ -49,7 +48,6 @@ const statusLabels: Record<string, string> = {
 
 const openTipWeek = tipWeeks.find((w) => w.status === "abierta") ?? tipWeeks[0];
 const closedTipWeek = tipWeeks.find((w) => w.status === "cerrada") ?? tipWeeks[1] ?? openTipWeek;
-const employeeIds = mockEmployees.map((employee) => employee.id);
 
 type TeamTab = "dias" | "propinas" | "gestion";
 
@@ -125,7 +123,7 @@ const teamWeeks: TeamWeek[] = [
     startDate: "2026-05-15",
     endDate: "2026-05-21",
     dailyTips: createDailyTips("2026-05-15", [242000, 154000, 138000, 149000, 157000, 166000, 225000]),
-    payments: Object.fromEntries(employeeIds.map((id) => [id, "pendiente" as PaymentStatus])),
+    payments: {},
     workWeek: createWorkWeek("2026-05-15", [
       { lilina: true, sandra: true, valeria: true, andrea: true, yamile: true, mildrey: true, yeral: true, huber: true, wilton: true },
       { lilina: true, sandra: false, valeria: true, andrea: true, yamile: false, mildrey: true, yeral: true, huber: true, wilton: false },
@@ -201,16 +199,19 @@ export function TeamManagementClient({
     () => team.filter((employee) => employee.status === "activo"),
     [team]
   );
-  const groupedActiveTeam = useMemo(
-    () =>
-      Object.fromEntries(
-        areaGroups.map((group) => [
-          group.role,
-          activeTeam.filter((employee) => employee.role === group.role),
-        ])
-      ) as Record<(typeof areaGroups)[number]["role"], Employee[]>,
-    [activeTeam]
-  );
+  const horarioGroups = useMemo(() => {
+    const knownOrder = areaGroups.map((g) => g.role as string);
+    const allRoles = [...new Set(activeTeam.map((e) => e.role))];
+    const sorted = [
+      ...knownOrder.filter((r) => allRoles.includes(r)),
+      ...allRoles.filter((r) => !knownOrder.includes(r)),
+    ];
+    return sorted.map((role) => ({
+      role,
+      label: roleLabels[role] ?? role,
+      employees: activeTeam.filter((e) => e.role === role),
+    }));
+  }, [activeTeam]);
   const currentWeek = weeks[weekIndex] ?? weeks[1];
   const workWeek = currentWeek.workWeek;
   const dailyTips = currentWeek.dailyTips;
@@ -234,30 +235,29 @@ export function TeamManagementClient({
   );
 
   const tipDistribution = useMemo(() => {
-    let assigned = 0;
-    const eligibleTeam = activeTeam.filter((employee) =>
-      workWeek.some((day) => day.worked[employee.id])
+    const workers = activeTeam.filter((e) =>
+      workWeek.some((day) => day.worked[e.id])
     );
-
-    return eligibleTeam.map((employee, index) => {
+    let assigned = 0;
+    const amountMap: Record<string, number> = {};
+    workers.forEach((employee, index) => {
       const daysWorked = workWeek.filter((day) => day.worked[employee.id]).length;
-      const isLast = index === eligibleTeam.length - 1;
+      const isLast = index === workers.length - 1;
       const amount =
         totalWorkedDays === 0
           ? 0
           : isLast
             ? weeklyTipTotal - assigned
             : Math.round((weeklyTipTotal * daysWorked) / totalWorkedDays);
-
       assigned += amount;
-
-      return {
-        employee,
-        daysWorked,
-        amount,
-        paymentStatus: currentWeek.payments[employee.id] ?? "pendiente",
-      };
+      amountMap[employee.id] = amount;
     });
+    return activeTeam.map((employee) => ({
+      employee,
+      daysWorked: workWeek.filter((day) => day.worked[employee.id]).length,
+      amount: amountMap[employee.id] ?? 0,
+      paymentStatus: currentWeek.payments[employee.id] ?? "pendiente",
+    }));
   }, [activeTeam, currentWeek.payments, totalWorkedDays, weeklyTipTotal, workWeek]);
 
   const displayedTipTotal = useMemo(
@@ -552,13 +552,9 @@ export function TeamManagementClient({
               ))}
               <div className="border-b border-l border-black/[0.04] lg:border-black/[0.06]" aria-hidden="true" />
 
-              {areaGroups.map((group) => {
-                const employees = groupedActiveTeam[group.role];
-                if (employees.length === 0) return null;
-
-                return (
+              {horarioGroups.map((group) => (
                   <div key={group.role} className="contents">
-                    {employees.map((employee) => (
+                    {group.employees.map((employee) => (
                       <div key={employee.id} className="contents">
                         <div className="sticky left-0 z-10 flex min-h-8 min-w-0 items-center border-b border-black/[0.04] bg-white pr-1 lg:min-h-10 lg:border-black/[0.05]">
                           <p className="truncate text-base font-medium leading-5 text-neutral-900">
@@ -595,8 +591,7 @@ export function TeamManagementClient({
                       </div>
                     ))}
                   </div>
-                );
-              })}
+              ))}
             </div>
           </div>
         </section>
