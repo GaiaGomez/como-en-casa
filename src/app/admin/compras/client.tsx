@@ -1,7 +1,7 @@
 "use client";
 
 import { type FormEvent, useMemo, useState } from "react";
-import { Check, Plus } from "lucide-react";
+import { Check, Plus, Trash2 } from "lucide-react";
 
 import {
   formatUnit,
@@ -10,6 +10,12 @@ import {
   manualShoppingItems,
   type ManualShoppingItem,
 } from "@/lib/mock-data";
+import { updateInventoryStock } from "@/lib/supabase/inventory-writes";
+import {
+  completeManualShoppingItem,
+  deleteManualShoppingItem,
+  insertManualShoppingItem,
+} from "@/lib/supabase/shopping-item-writes";
 
 type ShopItem = {
   id: string;
@@ -37,13 +43,19 @@ type PendingShopItem =
 
 type GroupBy = "category" | "supplier";
 
-export default function PurchasesPage() {
+export default function PurchasesPage({
+  initialManualItems = manualShoppingItems,
+  canDelete = false,
+}: {
+  initialManualItems?: ManualShoppingItem[];
+  canDelete?: boolean;
+}) {
   const [groupBy, setGroupBy] = useState<GroupBy>("category");
   const [stocks, setStocks] = useState<Record<string, number>>(
     () => Object.fromEntries(inventory.map((i) => [i.id, i.currentStock]))
   );
   const [manualItems, setManualItems] = useState<ManualShoppingItem[]>(
-    () => manualShoppingItems
+    () => initialManualItems
   );
   const [completedIds, setCompletedIds] = useState<Set<string>>(() => new Set());
 
@@ -89,17 +101,29 @@ export default function PurchasesPage() {
     [groupBy, items]
   );
 
-  function completeItem(item: PendingShopItem) {
+  async function completeItem(item: PendingShopItem) {
     setCompletedIds((current) => new Set(current).add(item.id));
 
     if (item.source === "inventory") {
       const inventoryItem = inventory.find((candidate) => candidate.id === item.id);
-      if (!inventoryItem) return;
-      setStocks((current) => ({ ...current, [item.id]: inventoryItem.idealStock }));
+      if (inventoryItem) {
+        setStocks((current) => ({ ...current, [item.id]: inventoryItem.idealStock }));
+        const saved = await updateInventoryStock(item.id, inventoryItem.idealStock);
+        if (!saved) alert("No se pudo guardar el stock en el servidor.");
+      }
+    } else {
+      const saved = await completeManualShoppingItem(item.id);
+      if (!saved) alert("No se pudo marcar el item como completado en el servidor.");
     }
   }
 
-  function addManualItem(event: FormEvent<HTMLFormElement>) {
+  async function deleteItem(id: string) {
+    setManualItems((current) => current.filter((i) => i.id !== id));
+    const deleted = await deleteManualShoppingItem(id);
+    if (!deleted) alert("No se pudo eliminar el item del servidor.");
+  }
+
+  async function addManualItem(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = event.currentTarget;
     const formData = new FormData(form);
@@ -110,18 +134,19 @@ export default function PurchasesPage() {
 
     if (!name || !unit || !Number.isFinite(quantity) || quantity <= 0) return;
 
+    const tempId = `manual-${Date.now()}`;
     setManualItems((current) => [
       ...current,
-      {
-        id: `manual-${Date.now()}`,
-        name,
-        quantity,
-        unit,
-        category: category || undefined,
-        status: "pendiente",
-      },
+      { id: tempId, name, quantity, unit, category: category || undefined, status: "pendiente" },
     ]);
     form.reset();
+
+    const realId = await insertManualShoppingItem({ name, quantity, unit, category: category || undefined });
+    if (realId) {
+      setManualItems((current) =>
+        current.map((i) => (i.id === tempId ? { ...i, id: realId } : i))
+      );
+    }
   }
 
   return (
@@ -155,31 +180,42 @@ export default function PurchasesPage() {
             <div className="overflow-hidden rounded-[20px] border border-black/10 bg-white">
               {groupItems.map((item) => {
                 return (
-	                  <div
-	                    key={item.id}
-	                    className="flex items-center gap-3 border-b border-black/[0.05] px-4 py-3 leading-5 last:border-b-0"
-	                  >
-	                    <button
-	                      type="button"
-	                      onClick={() => completeItem(item)}
-	                      aria-label={`Marcar ${item.name} como comprado`}
-	                      disabled={item.done}
-	                      className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full border transition-colors ${
-	                        item.done
-	                          ? "border-black bg-black text-white"
-	                          : "border-black/20 bg-white text-transparent hover:border-black/40"
-	                      }`}
-	                    >
-	                      <Check className="size-2.5 stroke-[3]" />
-	                    </button>
+                  <div
+                    key={item.id}
+                    className="flex items-center gap-3 border-b border-black/[0.05] px-4 py-3 leading-5 last:border-b-0"
+                  >
+                    <button
+                      type="button"
+                      onClick={() => completeItem(item)}
+                      aria-label={`Marcar ${item.name} como comprado`}
+                      disabled={item.done}
+                      className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full border transition-colors ${
+                        item.done
+                          ? "border-black bg-black text-white"
+                          : "border-black/20 bg-white text-transparent hover:border-black/40"
+                      }`}
+                    >
+                      <Check className="size-2.5 stroke-[3]" />
+                    </button>
 
-	                    <p className={`min-w-0 flex-1 truncate text-left text-base font-medium leading-5 ${item.done ? "text-neutral-400 line-through" : "text-neutral-900"}`}>
-	                      {item.name}
-	                    </p>
+                    <p className={`min-w-0 flex-1 truncate text-left text-base font-medium leading-5 ${item.done ? "text-neutral-400 line-through" : "text-neutral-900"}`}>
+                      {item.name}
+                    </p>
 
-	                    <span className={`shrink-0 text-sm font-normal ${item.done ? "text-neutral-400 line-through" : "text-neutral-400"}`}>
-	                      {item.buyQty} {formatUnit(item.unit)}
-	                    </span>
+                    <span className={`shrink-0 text-sm font-normal ${item.done ? "text-neutral-400 line-through" : "text-neutral-400"}`}>
+                      {item.buyQty} {formatUnit(item.unit)}
+                    </span>
+
+                    {canDelete && item.source === "manual" && (
+                      <button
+                        type="button"
+                        onClick={() => deleteItem(item.id)}
+                        aria-label={`Eliminar ${item.name}`}
+                        className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-neutral-300 transition-colors hover:text-red-500"
+                      >
+                        <Trash2 className="size-3.5" />
+                      </button>
+                    )}
                   </div>
                 );
               })}

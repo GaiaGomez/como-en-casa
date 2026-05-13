@@ -8,7 +8,7 @@ import {
   getStockLevel,
   type InventoryItem,
 } from "@/lib/mock-data";
-import { resetInventoryStock } from "@/lib/supabase/inventory-writes";
+import { resetInventoryStock, updateInventoryStock } from "@/lib/supabase/inventory-writes";
 
 function AutoResizeTextarea({
   value,
@@ -56,6 +56,7 @@ export default function InventoryClient({
   const [stocks, setStocks] = useState<Record<string, number>>(
     () => Object.fromEntries(initialItems.map((i) => [i.id, i.currentStock]))
   );
+  const pendingWrites = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
 
   const categories = useMemo(
     () => [...new Set(items.map((item) => item.category))],
@@ -81,6 +82,12 @@ export default function InventoryClient({
   function updateStock(id: string, raw: number) {
     const value = Number.isNaN(raw) ? 0 : Math.max(0, raw);
     setStocks((prev) => ({ ...prev, [id]: value }));
+
+    clearTimeout(pendingWrites.current[id]);
+    pendingWrites.current[id] = setTimeout(async () => {
+      const saved = await updateInventoryStock(id, value);
+      if (!saved) alert("No se pudo guardar el stock en el servidor.");
+    }, 700);
   }
 
   async function resetCurrentQuantities() {
@@ -89,6 +96,9 @@ export default function InventoryClient({
     );
 
     if (!confirmed) return;
+
+    Object.values(pendingWrites.current).forEach(clearTimeout);
+    pendingWrites.current = {};
 
     setStocks(Object.fromEntries(items.map((item) => [item.id, 0])));
 
