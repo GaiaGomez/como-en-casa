@@ -39,7 +39,7 @@ INSERT INTO employees (
   emergency_contact, emergency_phone, emergency_relation,
   internal_notes
 ) VALUES
-  ('lilina',  'Lilina',  'cocina',     '', true, '2026-01-01', 'Cocina',     'Pendiente', 'Pendiente', 'Pendiente', 'Pendiente', 'Pendiente', 'Pendiente', '', 'Pendiente', 'Tip eligible.'),
+  ('lilina',  'Liliana', 'cocina',     '', true, '2026-01-01', 'Cocina',     'Pendiente', 'Pendiente', 'Pendiente', 'Pendiente', 'Pendiente', 'Pendiente', '', 'Pendiente', 'Tip eligible.'),
   ('sandra',  'Sandra',  'cocina',     '', true, '2026-01-01', 'Cocina',     'Pendiente', 'Pendiente', 'Pendiente', 'Pendiente', 'Pendiente', 'Pendiente', '', 'Pendiente', 'Tip eligible.'),
   ('valeria', 'Valeria', 'cocina',     '', true, '2026-01-01', 'Cocina',     'Pendiente', 'Pendiente', 'Pendiente', 'Pendiente', 'Pendiente', 'Pendiente', '', 'Pendiente', 'Tip eligible.'),
   ('andrea',  'Andrea',  'estacion',   '', true, '2026-01-01', 'Estación',   'Pendiente', 'Pendiente', 'Pendiente', 'Pendiente', 'Pendiente', 'Pendiente', '', 'Pendiente', 'Tip eligible.'),
@@ -237,23 +237,23 @@ CREATE TABLE IF NOT EXISTS tip_weeks (
 
 INSERT INTO tip_weeks (id, label, start_date, end_date, total_tips, daily_tips, payments, work_days, status) VALUES
 (
-  'tips-2026-05-02',
-  'Semana 2 al 8 de mayo',
-  '2026-05-02',
+  'tips-2026-05-08',
+  'Semana del viernes 8 al jueves 14 de mayo',
   '2026-05-08',
+  '2026-05-14',
   1280000,
-  '{"2026-05-02":268000,"2026-05-03":162000,"2026-05-04":145000,"2026-05-05":158000,"2026-05-06":162000,"2026-05-07":175000,"2026-05-08":210000}',
+  '{"2026-05-08":268000,"2026-05-09":162000,"2026-05-10":145000,"2026-05-11":158000,"2026-05-12":162000,"2026-05-13":175000,"2026-05-14":210000}',
   '{"lilina":"pendiente","sandra":"pendiente","valeria":"pendiente","andrea":"pendiente","yamile":"pendiente","mildrey":"pendiente","yeral":"pendiente","huber":"pendiente","wilton":"pendiente"}',
-  '[{"date":"2026-05-02","worked":{"lilina":true,"sandra":true,"valeria":true,"andrea":true,"yamile":true,"mildrey":false,"yeral":true,"huber":true,"wilton":true}},{"date":"2026-05-03","worked":{"lilina":true,"sandra":false,"valeria":true,"andrea":true,"yamile":false,"mildrey":true,"yeral":true,"huber":true,"wilton":false}},{"date":"2026-05-04","worked":{"lilina":false,"sandra":true,"valeria":true,"andrea":true,"yamile":true,"mildrey":true,"yeral":false,"huber":true,"wilton":true}},{"date":"2026-05-05","worked":{"lilina":true,"sandra":true,"valeria":false,"andrea":false,"yamile":true,"mildrey":true,"yeral":true,"huber":true,"wilton":true}},{"date":"2026-05-06","worked":{"lilina":true,"sandra":true,"valeria":true,"andrea":true,"yamile":true,"mildrey":true,"yeral":true,"huber":false,"wilton":true}},{"date":"2026-05-07","worked":{"lilina":true,"sandra":true,"valeria":true,"andrea":true,"yamile":true,"mildrey":false,"yeral":true,"huber":true,"wilton":true}},{"date":"2026-05-08","worked":{"lilina":true,"sandra":false,"valeria":true,"andrea":true,"yamile":true,"mildrey":true,"yeral":false,"huber":true,"wilton":true}}]',
+  '[{"date":"2026-05-08","worked":{"lilina":true,"sandra":true,"valeria":true,"andrea":true,"yamile":true,"mildrey":false,"yeral":true,"huber":true,"wilton":true}},{"date":"2026-05-09","worked":{"lilina":true,"sandra":false,"valeria":true,"andrea":true,"yamile":false,"mildrey":true,"yeral":true,"huber":true,"wilton":false}},{"date":"2026-05-10","worked":{"lilina":false,"sandra":true,"valeria":true,"andrea":true,"yamile":true,"mildrey":true,"yeral":false,"huber":true,"wilton":true}},{"date":"2026-05-11","worked":{"lilina":true,"sandra":true,"valeria":false,"andrea":false,"yamile":true,"mildrey":true,"yeral":true,"huber":true,"wilton":true}},{"date":"2026-05-12","worked":{"lilina":true,"sandra":true,"valeria":true,"andrea":true,"yamile":true,"mildrey":true,"yeral":true,"huber":false,"wilton":true}},{"date":"2026-05-13","worked":{"lilina":true,"sandra":true,"valeria":true,"andrea":true,"yamile":true,"mildrey":false,"yeral":true,"huber":true,"wilton":true}},{"date":"2026-05-14","worked":{"lilina":true,"sandra":false,"valeria":true,"andrea":true,"yamile":true,"mildrey":true,"yeral":false,"huber":true,"wilton":true}}]',
   'abierta'
 ),
 (
-  'tips-2026-04-25',
-  'Semana 25 de abril al 1 de mayo',
-  '2026-04-25',
+  'tips-2026-05-01',
+  'Semana del viernes 1 al jueves 7 de mayo',
   '2026-05-01',
+  '2026-05-07',
   1165000,
-  '{"2026-04-25":260000,"2026-04-26":152000,"2026-04-27":120000,"2026-04-28":135000,"2026-04-29":142000,"2026-04-30":151000,"2026-05-01":205000}',
+  '{"2026-05-01":260000,"2026-05-02":152000,"2026-05-03":120000,"2026-05-04":135000,"2026-05-05":142000,"2026-05-06":151000,"2026-05-07":205000}',
   '{"lilina":"pagado","sandra":"pagado","valeria":"pagado","andrea":"pagado","yamile":"pagado","mildrey":"pagado","yeral":"pagado","huber":"pagado","wilton":"pagado"}',
   '[]',
   'cerrada'

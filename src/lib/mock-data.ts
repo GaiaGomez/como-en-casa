@@ -76,7 +76,7 @@ export const cafeInfo = {
 export const employees: Employee[] = [
   {
     id: "lilina",
-    name: "Lilina",
+    name: "Liliana",
     role: "cocina",
     phone: "",
     status: "activo",
@@ -240,64 +240,64 @@ export const employees: Employee[] = [
 
 export const currentWorkWeek: WorkDay[] = [
   {
-    date: "2026-05-02",
-    label: "Sábado",
-    shortLabel: "Sáb 02/05",
-    worked: { lilina: true, sandra: true, valeria: true, andrea: true, yamile: true, mildrey: false, yeral: true, huber: true, wilton: true },
-  },
-  {
-    date: "2026-05-03",
-    label: "Domingo",
-    shortLabel: "Dom 03/05",
-    worked: { lilina: true, sandra: false, valeria: true, andrea: true, yamile: false, mildrey: true, yeral: true, huber: true, wilton: false },
-  },
-  {
-    date: "2026-05-04",
-    label: "Lunes",
-    shortLabel: "Lun 04/05",
-    worked: { lilina: false, sandra: true, valeria: true, andrea: true, yamile: true, mildrey: true, yeral: false, huber: true, wilton: true },
-  },
-  {
-    date: "2026-05-05",
-    label: "Martes",
-    shortLabel: "Mar 05/05",
-    worked: { lilina: true, sandra: true, valeria: false, andrea: false, yamile: true, mildrey: true, yeral: true, huber: true, wilton: true },
-  },
-  {
-    date: "2026-05-06",
-    label: "Miércoles",
-    shortLabel: "Mié 06/05",
-    worked: { lilina: true, sandra: true, valeria: true, andrea: true, yamile: true, mildrey: true, yeral: true, huber: false, wilton: true },
-  },
-  {
-    date: "2026-05-07",
-    label: "Jueves",
-    shortLabel: "Jue 07/05",
-    worked: { lilina: true, sandra: true, valeria: true, andrea: true, yamile: true, mildrey: false, yeral: true, huber: true, wilton: true },
-  },
-  {
     date: "2026-05-08",
     label: "Viernes",
     shortLabel: "Vie 08/05",
+    worked: { lilina: true, sandra: true, valeria: true, andrea: true, yamile: true, mildrey: false, yeral: true, huber: true, wilton: true },
+  },
+  {
+    date: "2026-05-09",
+    label: "Sábado",
+    shortLabel: "Sáb 09/05",
+    worked: { lilina: true, sandra: false, valeria: true, andrea: true, yamile: false, mildrey: true, yeral: true, huber: true, wilton: false },
+  },
+  {
+    date: "2026-05-10",
+    label: "Domingo",
+    shortLabel: "Dom 10/05",
+    worked: { lilina: false, sandra: true, valeria: true, andrea: true, yamile: true, mildrey: true, yeral: false, huber: true, wilton: true },
+  },
+  {
+    date: "2026-05-11",
+    label: "Lunes",
+    shortLabel: "Lun 11/05",
+    worked: { lilina: true, sandra: true, valeria: false, andrea: false, yamile: true, mildrey: true, yeral: true, huber: true, wilton: true },
+  },
+  {
+    date: "2026-05-12",
+    label: "Martes",
+    shortLabel: "Mar 12/05",
+    worked: { lilina: true, sandra: true, valeria: true, andrea: true, yamile: true, mildrey: true, yeral: true, huber: false, wilton: true },
+  },
+  {
+    date: "2026-05-13",
+    label: "Miércoles",
+    shortLabel: "Mié 13/05",
+    worked: { lilina: true, sandra: true, valeria: true, andrea: true, yamile: true, mildrey: false, yeral: true, huber: true, wilton: true },
+  },
+  {
+    date: "2026-05-14",
+    label: "Jueves",
+    shortLabel: "Jue 14/05",
     worked: { lilina: true, sandra: false, valeria: true, andrea: true, yamile: true, mildrey: true, yeral: false, huber: true, wilton: true },
   },
 ];
 
 export const tipWeeks: TipWeek[] = [
   {
-    id: "tips-2026-05-02",
-    label: "Semana 2 al 8 de mayo",
-    startDate: "2026-05-02",
-    endDate: "2026-05-08",
+    id: "tips-2026-05-08",
+    label: "Semana del viernes 8 al jueves 14 de mayo",
+    startDate: "2026-05-08",
+    endDate: "2026-05-14",
     totalTips: 1280000,
     dailyTips: {
-      "2026-05-02": 268000,
-      "2026-05-03": 162000,
-      "2026-05-04": 145000,
-      "2026-05-05": 158000,
-      "2026-05-06": 162000,
-      "2026-05-07": 175000,
-      "2026-05-08": 210000,
+      "2026-05-08": 268000,
+      "2026-05-09": 162000,
+      "2026-05-10": 145000,
+      "2026-05-11": 158000,
+      "2026-05-12": 162000,
+      "2026-05-13": 175000,
+      "2026-05-14": 210000,
     },
     status: "abierta",
     payments: {
@@ -313,19 +313,19 @@ export const tipWeeks: TipWeek[] = [
     },
   },
   {
-    id: "tips-2026-04-25",
-    label: "Semana 25 de abril al 1 de mayo",
-    startDate: "2026-04-25",
-    endDate: "2026-05-01",
+    id: "tips-2026-05-01",
+    label: "Semana del viernes 1 al jueves 7 de mayo",
+    startDate: "2026-05-01",
+    endDate: "2026-05-07",
     totalTips: 1165000,
     dailyTips: {
-      "2026-04-25": 260000,
-      "2026-04-26": 152000,
-      "2026-04-27": 120000,
-      "2026-04-28": 135000,
-      "2026-04-29": 142000,
-      "2026-04-30": 151000,
-      "2026-05-01": 205000,
+      "2026-05-01": 260000,
+      "2026-05-02": 152000,
+      "2026-05-03": 120000,
+      "2026-05-04": 135000,
+      "2026-05-05": 142000,
+      "2026-05-06": 151000,
+      "2026-05-07": 205000,
     },
     status: "cerrada",
     payments: {
@@ -469,14 +469,14 @@ export function addDays(dateStr: string, days: number) {
   return date.toISOString().slice(0, 10);
 }
 
-export function getSaturdayWeekStart(dateStr: string) {
+export function getFridayWeekStart(dateStr: string) {
   const date = new Date(`${dateStr}T00:00:00`);
-  const daysSinceSaturday = (date.getDay() + 1) % 7;
-  date.setDate(date.getDate() - daysSinceSaturday);
+  const daysSinceFriday = (date.getDay() + 2) % 7;
+  date.setDate(date.getDate() - daysSinceFriday);
   return date.toISOString().slice(0, 10);
 }
 
-export function getFridayWeekEnd(startDate: string) {
+export function getThursdayWeekEnd(startDate: string) {
   return addDays(startDate, 6);
 }
 
@@ -484,13 +484,24 @@ export function getWeekDateRange(startDate: string) {
   return Array.from({ length: 7 }, (_, index) => addDays(startDate, index));
 }
 
-export function getWeekLabel(startDate: string, endDate = getFridayWeekEnd(startDate)) {
-  const formatter = new Intl.DateTimeFormat("es-CO", {
-    day: "numeric",
-    month: "long",
-  });
+export function getWeekLabel(startDate: string, endDate = getThursdayWeekEnd(startDate)) {
+  const start = new Date(`${startDate}T00:00:00`);
+  const end = new Date(`${endDate}T00:00:00`);
+  const monthFormatter = new Intl.DateTimeFormat("es-CO", { month: "long" });
+  const startMonth = monthFormatter.format(start);
+  const endMonth = monthFormatter.format(end);
+  const startYear = start.getFullYear();
+  const endYear = end.getFullYear();
 
-  return `${formatter.format(new Date(`${startDate}T00:00:00`))} al ${formatter.format(new Date(`${endDate}T00:00:00`))}`;
+  if (startYear !== endYear) {
+    return `Semana del viernes ${start.getDate()} de ${startMonth} de ${startYear} al jueves ${end.getDate()} de ${endMonth} de ${endYear}`;
+  }
+
+  if (startMonth !== endMonth) {
+    return `Semana del viernes ${start.getDate()} de ${startMonth} al jueves ${end.getDate()} de ${endMonth}`;
+  }
+
+  return `Semana del viernes ${start.getDate()} al jueves ${end.getDate()} de ${endMonth}`;
 }
 
 export function getWorkDayLabel(dateStr: string) {

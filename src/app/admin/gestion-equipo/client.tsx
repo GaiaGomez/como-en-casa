@@ -118,12 +118,12 @@ const teamWeeks: TeamWeek[] = [
     workWeek: currentWorkWeek,
   },
   {
-    id: "tips-2026-05-09",
-    startDate: "2026-05-09",
-    endDate: "2026-05-15",
-    dailyTips: createDailyTips("2026-05-09", [242000, 154000, 138000, 149000, 157000, 166000, 225000]),
+    id: "tips-2026-05-15",
+    startDate: "2026-05-15",
+    endDate: "2026-05-21",
+    dailyTips: createDailyTips("2026-05-15", [242000, 154000, 138000, 149000, 157000, 166000, 225000]),
     payments: Object.fromEntries(employeeIds.map((id) => [id, "pendiente" as PaymentStatus])),
-    workWeek: createWorkWeek("2026-05-09", [
+    workWeek: createWorkWeek("2026-05-15", [
       { lilina: true, sandra: true, valeria: true, andrea: true, yamile: true, mildrey: true, yeral: true, huber: true, wilton: true },
       { lilina: true, sandra: false, valeria: true, andrea: true, yamile: false, mildrey: true, yeral: true, huber: true, wilton: false },
       { lilina: true, sandra: true, valeria: true, andrea: true, yamile: true, mildrey: false, yeral: false, huber: true, wilton: true },
@@ -172,12 +172,12 @@ export function TeamManagementClient({ initialEmployees }: { initialEmployees: E
   const weekRange = getCompactWeekLabel(currentWeek.startDate, currentWeek.endDate);
 
   const dailyTipRows = useMemo(
-    () => Object.entries(dailyTips).sort(([a], [b]) => a.localeCompare(b)),
-    [dailyTips]
+    () => workWeek.map((day) => [day.date, dailyTips[day.date] ?? 0] as const),
+    [dailyTips, workWeek]
   );
   const weeklyTipTotal = useMemo(
-    () => Object.values(dailyTips).reduce((total, amount) => total + amount, 0),
-    [dailyTips]
+    () => dailyTipRows.reduce((total, [, amount]) => total + amount, 0),
+    [dailyTipRows]
   );
 
   const totalWorkedDays = useMemo(
@@ -442,11 +442,11 @@ export function TeamManagementClient({ initialEmployees }: { initialEmployees: E
       ) : activeTab === "propinas" ? (
         <section className="space-y-3 lg:mx-auto lg:max-w-2xl">
           <div className="panel overflow-hidden rounded-[20px]">
-            {dailyTipRows.map(([date]) => (
+            {dailyTipRows.map(([date, value]) => (
               <TipInputRow
                 key={date}
                 label={getDayLabel(date)}
-                value={dailyTips[date] ?? 0}
+                value={value}
                 onChange={(value) => updateDailyTip(date, value)}
               />
             ))}
@@ -677,12 +677,12 @@ function getCompactWeekLabel(startDate: string, endDate: string) {
   const endYear = end.getFullYear();
 
   if (startYear !== endYear) {
-    return `Del ${startDay} de ${startMonth} de ${startYear} al ${endDay} de ${endMonth} de ${endYear}`;
+    return `Semana del viernes ${startDay} de ${startMonth} de ${startYear} al jueves ${endDay} de ${endMonth} de ${endYear}`;
   }
 
   if (startMonth !== endMonth) {
-    return `Del ${startDay} de ${startMonth} al ${endDay} de ${endMonth}`;
+    return `Semana del viernes ${startDay} de ${startMonth} al jueves ${endDay} de ${endMonth}`;
   }
 
-  return `Del ${startDay} al ${endDay} de ${endMonth}`;
+  return `Semana del viernes ${startDay} al jueves ${endDay} de ${endMonth}`;
 }
