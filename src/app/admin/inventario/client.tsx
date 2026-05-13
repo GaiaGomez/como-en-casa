@@ -2,7 +2,6 @@
 
 import { Fragment, useLayoutEffect, useMemo, useRef, useState } from "react";
 
-import { PageHeader } from "@/components/admin/page-header";
 import {
   getBuyQty,
   getStockLevel,
@@ -86,12 +85,6 @@ export default function InventoryClient({ initialItems }: { initialItems: Invent
 
   return (
     <section className="w-full lg:mx-auto lg:max-w-5xl xl:max-w-6xl">
-      <PageHeader
-        eyebrow="Operación"
-        title="Inventario"
-        meta={`${criticalCount} críticos · ${toBuyCount} por comprar`}
-      />
-
       <div className="mb-4 grid grid-cols-2 gap-2">
         <div className="rounded-[18px] border border-white/10 bg-white/[0.04] px-4 py-3">
           <p className="text-[0.65rem] font-semibold uppercase tracking-widest text-white/35">Críticos</p>

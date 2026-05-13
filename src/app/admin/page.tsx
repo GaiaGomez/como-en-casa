@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { Box, CalendarDays, HandCoins, ShoppingCart } from "lucide-react";
 
-import { PageHeader } from "@/components/admin/page-header";
 import {
   currentWorkWeek,
   getBuyQty,
@@ -20,8 +19,6 @@ const pendingShoppingCount = toBuyCount + pendingManualCount;
 export default function AdminDashboardPage() {
   return (
     <section className="w-full space-y-3 lg:mx-auto lg:max-w-5xl lg:space-y-4 xl:max-w-6xl">
-      <PageHeader eyebrow="Inicio" title="Como en Casa" meta={weekLabel} />
-
       {/* Semana */}
       <article className="panel flex items-center justify-between rounded-[20px] px-4 py-3">
         <p className="text-[0.65rem] font-medium uppercase tracking-widest text-black/40">Semana</p>

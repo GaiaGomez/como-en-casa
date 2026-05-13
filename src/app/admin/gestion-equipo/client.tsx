@@ -4,7 +4,6 @@ import { type FormEvent, useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Check, Pencil, Plus } from "lucide-react";
 
-import { PageHeader } from "@/components/admin/page-header";
 import {
   Dialog,
   DialogContent,
@@ -331,8 +330,6 @@ export function TeamManagementClient({ initialEmployees }: { initialEmployees: E
 
   return (
     <section className="w-full lg:mx-auto lg:max-w-5xl xl:max-w-6xl">
-      <PageHeader eyebrow="Equipo" title="Gestión equipo" />
-
       <div className="mb-3 flex items-center justify-between gap-2 rounded-[16px] border border-white/10 bg-white/[0.03] p-1">
         <button
           type="button"

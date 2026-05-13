@@ -3,7 +3,6 @@
 import { type FormEvent, useMemo, useState } from "react";
 import { Check, Plus } from "lucide-react";
 
-import { PageHeader } from "@/components/admin/page-header";
 import {
   getBuyQty,
   inventory,
@@ -126,8 +125,6 @@ export default function PurchasesPage() {
 
   return (
     <section className="w-full lg:mx-auto lg:max-w-4xl xl:max-w-5xl">
-      <PageHeader eyebrow="Operación" title="Compras" meta={`${items.length} pendientes`} />
-
       <div className="mb-3 grid grid-cols-2 gap-1.5 rounded-[18px] border border-white/10 bg-white/[0.03] p-1.5">
         {(["category", "supplier"] as const).map((mode) => (
           <button
