@@ -1,22 +1,21 @@
 import Link from "next/link";
 import { Box, CalendarDays, HandCoins, ShoppingCart } from "lucide-react";
 
-import {
-  currentWorkWeek,
-  getBuyQty,
-  getStockLevel,
-  getWeekLabel,
-  inventory,
-  manualShoppingItems,
-} from "@/lib/mock-data";
+import { currentWorkWeek, getBuyQty, getStockLevel, getWeekLabel } from "@/lib/mock-data";
+import { getInventory } from "@/lib/supabase/inventory";
+import { getManualShoppingItems } from "@/lib/supabase/shopping-items";
 
-const weekLabel = getWeekLabel(currentWorkWeek[0].date, currentWorkWeek[currentWorkWeek.length - 1].date);
-const criticalCount = inventory.filter((i) => getStockLevel(i) === "crítico").length;
-const toBuyCount = inventory.filter((i) => getBuyQty(i) > 0).length;
-const pendingManualCount = manualShoppingItems.filter((item) => item.status === "pendiente").length;
-const pendingShoppingCount = toBuyCount + pendingManualCount;
+export default async function AdminDashboardPage() {
+  const [inventoryItems, manualItems] = await Promise.all([
+    getInventory(),
+    getManualShoppingItems(),
+  ]);
 
-export default function AdminDashboardPage() {
+  const weekLabel = getWeekLabel(currentWorkWeek[0].date, currentWorkWeek[currentWorkWeek.length - 1].date);
+  const criticalCount = inventoryItems.filter((i) => getStockLevel(i) === "crítico").length;
+  const toBuyCount = inventoryItems.filter((i) => getBuyQty(i) > 0).length;
+  const pendingShoppingCount = toBuyCount + manualItems.length;
+
   return (
     <section className="w-full space-y-3 lg:mx-auto lg:max-w-5xl lg:space-y-4 xl:max-w-6xl">
       {/* Semana */}

@@ -33,9 +33,8 @@ export async function getInventory(): Promise<InventoryItem[]> {
     .order("category")
     .order("name");
 
-  if (error || !data || data.length === 0) {
-    return mockInventory;
-  }
+  if (error) return mockInventory;
+  if (!data || data.length === 0) return [];
 
   return (data as SupabaseInventoryRow[]).map(mapRow);
 }

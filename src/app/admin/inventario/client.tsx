@@ -8,7 +8,7 @@ import {
   getStockLevel,
   type InventoryItem,
 } from "@/lib/mock-data";
-import { resetInventoryStock, updateInventoryStock } from "@/lib/supabase/inventory-writes";
+import { resetInventoryStock, updateInventoryItem, updateInventoryStock } from "@/lib/supabase/inventory-writes";
 
 function AutoResizeTextarea({
   value,
@@ -61,6 +61,7 @@ export default function InventoryClient({
     () => Object.fromEntries(initialItems.map((i) => [i.id, i.currentStock]))
   );
   const pendingWrites = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
+  const pendingFieldWrites = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
 
   const categories = useMemo(
     () => [...new Set(items.map((item) => item.category))],
@@ -70,19 +71,22 @@ export default function InventoryClient({
   function updateItemField(id: string, field: Exclude<keyof InventoryItem, "currentStock">, value: string | number | undefined) {
     if (field === "idealStock" && !canEditIdealStock) return;
     if (field === "name" && !canEditName) return;
+    const normalized = field === "idealStock" ? Math.max(0, Number(value ?? 0)) : String(value ?? "");
     setItems((current) =>
       current.map((item) =>
-        item.id === id
-          ? {
-              ...item,
-              [field]:
-                field === "idealStock"
-                  ? Math.max(0, Number(value ?? 0))
-                  : String(value ?? ""),
-            }
-          : item
+        item.id === id ? { ...item, [field]: normalized } : item
       )
     );
+
+    const writeKey = `${id}:${field}`;
+    clearTimeout(pendingFieldWrites.current[writeKey]);
+    pendingFieldWrites.current[writeKey] = setTimeout(async () => {
+      const saved = await updateInventoryItem(
+        id,
+        field === "idealStock" ? { idealStock: normalized as number } : { name: normalized as string }
+      );
+      if (!saved) alert("No se pudo guardar el cambio en el servidor.");
+    }, 700);
   }
 
   function updateStock(id: string, raw: number) {

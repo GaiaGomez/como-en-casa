@@ -14,7 +14,7 @@ type SupabaseEmployeeRow = {
 
 function mapRow(row: SupabaseEmployeeRow): Employee {
   return {
-    id: row.local_key ?? row.id,
+    id: row.id,
     name: row.name,
     short_name: row.short_name ?? undefined,
     role: row.role,
@@ -44,9 +44,8 @@ export async function getEmployees(): Promise<Employee[]> {
     .eq("active", true)
     .order("name");
 
-  if (error || !data || data.length === 0) {
-    return mockEmployees;
-  }
+  if (error) return mockEmployees;
+  if (!data || data.length === 0) return [];
 
   return (data as SupabaseEmployeeRow[]).map(mapRow);
 }

@@ -6,8 +6,7 @@ import { Check, Plus, Trash2 } from "lucide-react";
 import {
   formatUnit,
   getBuyQty,
-  inventory,
-  manualShoppingItems,
+  type InventoryItem,
   type ManualShoppingItem,
 } from "@/lib/mock-data";
 import { updateInventoryStock } from "@/lib/supabase/inventory-writes";
@@ -44,19 +43,21 @@ type PendingShopItem =
 type GroupBy = "category" | "supplier";
 
 export default function PurchasesPage({
-  initialManualItems = manualShoppingItems,
+  initialManualItems = [],
+  initialInventory = [],
   canDelete = false,
   canAdd = true,
   canMarkBought = true,
 }: {
   initialManualItems?: ManualShoppingItem[];
+  initialInventory?: InventoryItem[];
   canDelete?: boolean;
   canAdd?: boolean;
   canMarkBought?: boolean;
 }) {
   const [groupBy, setGroupBy] = useState<GroupBy>("category");
   const [stocks, setStocks] = useState<Record<string, number>>(
-    () => Object.fromEntries(inventory.map((i) => [i.id, i.currentStock]))
+    () => Object.fromEntries(initialInventory.map((i) => [i.id, i.currentStock]))
   );
   const [manualItems, setManualItems] = useState<ManualShoppingItem[]>(
     () => initialManualItems
@@ -65,7 +66,7 @@ export default function PurchasesPage({
 
   const inventoryItems = useMemo<ShopItem[]>(
     () =>
-      inventory
+      initialInventory
         .map((item) => ({ ...item, currentStock: stocks[item.id] ?? item.currentStock }))
         .filter((item) => getBuyQty(item) > 0 || completedIds.has(item.id))
         .map((item) => ({
@@ -78,7 +79,7 @@ export default function PurchasesPage({
           source: "inventory" as const,
           done: completedIds.has(item.id),
         })),
-    [completedIds, stocks]
+    [completedIds, initialInventory, stocks]
   );
 
   const items = useMemo<PendingShopItem[]>(
@@ -110,7 +111,7 @@ export default function PurchasesPage({
     setCompletedIds((current) => new Set(current).add(item.id));
 
     if (item.source === "inventory") {
-      const inventoryItem = inventory.find((candidate) => candidate.id === item.id);
+      const inventoryItem = initialInventory.find((candidate) => candidate.id === item.id);
       if (inventoryItem) {
         setStocks((current) => ({ ...current, [item.id]: inventoryItem.idealStock }));
         const saved = await updateInventoryStock(item.id, inventoryItem.idealStock);

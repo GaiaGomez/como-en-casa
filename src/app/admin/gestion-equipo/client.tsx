@@ -1,10 +1,11 @@
 "use client";
 
-import { type FormEvent, useEffect, useMemo, useState } from "react";
+import { type FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Check, Pencil, Plus, Trash2 } from "lucide-react";
 
-import { softDeleteEmployee } from "@/lib/supabase/employee-writes";
+import { insertEmployee, softDeleteEmployee, updateEmployee } from "@/lib/supabase/employee-writes";
+import { ensureTipWeek, upsertDailyTip, upsertWorkDay } from "@/lib/supabase/tip-writes";
 
 import {
   Dialog,
@@ -22,6 +23,7 @@ import {
   tipWeeks,
   type Employee,
   type PaymentStatus,
+  type TipWeekData,
   type WorkDay,
 } from "@/lib/mock-data";
 
@@ -136,13 +138,35 @@ const teamWeeks: TeamWeek[] = [
   },
 ];
 
+function tipWeekDataToTeamWeek(data: TipWeekData): TeamWeek {
+  const workWeek: WorkDay[] = Array.from({ length: 7 }, (_, i) => {
+    const date = addDays(data.startDate, i);
+    return {
+      date,
+      label: getWorkDayLabel(date),
+      shortLabel: getWorkDayShortLabel(date),
+      worked: data.schedule[date] ?? {},
+    };
+  });
+  return {
+    id: data.id || data.startDate,
+    startDate: data.startDate,
+    endDate: data.endDate,
+    dailyTips: data.dailyTips,
+    payments: data.payments,
+    workWeek,
+  };
+}
+
 export function TeamManagementClient({
   initialEmployees,
+  initialWeeks = [],
   canEditHorario = true,
   canEditPropinas = true,
   canEditEquipo = true,
 }: {
   initialEmployees: Employee[];
+  initialWeeks?: TipWeekData[];
   canEditHorario?: boolean;
   canEditPropinas?: boolean;
   canEditEquipo?: boolean;
@@ -151,8 +175,18 @@ export function TeamManagementClient({
   const router = useRouter();
   const searchParams = useSearchParams();
   const [team, setTeam] = useState<Employee[]>(initialEmployees);
-  const [weekIndex, setWeekIndex] = useState(1);
-  const [weeks, setWeeks] = useState<TeamWeek[]>(teamWeeks);
+  const [weekIndex, setWeekIndex] = useState(() =>
+    initialWeeks.length > 0 ? initialWeeks.length - 1 : 1
+  );
+  const [weeks, setWeeks] = useState<TeamWeek[]>(() =>
+    initialWeeks.length > 0 ? initialWeeks.map(tipWeekDataToTeamWeek) : teamWeeks
+  );
+  const weekDbIds = useRef<Record<string, string>>(
+    Object.fromEntries(
+      initialWeeks.filter((w) => w.id).map((w) => [w.startDate, w.id])
+    )
+  );
+  const pendingTipWrites = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
   const [activeTab, setActiveTab] = useState<TeamTab>("dias");
   const [dialogMode, setDialogMode] = useState<"add" | "edit">("add");
   const [dialogEmployee, setDialogEmployee] = useState<Employee | null>(null);
@@ -231,33 +265,65 @@ export function TeamManagementClient({
     [tipDistribution]
   );
 
-  function toggleWorked(employeeId: string, date: string) {
+  async function toggleWorked(employeeId: string, date: string) {
     if (!canEditHorario) return;
+
+    const week = weeks[weekIndex];
+    if (!week) return;
+    const currentWorked = week.workWeek.find((d) => d.date === date)?.worked[employeeId] ?? false;
+    const newWorked = !currentWorked;
+
     setWeeks((current) =>
-      current.map((week, index) =>
-        index === weekIndex
+      current.map((w, i) =>
+        i === weekIndex
           ? {
-              ...week,
-              workWeek: week.workWeek.map((day) =>
+              ...w,
+              workWeek: w.workWeek.map((day) =>
                 day.date === date
-                  ? { ...day, worked: { ...day.worked, [employeeId]: !day.worked[employeeId] } }
+                  ? { ...day, worked: { ...day.worked, [employeeId]: newWorked } }
                   : day
               ),
             }
-          : week
+          : w
       )
     );
+
+    let dbId = weekDbIds.current[week.startDate];
+    if (!dbId) {
+      const created = await ensureTipWeek(week.startDate, week.endDate);
+      if (!created) { alert("No se pudo guardar el cambio en el servidor."); return; }
+      weekDbIds.current[week.startDate] = created;
+      dbId = created;
+    }
+    const saved = await upsertWorkDay(dbId, employeeId, date, newWorked);
+    if (!saved) alert("No se pudo guardar el cambio en el servidor.");
   }
 
   function updateDailyTip(date: string, value: number) {
     if (!canEditPropinas) return;
+
+    const week = weeks[weekIndex];
+    if (!week) return;
+
     setWeeks((current) =>
-      current.map((week, index) =>
-        index === weekIndex
-          ? { ...week, dailyTips: { ...week.dailyTips, [date]: value } }
-          : week
+      current.map((w, i) =>
+        i === weekIndex ? { ...w, dailyTips: { ...w.dailyTips, [date]: value } } : w
       )
     );
+
+    const writeKey = `${week.startDate}:${date}`;
+    clearTimeout(pendingTipWrites.current[writeKey]);
+    pendingTipWrites.current[writeKey] = setTimeout(async () => {
+      let dbId = weekDbIds.current[week.startDate];
+      if (!dbId) {
+        const created = await ensureTipWeek(week.startDate, week.endDate);
+        if (!created) { alert("No se pudo guardar el cambio en el servidor."); return; }
+        weekDbIds.current[week.startDate] = created;
+        dbId = created;
+      }
+      const saved = await upsertDailyTip(dbId, date, value);
+      if (!saved) alert("No se pudo guardar el cambio en el servidor.");
+    }, 700);
   }
 
   function selectTab(tab: TeamTab) {
@@ -282,7 +348,7 @@ export function TeamManagementClient({
     setIsDialogOpen(true);
   }
 
-  function handleEmployeeSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleEmployeeSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!canEditEquipo) return;
     const formData = new FormData(event.currentTarget);
@@ -326,18 +392,19 @@ export function TeamManagementClient({
         )
       );
       setIsDialogOpen(false);
+      const saved = await updateEmployee(dialogEmployee.id, {
+        name,
+        role,
+        phone: phone || undefined,
+        active: status === "activo",
+      });
+      if (!saved) alert("No se pudo guardar el cambio en el servidor.");
       return;
     }
 
-    const id = name
-      .toLowerCase()
-      .normalize("NFD")
-      .replace(/[̀-ͯ]/g, "")
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/(^-|-$)/g, "");
-
+    const tempId = `temp-${Date.now()}`;
     const employee: Employee = {
-      id: `${id || "empleado"}-${Date.now()}`,
+      id: tempId,
       name,
       role,
       phone,
@@ -364,12 +431,32 @@ export function TeamManagementClient({
         ...week,
         workWeek: week.workWeek.map((day) => ({
           ...day,
-          worked: { ...day.worked, [employee.id]: false },
+          worked: { ...day.worked, [tempId]: false },
         })),
       }))
     );
     setIsDialogOpen(false);
     event.currentTarget.reset();
+
+    const realId = await insertEmployee({ name, role, phone: phone || undefined });
+    if (realId) {
+      setTeam((current) =>
+        current.map((e) => (e.id === tempId ? { ...e, id: realId } : e))
+      );
+      setWeeks((current) =>
+        current.map((week) => ({
+          ...week,
+          workWeek: week.workWeek.map((day) => {
+            const worked = { ...day.worked };
+            worked[realId] = worked[tempId] ?? false;
+            delete worked[tempId];
+            return { ...day, worked };
+          }),
+        }))
+      );
+    } else {
+      alert("No se pudo guardar el empleado en el servidor. Recarga para ver el estado real.");
+    }
   }
 
   async function deleteEmployee(employee: Employee) {

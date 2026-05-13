@@ -45,6 +45,16 @@ export type TipWeek = {
   payments: Record<string, PaymentStatus>;
 };
 
+export type TipWeekData = {
+  id: string;
+  startDate: string;
+  endDate: string;
+  status: TipStatus;
+  dailyTips: Record<string, number>;
+  payments: Record<string, PaymentStatus>;
+  schedule: Record<string, Record<string, boolean>>;
+};
+
 export type TipDistribution = {
   employee: Employee;
   daysWorked: number;
