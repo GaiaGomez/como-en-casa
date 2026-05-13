@@ -36,10 +36,20 @@ export async function proxy(request: NextRequest) {
 
   const { pathname } = request.nextUrl;
 
+  // Resolve role from profiles table (not user_metadata)
+  let role = "employee";
+  if (user) {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id)
+      .single();
+    role = profile?.role ?? "employee";
+  }
+
   // /login: redirect authenticated users to their portal
   if (pathname === "/login") {
     if (user) {
-      const role = user.user_metadata?.role ?? "employee";
       return NextResponse.redirect(
         new URL(role === "admin" ? "/admin" : "/empleado", request.url)
       );
@@ -51,8 +61,6 @@ export async function proxy(request: NextRequest) {
   if (!user) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
-
-  const role = user.user_metadata?.role ?? "employee";
 
   // Employees cannot access /admin/*
   if (pathname.startsWith("/admin") && role !== "admin") {

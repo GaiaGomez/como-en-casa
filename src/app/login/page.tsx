@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Coffee, LockKeyhole } from "lucide-react";
 
-import { signIn } from "@/lib/supabase/auth-browser";
+import { signIn, getUserRole } from "@/lib/supabase/auth-browser";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -23,12 +23,13 @@ export default function LoginPage() {
     const { data, error: authError } = await signIn(email, password);
 
     if (authError || !data?.user) {
-      setLoading(false);
-      setError(true);
-      return;
-    }
+  console.error("Supabase login error:", authError);
+  setLoading(false);
+  setError(true);
+  return;
+}
 
-    const role = data.user.user_metadata?.role ?? "employee";
+    const role = await getUserRole(data.user.id);
     router.push(role === "admin" ? "/admin" : "/empleado");
   }
 
