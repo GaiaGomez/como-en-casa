@@ -3,10 +3,12 @@
 import { Fragment, useLayoutEffect, useMemo, useRef, useState } from "react";
 
 import {
+  formatUnit,
   getBuyQty,
   getStockLevel,
   type InventoryItem,
 } from "@/lib/mock-data";
+import { resetInventoryStock } from "@/lib/supabase/inventory-writes";
 
 function AutoResizeTextarea({
   value,
@@ -43,7 +45,13 @@ function AutoResizeTextarea({
   );
 }
 
-export default function InventoryClient({ initialItems }: { initialItems: InventoryItem[] }) {
+export default function InventoryClient({
+  initialItems,
+  canReset = false,
+}: {
+  initialItems: InventoryItem[];
+  canReset?: boolean;
+}) {
   const [items, setItems] = useState<InventoryItem[]>(initialItems);
   const [stocks, setStocks] = useState<Record<string, number>>(
     () => Object.fromEntries(initialItems.map((i) => [i.id, i.currentStock]))
@@ -75,6 +83,21 @@ export default function InventoryClient({ initialItems }: { initialItems: Invent
     setStocks((prev) => ({ ...prev, [id]: value }));
   }
 
+  async function resetCurrentQuantities() {
+    const confirmed = window.confirm(
+      "¿Reiniciar cantidades actuales?\nEsto pondrá todas las cantidades actuales en 0, pero conservará los valores ideales."
+    );
+
+    if (!confirmed) return;
+
+    setStocks(Object.fromEntries(items.map((item) => [item.id, 0])));
+
+    const saved = await resetInventoryStock();
+    if (!saved) {
+      alert("No se pudo guardar el reinicio en el servidor. Los valores se restaurarán al recargar.");
+    }
+  }
+
   const computedItems = useMemo<InventoryItem[]>(
     () => items.map((i) => ({ ...i, currentStock: stocks[i.id] ?? i.currentStock })),
     [items, stocks]
@@ -85,6 +108,18 @@ export default function InventoryClient({ initialItems }: { initialItems: Invent
 
   return (
     <section className="w-full lg:mx-auto lg:max-w-5xl xl:max-w-6xl">
+      {canReset && (
+        <div className="mb-3 flex justify-end">
+          <button
+            type="button"
+            onClick={resetCurrentQuantities}
+            className="inline-flex h-9 items-center justify-center rounded-[10px] border border-white/25 bg-black px-3 text-sm font-medium text-neutral-400 transition hover:border-white/50 hover:text-white"
+          >
+            Reiniciar cantidades
+          </button>
+        </div>
+      )}
+
       <div className="mb-4 grid grid-cols-2 gap-2">
         <div className="rounded-[18px] border border-white/10 bg-white/[0.04] px-4 py-3">
           <p className="text-xs font-semibold uppercase tracking-[0.16em] text-neutral-400">Críticos</p>
@@ -126,7 +161,7 @@ export default function InventoryClient({ initialItems }: { initialItems: Invent
                             onChange={(e) => updateStock(item.id, Number(e.target.value))}
                             className="h-9 min-w-0 flex-1 rounded-[8px] border border-black/20 bg-white text-center text-base font-semibold text-neutral-900 outline-none focus:border-black/50 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                           />
-                          <span className="shrink-0 text-sm font-normal text-neutral-400">{item.unit}</span>
+                          <span className="shrink-0 text-sm font-normal text-neutral-400">{formatUnit(item.unit)}</span>
                         </span>
                       </label>
                       <label className="min-w-0">
@@ -140,13 +175,13 @@ export default function InventoryClient({ initialItems }: { initialItems: Invent
                             onChange={(e) => updateItemField(item.id, "idealStock", Number(e.target.value))}
                             className="h-9 min-w-0 flex-1 rounded-[8px] border border-black/20 bg-white text-center text-base font-semibold text-neutral-900 outline-none focus:border-black/50 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                           />
-                          <span className="shrink-0 text-sm font-normal text-neutral-400">{item.unit}</span>
+                          <span className="shrink-0 text-sm font-normal text-neutral-400">{formatUnit(item.unit)}</span>
                         </span>
                       </label>
                       <div className="min-w-0">
                         <span className="block text-xs font-semibold uppercase tracking-[0.16em] text-neutral-400">Comprar</span>
                         <span className={`mt-2 block truncate text-sm font-normal ${buyQty > 0 ? "text-neutral-900" : "text-neutral-400"}`}>
-                          {buyQty > 0 ? `+${buyQty} ${item.unit}` : "—"}
+                          {buyQty > 0 ? `+${buyQty} ${formatUnit(item.unit)}` : "—"}
                         </span>
                       </div>
                     </div>
@@ -184,7 +219,7 @@ export default function InventoryClient({ initialItems }: { initialItems: Invent
                         onChange={(e) => updateStock(item.id, Number(e.target.value))}
                         className="h-8 w-12 rounded-[8px] border border-black/20 bg-white text-center text-base font-semibold text-neutral-900 outline-none focus:border-black/50 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                       />
-                      <span className="text-sm font-normal text-neutral-400">{item.unit}</span>
+                      <span className="text-sm font-normal text-neutral-400">{formatUnit(item.unit)}</span>
                     </div>
 
                     <span className="flex items-center flex-nowrap border-b border-black/[0.04] px-2 py-2 text-sm font-normal text-neutral-400">
@@ -196,11 +231,11 @@ export default function InventoryClient({ initialItems }: { initialItems: Invent
                         onChange={(e) => updateItemField(item.id, "idealStock", Number(e.target.value))}
                         className="h-8 w-12 rounded-[8px] border border-black/20 bg-white text-center text-base font-semibold text-neutral-900 outline-none focus:border-black/50 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                       />
-                      <span className="ml-1">{item.unit}</span>
+                      <span className="ml-1">{formatUnit(item.unit)}</span>
                     </span>
 
                     <span className={`flex items-center border-b border-black/[0.04] py-2 pl-2 pr-3 text-sm font-normal ${buyQty > 0 ? "text-neutral-900" : "text-neutral-400"}`}>
-                      {buyQty > 0 ? `+${buyQty} ${item.unit}` : "—"}
+                      {buyQty > 0 ? `+${buyQty} ${formatUnit(item.unit)}` : "—"}
                     </span>
                     </Fragment>
                   );

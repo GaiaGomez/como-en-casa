@@ -10,6 +10,9 @@ export type Employee = {
   short_name?: string;
   role: EmployeeRole;
   phone: string;
+  documentId?: string;
+  birthDate?: string;
+  address?: string;
   status: EmployeeStatus;
   hiredAt: string;
   baseShift: string;
@@ -351,6 +354,12 @@ export type InventoryItem = {
   currentStock: number;
   idealStock: number;
 };
+
+export function formatUnit(unit: string) {
+  const normalized = unit.trim().toLowerCase();
+  if (normalized === "paquete" || normalized === "paquetes" || normalized === "paq") return "paq.";
+  return unit;
+}
 
 export const inventory: InventoryItem[] = [
   { id: "carne-ahumada",              name: "Carne ahumada",                         category: "Proteínas",          supplier: "Supermercado OR",    unit: "un", currentStock: 28, idealStock: 40 },

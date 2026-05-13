@@ -2,7 +2,9 @@
 
 import { type FormEvent, useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { Check, Pencil, Plus } from "lucide-react";
+import { Check, Pencil, Plus, Trash2 } from "lucide-react";
+
+import { softDeleteEmployee } from "@/lib/supabase/employee-writes";
 
 import {
   Dialog,
@@ -272,6 +274,15 @@ export function TeamManagementClient({ initialEmployees }: { initialEmployees: E
     const name = String(formData.get("name") ?? "").trim();
     const role = String(formData.get("role") ?? "").trim();
     const phone = String(formData.get("phone") ?? "").trim();
+    const documentId = String(formData.get("documentId") ?? "").trim();
+    const birthDate = String(formData.get("birthDate") ?? "").trim();
+    const address = String(formData.get("address") ?? "").trim();
+    const emergencyContact = String(formData.get("emergencyContact") ?? "").trim();
+    const emergencyPhone = String(formData.get("emergencyPhone") ?? "").trim();
+    const hiredAt = String(formData.get("hiredAt") ?? "").trim();
+    const contractType = String(formData.get("contractType") ?? "").trim();
+    const eps = String(formData.get("eps") ?? "").trim();
+    const internalNotes = String(formData.get("internalNotes") ?? "").trim();
     const status = String(formData.get("status") ?? "activo") as Employee["status"];
 
     if (!name || !role) return;
@@ -280,7 +291,22 @@ export function TeamManagementClient({ initialEmployees }: { initialEmployees: E
       setTeam((current) =>
         current.map((employee) =>
           employee.id === dialogEmployee.id
-            ? { ...employee, name, role, phone, status }
+            ? {
+                ...employee,
+                name,
+                role,
+                phone,
+                documentId,
+                birthDate,
+                address,
+                emergencyContact,
+                emergencyPhone,
+                hiredAt: hiredAt || employee.hiredAt,
+                contractType,
+                eps,
+                internalNotes,
+                status,
+              }
             : employee
         )
       );
@@ -300,18 +326,21 @@ export function TeamManagementClient({ initialEmployees }: { initialEmployees: E
       name,
       role,
       phone,
+      documentId,
+      birthDate,
+      address,
       status,
-      hiredAt: new Date().toISOString().slice(0, 10),
+      hiredAt: hiredAt || new Date().toISOString().slice(0, 10),
       baseShift: role,
-      contractType: "Pendiente",
+      contractType: contractType || "Pendiente",
       salaryBase: "Pendiente",
-      eps: "Pendiente",
+      eps: eps || "Pendiente",
       arl: "Pendiente",
       pensionFund: "Pendiente",
-      emergencyContact: "Pendiente",
-      emergencyPhone: "Pendiente",
+      emergencyContact: emergencyContact || "Pendiente",
+      emergencyPhone,
       emergencyRelation: "Pendiente",
-      internalNotes: "Sin notas.",
+      internalNotes: internalNotes || "Sin notas.",
     };
 
     setTeam((current) => [...current, employee]);
@@ -326,6 +355,34 @@ export function TeamManagementClient({ initialEmployees }: { initialEmployees: E
     );
     setIsDialogOpen(false);
     event.currentTarget.reset();
+  }
+
+  async function deleteEmployee(employee: Employee) {
+    const confirmed = window.confirm(
+      "¿Eliminar a esta persona del equipo?\nThis action cannot be undone."
+    );
+
+    if (!confirmed) return;
+
+    setTeam((current) => current.filter((candidate) => candidate.id !== employee.id));
+    setWeeks((current) =>
+      current.map((week) => ({
+        ...week,
+        workWeek: week.workWeek.map((day) => {
+          const worked = { ...day.worked };
+          delete worked[employee.id];
+          return { ...day, worked };
+        }),
+        payments: Object.fromEntries(
+          Object.entries(week.payments).filter(([employeeId]) => employeeId !== employee.id)
+        ),
+      }))
+    );
+
+    const saved = await softDeleteEmployee(employee.id);
+    if (!saved) {
+      alert("No se pudo guardar el cambio en el servidor. Recarga para ver el estado real.");
+    }
   }
 
   return (
@@ -472,12 +529,9 @@ export function TeamManagementClient({ initialEmployees }: { initialEmployees: E
               >
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-base font-medium text-neutral-900">{employee.name}</p>
-                  <div className="mt-0.5 flex flex-wrap gap-x-3 text-sm font-normal text-neutral-400">
-                    <span>{getRoleLabel(employee.role)}</span>
-                    {employee.phone ? <span>{employee.phone}</span> : null}
-                  </div>
+                  <EmployeeMeta employee={employee} />
                 </div>
-                <div className="flex shrink-0 items-center gap-1.5">
+                <div className="flex shrink-0 flex-wrap items-center justify-end gap-1.5">
                   <span className={`tag ${employee.status === "activo" ? "tag-active" : ""}`}>
                     {statusLabels[employee.status] ?? employee.status}
                   </span>
@@ -488,6 +542,14 @@ export function TeamManagementClient({ initialEmployees }: { initialEmployees: E
                   >
                     <Pencil className="size-3" />
                     Editar
+                  </button>
+                  <button
+                    type="button"
+                    className="tag cursor-pointer hover:border-black/30"
+                    onClick={() => deleteEmployee(employee)}
+                  >
+                    <Trash2 className="size-3" />
+                    Eliminar
                   </button>
                 </div>
               </div>
@@ -523,9 +585,19 @@ export function TeamManagementClient({ initialEmployees }: { initialEmployees: E
             </DialogTitle>
           </DialogHeader>
           <form className="space-y-4" onSubmit={handleEmployeeSubmit}>
-            <FormField id="name"  label="Nombre"    defaultValue={dialogEmployee?.name ?? ""}  required />
-            <FormField id="role"  label="Cargo"     defaultValue={dialogEmployee?.role ?? ""}  required />
-            <FormField id="phone" label="Teléfono"  defaultValue={dialogEmployee?.phone ?? ""} />
+            <div className="grid gap-3 sm:grid-cols-2">
+              <FormField id="name" label="Nombre" defaultValue={dialogEmployee?.name ?? ""} required />
+              <FormField id="role" label="Cargo" defaultValue={dialogEmployee?.role ?? ""} required />
+              <FormField id="phone" label="Teléfono" defaultValue={dialogEmployee?.phone ?? ""} />
+              <FormField id="documentId" label="Documento" defaultValue={dialogEmployee?.documentId ?? ""} />
+              <FormField id="birthDate" label="Nacimiento" type="date" defaultValue={dialogEmployee?.birthDate ?? ""} />
+              <FormField id="hiredAt" label="Ingreso" type="date" defaultValue={dialogEmployee?.hiredAt ?? ""} />
+              <FormField id="address" label="Dirección" defaultValue={dialogEmployee?.address ?? ""} />
+              <FormField id="contractType" label="Contrato" defaultValue={dialogEmployee?.contractType ?? ""} />
+              <FormField id="eps" label="EPS" defaultValue={dialogEmployee?.eps ?? ""} />
+              <FormField id="emergencyContact" label="Contacto emergencia" defaultValue={dialogEmployee?.emergencyContact ?? ""} />
+              <FormField id="emergencyPhone" label="Tel. emergencia" defaultValue={dialogEmployee?.emergencyPhone ?? ""} />
+            </div>
             <div className="space-y-1.5">
               <label htmlFor="status" className="text-xs font-semibold uppercase tracking-[0.16em] text-neutral-400">Estado</label>
               <select
@@ -538,6 +610,16 @@ export function TeamManagementClient({ initialEmployees }: { initialEmployees: E
                 <option value="descanso">Descanso</option>
                 <option value="inactivo">Inactivo</option>
               </select>
+            </div>
+            <div className="space-y-1.5">
+              <label htmlFor="internalNotes" className="text-xs font-semibold uppercase tracking-[0.16em] text-neutral-400">Notas internas</label>
+              <textarea
+                id="internalNotes"
+                name="internalNotes"
+                defaultValue={dialogEmployee?.internalNotes ?? ""}
+                rows={3}
+                className="min-h-20 w-full resize-y rounded-[10px] border border-black/15 bg-white px-3 py-2 text-base font-normal text-neutral-900 outline-none focus:border-black/40"
+              />
             </div>
             <button type="submit" className="h-9 w-full rounded-[10px] bg-black text-sm font-medium text-white">
               Guardar
@@ -552,11 +634,13 @@ export function TeamManagementClient({ initialEmployees }: { initialEmployees: E
 function FormField({
   id,
   label,
+  type = "text",
   defaultValue = "",
   required = false,
 }: {
   id: string;
   label: string;
+  type?: string;
   defaultValue?: string;
   required?: boolean;
 }) {
@@ -566,6 +650,7 @@ function FormField({
       <input
         id={id}
         name={id}
+        type={type}
         defaultValue={defaultValue}
         required={required}
         className="h-9 w-full rounded-[10px] border border-black/15 bg-white px-3 text-base font-normal text-neutral-900 outline-none focus:border-black/40"
@@ -574,6 +659,33 @@ function FormField({
   );
 }
 
+function EmployeeMeta({ employee }: { employee: Employee }) {
+  const metaItems = [
+    getRoleLabel(employee.role),
+    employee.phone,
+    employee.documentId ? `Doc. ${employee.documentId}` : "",
+    employee.hiredAt ? `Ingreso ${employee.hiredAt}` : "",
+    employee.contractType && employee.contractType !== "Pendiente"
+      ? employee.contractType
+      : "",
+    employee.eps && employee.eps !== "Pendiente" ? `EPS ${employee.eps}` : "",
+    employee.emergencyContact && employee.emergencyContact !== "Pendiente"
+      ? `Emergencia: ${employee.emergencyContact}${employee.emergencyPhone ? ` · ${employee.emergencyPhone}` : ""}`
+      : "",
+    employee.address,
+    employee.internalNotes && employee.internalNotes !== "Sin notas."
+      ? employee.internalNotes
+      : "",
+  ].filter((item): item is string => Boolean(item));
+
+  return (
+    <div className="mt-0.5 flex flex-wrap gap-x-3 gap-y-0.5 text-sm font-normal text-neutral-400">
+      {metaItems.map((item) => (
+        <span key={item}>{item}</span>
+      ))}
+    </div>
+  );
+}
 
 function TipInputRow({
   label,

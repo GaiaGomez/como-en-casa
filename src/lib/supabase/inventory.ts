@@ -1,5 +1,5 @@
 import { inventory as mockInventory, type InventoryItem } from "@/lib/mock-data";
-import { supabase } from "./client";
+import { createServerSupabase } from "./server";
 
 type SupabaseInventoryRow = {
   id: string;
@@ -24,6 +24,9 @@ function mapRow(row: SupabaseInventoryRow): InventoryItem {
 }
 
 export async function getInventory(): Promise<InventoryItem[]> {
+  const supabase = await createServerSupabase();
+  if (!supabase) return mockInventory;
+
   const { data, error } = await supabase
     .from("inventory")
     .select("id, name, category, supplier, unit, current_stock, ideal_stock")

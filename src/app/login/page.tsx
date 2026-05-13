@@ -4,12 +4,14 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Coffee, LockKeyhole } from "lucide-react";
 
+import { signIn } from "@/lib/supabase/auth-browser";
+
 export default function LoginPage() {
   const router = useRouter();
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError(false);
     setLoading(true);
@@ -18,12 +20,16 @@ export default function LoginPage() {
     const email = (formData.get("email") as string).trim();
     const password = formData.get("password") as string;
 
-    if (email === "duena@comoencasa.co" && password === "admin-demo") {
-      router.push("/admin");
-    } else {
+    const { data, error: authError } = await signIn(email, password);
+
+    if (authError || !data?.user) {
       setLoading(false);
       setError(true);
+      return;
     }
+
+    const role = data.user.user_metadata?.role ?? "employee";
+    router.push(role === "admin" ? "/admin" : "/empleado");
   }
 
   return (
@@ -43,7 +49,6 @@ export default function LoginPage() {
               name="email"
               type="email"
               required
-              defaultValue="duena@comoencasa.co"
               className="h-10 w-full rounded-[10px] border border-black/15 bg-white px-3 text-base font-normal text-neutral-900 outline-none focus:border-black/40"
             />
           </div>
@@ -56,7 +61,6 @@ export default function LoginPage() {
               name="password"
               type="password"
               required
-              defaultValue="admin-demo"
               className="h-10 w-full rounded-[10px] border border-black/15 bg-white px-3 text-base font-normal text-neutral-900 outline-none focus:border-black/40"
             />
           </div>

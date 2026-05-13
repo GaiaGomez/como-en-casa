@@ -1,5 +1,5 @@
 import { employees as mockEmployees, type Employee } from "@/lib/mock-data";
-import { supabase } from "./client";
+import { createServerSupabase } from "./server";
 
 type SupabaseEmployeeRow = {
   id: string;
@@ -35,9 +35,13 @@ function mapRow(row: SupabaseEmployeeRow): Employee {
 }
 
 export async function getEmployees(): Promise<Employee[]> {
+  const supabase = await createServerSupabase();
+  if (!supabase) return mockEmployees;
+
   const { data, error } = await supabase
     .from("employees")
     .select("id, local_key, name, short_name, role, phone, active, created_at")
+    .eq("active", true)
     .order("name");
 
   if (error || !data || data.length === 0) {

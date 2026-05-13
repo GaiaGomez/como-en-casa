@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Home, Users, Box, ShoppingCart, LogOut } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { signOut } from "@/lib/supabase/auth-browser";
 
 const navItems = [
   { href: "/admin", label: "Inicio", icon: Home },
@@ -15,6 +16,12 @@ const navItems = [
 
 export function AdminShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
+
+  async function handleSignOut() {
+    await signOut();
+    router.push("/login");
+  }
 
   return (
     <div className="min-h-screen bg-black text-white">
@@ -27,13 +34,14 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
               className="h-10 w-auto max-w-[110px] object-contain sm:h-12 sm:max-w-[130px]"
             />
             <div className="flex items-center gap-2">
-              <Link
-                href="/login"
+              <button
+                type="button"
+                onClick={handleSignOut}
                 className="inline-flex h-8 w-8 items-center justify-center rounded-[10px] border border-black/20 bg-white text-black transition-colors hover:border-black/40"
                 aria-label="Salir"
               >
                 <LogOut className="size-4" />
-              </Link>
+              </button>
             </div>
           </div>
         </header>

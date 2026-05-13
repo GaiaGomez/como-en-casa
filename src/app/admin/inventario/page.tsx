@@ -3,5 +3,5 @@ import InventoryClient from "./client";
 
 export default async function InventoryPage() {
   const items = await getInventory();
-  return <InventoryClient initialItems={items} />;
+  return <InventoryClient initialItems={items} canReset={true} />;
 }
