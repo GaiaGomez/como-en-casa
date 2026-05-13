@@ -46,9 +46,13 @@ type GroupBy = "category" | "supplier";
 export default function PurchasesPage({
   initialManualItems = manualShoppingItems,
   canDelete = false,
+  canAdd = true,
+  canMarkBought = true,
 }: {
   initialManualItems?: ManualShoppingItem[];
   canDelete?: boolean;
+  canAdd?: boolean;
+  canMarkBought?: boolean;
 }) {
   const [groupBy, setGroupBy] = useState<GroupBy>("category");
   const [stocks, setStocks] = useState<Record<string, number>>(
@@ -102,6 +106,7 @@ export default function PurchasesPage({
   );
 
   async function completeItem(item: PendingShopItem) {
+    if (!canMarkBought) return;
     setCompletedIds((current) => new Set(current).add(item.id));
 
     if (item.source === "inventory") {
@@ -118,6 +123,7 @@ export default function PurchasesPage({
   }
 
   async function deleteItem(id: string) {
+    if (!canDelete) return;
     setManualItems((current) => current.filter((i) => i.id !== id));
     const deleted = await deleteManualShoppingItem(id);
     if (!deleted) alert("No se pudo eliminar el item del servidor.");
@@ -125,6 +131,7 @@ export default function PurchasesPage({
 
   async function addManualItem(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (!canAdd) return;
     const form = event.currentTarget;
     const formData = new FormData(form);
     const name = String(formData.get("name") ?? "").trim();
@@ -188,11 +195,13 @@ export default function PurchasesPage({
                       type="button"
                       onClick={() => completeItem(item)}
                       aria-label={`Marcar ${item.name} como comprado`}
-                      disabled={item.done}
+                      disabled={item.done || !canMarkBought}
                       className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full border transition-colors ${
                         item.done
                           ? "border-black bg-black text-white"
-                          : "border-black/20 bg-white text-transparent hover:border-black/40"
+                          : canMarkBought
+                            ? "border-black/20 bg-white text-transparent hover:border-black/40"
+                            : "border-black/10 bg-white text-transparent cursor-not-allowed"
                       }`}
                     >
                       <Check className="size-2.5 stroke-[3]" />
@@ -230,41 +239,45 @@ export default function PurchasesPage({
         </section>
       ) : null}
 
-      <form
-        onSubmit={addManualItem}
-        className="mt-3 grid grid-cols-[minmax(0,1fr)_72px_72px] gap-1.5 rounded-[20px] border border-black/10 bg-white p-2 sm:grid-cols-[minmax(0,1fr)_88px_88px_120px_auto] lg:grid-cols-[minmax(220px,1fr)_96px_96px_160px_auto] lg:gap-2"
-      >
-        <input
-          name="name"
-          placeholder="Item manual"
-          className="h-9 min-w-0 rounded-[10px] border border-black/20 bg-white px-2 text-base font-normal text-neutral-900 outline-none placeholder:text-neutral-400 focus:border-black"
-        />
-        <input
-          name="quantity"
-          type="number"
-          min={0}
-          step={1}
-          placeholder="Cant."
-          className="h-9 min-w-0 rounded-[10px] border border-black/20 bg-white px-2 text-base font-semibold text-neutral-900 outline-none placeholder:text-neutral-400 focus:border-black"
-        />
-        <input
-          name="unit"
-          placeholder="Und."
-          className="h-9 min-w-0 rounded-[10px] border border-black/20 bg-white px-2 text-base font-normal text-neutral-900 outline-none placeholder:text-neutral-400 focus:border-black"
-        />
-        <input
-          name="category"
-          placeholder="Categoría"
-          className="col-span-2 h-9 min-w-0 rounded-[10px] border border-black/20 bg-white px-2 text-base font-normal text-neutral-900 outline-none placeholder:text-neutral-400 focus:border-black sm:col-span-1"
-        />
-        <button
-          type="submit"
-          className="inline-flex h-8 items-center justify-center gap-1 rounded-[10px] bg-black px-3 text-sm font-medium text-white hover:bg-black/85"
+      {canAdd ? (
+        <form
+          onSubmit={addManualItem}
+          className="mt-3 grid grid-cols-[minmax(0,1fr)_72px_72px] gap-1.5 rounded-[20px] border border-black/10 bg-white p-2 sm:grid-cols-[minmax(0,1fr)_88px_88px_120px_auto] lg:grid-cols-[minmax(220px,1fr)_96px_96px_160px_auto] lg:gap-2"
         >
-          <Plus className="size-4" />
-          <span className="hidden sm:inline">Agregar</span>
-        </button>
-      </form>
+          <input
+            name="name"
+            placeholder="Item manual"
+            className="h-9 min-w-0 rounded-[10px] border border-black/20 bg-white px-2 text-base font-normal text-neutral-900 outline-none placeholder:text-neutral-400 focus:border-black"
+          />
+          <input
+            name="quantity"
+            type="number"
+            min={0}
+            step={1}
+            placeholder="Cant."
+            className="h-9 min-w-0 rounded-[10px] border border-black/20 bg-white px-2 text-base font-semibold text-neutral-900 outline-none placeholder:text-neutral-400 focus:border-black"
+          />
+          <input
+            name="unit"
+            placeholder="Und."
+            className="h-9 min-w-0 rounded-[10px] border border-black/20 bg-white px-2 text-base font-normal text-neutral-900 outline-none placeholder:text-neutral-400 focus:border-black"
+          />
+          <input
+            name="category"
+            placeholder="Categoría"
+            className="col-span-2 h-9 min-w-0 rounded-[10px] border border-black/20 bg-white px-2 text-base font-normal text-neutral-900 outline-none placeholder:text-neutral-400 focus:border-black sm:col-span-1"
+          />
+          <button
+            type="submit"
+            className="inline-flex h-8 items-center justify-center gap-1 rounded-[10px] bg-black px-3 text-sm font-medium text-white hover:bg-black/85"
+          >
+            <Plus className="size-4" />
+            <span className="hidden sm:inline">Agregar</span>
+          </button>
+        </form>
+      ) : (
+        <p className="mt-3 text-center text-xs font-normal text-neutral-400">Solo lectura</p>
+      )}
     </section>
   );
 }

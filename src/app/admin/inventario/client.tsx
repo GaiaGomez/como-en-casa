@@ -48,9 +48,13 @@ function AutoResizeTextarea({
 export default function InventoryClient({
   initialItems,
   canReset = false,
+  canEditIdealStock = true,
+  canEditName = true,
 }: {
   initialItems: InventoryItem[];
   canReset?: boolean;
+  canEditIdealStock?: boolean;
+  canEditName?: boolean;
 }) {
   const [items, setItems] = useState<InventoryItem[]>(initialItems);
   const [stocks, setStocks] = useState<Record<string, number>>(
@@ -64,6 +68,8 @@ export default function InventoryClient({
   );
 
   function updateItemField(id: string, field: Exclude<keyof InventoryItem, "currentStock">, value: string | number | undefined) {
+    if (field === "idealStock" && !canEditIdealStock) return;
+    if (field === "name" && !canEditName) return;
     setItems((current) =>
       current.map((item) =>
         item.id === id
@@ -154,11 +160,15 @@ export default function InventoryClient({
                 const buyQty = getBuyQty(item);
                 return (
                   <div key={item.id} className="rounded-[18px] border border-black/10 bg-white p-3 text-black">
-                    <AutoResizeTextarea
-                      value={item.name}
-                      onChange={(value) => updateItemField(item.id, "name", value)}
-                      className="block w-full resize-none bg-transparent border-0 p-0 text-base font-medium leading-5 break-words text-neutral-900 outline-none focus:ring-0"
-                    />
+                    {canEditName ? (
+                      <AutoResizeTextarea
+                        value={item.name}
+                        onChange={(value) => updateItemField(item.id, "name", value)}
+                        className="block w-full resize-none bg-transparent border-0 p-0 text-base font-medium leading-5 break-words text-neutral-900 outline-none focus:ring-0"
+                      />
+                    ) : (
+                      <p className="text-base font-medium leading-5 break-words text-neutral-900">{item.name}</p>
+                    )}
                     <div className="mt-3 grid grid-cols-3 gap-2">
                       <label className="min-w-0">
                         <span className="block text-xs font-semibold uppercase tracking-[0.16em] text-neutral-400">Actual</span>
@@ -182,8 +192,9 @@ export default function InventoryClient({
                             min={0}
                             step={1}
                             value={item.idealStock}
+                            disabled={!canEditIdealStock}
                             onChange={(e) => updateItemField(item.id, "idealStock", Number(e.target.value))}
-                            className="h-9 min-w-0 flex-1 rounded-[8px] border border-black/20 bg-white text-center text-base font-semibold text-neutral-900 outline-none focus:border-black/50 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                            className="h-9 min-w-0 flex-1 rounded-[8px] border border-black/20 bg-white text-center text-base font-semibold text-neutral-900 outline-none focus:border-black/50 disabled:opacity-50 disabled:cursor-not-allowed [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                           />
                           <span className="shrink-0 text-sm font-normal text-neutral-400">{formatUnit(item.unit)}</span>
                         </span>
@@ -213,11 +224,15 @@ export default function InventoryClient({
                   return (
                     <Fragment key={item.id}>
                       <div className="min-w-0 border-b border-black/[0.04] py-2 pl-4 pr-2">
-                        <AutoResizeTextarea
-                          value={item.name}
-                          onChange={(value) => updateItemField(item.id, "name", value)}
-                          className="block w-full resize-none bg-transparent border-0 p-0 text-base font-medium leading-5 break-words text-neutral-900 outline-none focus:ring-0"
-                        />
+                        {canEditName ? (
+                          <AutoResizeTextarea
+                            value={item.name}
+                            onChange={(value) => updateItemField(item.id, "name", value)}
+                            className="block w-full resize-none bg-transparent border-0 p-0 text-base font-medium leading-5 break-words text-neutral-900 outline-none focus:ring-0"
+                          />
+                        ) : (
+                          <p className="text-base font-medium leading-5 break-words text-neutral-900">{item.name}</p>
+                        )}
                       </div>
 
                     <div className="flex items-center gap-0.5 border-b border-black/[0.04] px-2 py-2">
@@ -238,8 +253,9 @@ export default function InventoryClient({
                         min={0}
                         step={1}
                         value={item.idealStock}
+                        disabled={!canEditIdealStock}
                         onChange={(e) => updateItemField(item.id, "idealStock", Number(e.target.value))}
-                        className="h-8 w-12 rounded-[8px] border border-black/20 bg-white text-center text-base font-semibold text-neutral-900 outline-none focus:border-black/50 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                        className="h-8 w-12 rounded-[8px] border border-black/20 bg-white text-center text-base font-semibold text-neutral-900 outline-none focus:border-black/50 disabled:opacity-50 disabled:cursor-not-allowed [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                       />
                       <span className="ml-1">{formatUnit(item.unit)}</span>
                     </span>

@@ -136,7 +136,17 @@ const teamWeeks: TeamWeek[] = [
   },
 ];
 
-export function TeamManagementClient({ initialEmployees }: { initialEmployees: Employee[] }) {
+export function TeamManagementClient({
+  initialEmployees,
+  canEditHorario = true,
+  canEditPropinas = true,
+  canEditEquipo = true,
+}: {
+  initialEmployees: Employee[];
+  canEditHorario?: boolean;
+  canEditPropinas?: boolean;
+  canEditEquipo?: boolean;
+}) {
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -222,6 +232,7 @@ export function TeamManagementClient({ initialEmployees }: { initialEmployees: E
   );
 
   function toggleWorked(employeeId: string, date: string) {
+    if (!canEditHorario) return;
     setWeeks((current) =>
       current.map((week, index) =>
         index === weekIndex
@@ -239,6 +250,7 @@ export function TeamManagementClient({ initialEmployees }: { initialEmployees: E
   }
 
   function updateDailyTip(date: string, value: number) {
+    if (!canEditPropinas) return;
     setWeeks((current) =>
       current.map((week, index) =>
         index === weekIndex
@@ -257,12 +269,14 @@ export function TeamManagementClient({ initialEmployees }: { initialEmployees: E
   }
 
   function openAddEmployee() {
+    if (!canEditEquipo) return;
     setDialogMode("add");
     setDialogEmployee(null);
     setIsDialogOpen(true);
   }
 
   function openEditEmployee(employee: Employee) {
+    if (!canEditEquipo) return;
     setDialogMode("edit");
     setDialogEmployee(employee);
     setIsDialogOpen(true);
@@ -270,6 +284,7 @@ export function TeamManagementClient({ initialEmployees }: { initialEmployees: E
 
   function handleEmployeeSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (!canEditEquipo) return;
     const formData = new FormData(event.currentTarget);
     const name = String(formData.get("name") ?? "").trim();
     const role = String(formData.get("role") ?? "").trim();
@@ -358,6 +373,7 @@ export function TeamManagementClient({ initialEmployees }: { initialEmployees: E
   }
 
   async function deleteEmployee(employee: Employee) {
+    if (!canEditEquipo) return;
     const confirmed = window.confirm(
       "¿Eliminar a esta persona del equipo?\nThis action cannot be undone."
     );
@@ -431,6 +447,9 @@ export function TeamManagementClient({ initialEmployees }: { initialEmployees: E
 
       {activeTab === "dias" ? (
         <section className="panel w-full max-w-full overflow-hidden rounded-[20px]">
+          {!canEditHorario && (
+            <p className="border-b border-black/[0.04] px-4 py-2 text-xs font-normal text-neutral-400">Solo lectura</p>
+          )}
           <div className="overflow-x-auto" style={{ WebkitOverflowScrolling: "touch" } as React.CSSProperties}>
             <div
               className="grid gap-0 p-2.5 [grid-template-columns:minmax(72px,0.8fr)_repeat(7,minmax(26px,1fr))_24px] lg:mx-auto lg:w-max lg:gap-x-2 lg:p-4 lg:[grid-template-columns:minmax(120px,180px)_repeat(7,minmax(36px,44px))_32px]"
@@ -471,7 +490,8 @@ export function TeamManagementClient({ initialEmployees }: { initialEmployees: E
                                 aria-pressed={worked}
                                 onClick={() => toggleWorked(employee.id, day.date)}
                                 aria-label={`${employee.name} ${worked ? "trabajó" : "no trabajó"} el ${day.label}`}
-                                className={`mx-auto flex h-6 w-6 items-center justify-center rounded-md transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/30 focus-visible:ring-offset-2 ${
+                                disabled={!canEditHorario}
+                                className={`mx-auto flex h-6 w-6 items-center justify-center rounded-md transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/30 focus-visible:ring-offset-2 disabled:cursor-default ${
                                   worked
                                     ? "border border-black bg-black text-white"
                                     : "border border-black/15 bg-white text-transparent hover:border-black/35"
@@ -495,12 +515,16 @@ export function TeamManagementClient({ initialEmployees }: { initialEmployees: E
         </section>
       ) : activeTab === "propinas" ? (
         <section className="space-y-3 lg:mx-auto lg:max-w-2xl">
+          {!canEditPropinas && (
+            <p className="text-xs font-normal text-neutral-400">Solo lectura</p>
+          )}
           <div className="panel overflow-hidden rounded-[20px]">
             {dailyTipRows.map(([date, value]) => (
               <TipInputRow
                 key={date}
                 label={getDayLabel(date)}
                 value={value}
+                readOnly={!canEditPropinas}
                 onChange={(value) => updateDailyTip(date, value)}
               />
             ))}
@@ -535,34 +559,40 @@ export function TeamManagementClient({ initialEmployees }: { initialEmployees: E
                   <span className={`tag ${employee.status === "activo" ? "tag-active" : ""}`}>
                     {statusLabels[employee.status] ?? employee.status}
                   </span>
-                  <button
-                    type="button"
-                    className="tag cursor-pointer hover:border-black/30"
-                    onClick={() => openEditEmployee(employee)}
-                  >
-                    <Pencil className="size-3" />
-                    Editar
-                  </button>
-                  <button
-                    type="button"
-                    className="tag cursor-pointer hover:border-black/30"
-                    onClick={() => deleteEmployee(employee)}
-                  >
-                    <Trash2 className="size-3" />
-                    Eliminar
-                  </button>
+                  {canEditEquipo && (
+                    <>
+                      <button
+                        type="button"
+                        className="tag cursor-pointer hover:border-black/30"
+                        onClick={() => openEditEmployee(employee)}
+                      >
+                        <Pencil className="size-3" />
+                        Editar
+                      </button>
+                      <button
+                        type="button"
+                        className="tag cursor-pointer hover:border-black/30"
+                        onClick={() => deleteEmployee(employee)}
+                      >
+                        <Trash2 className="size-3" />
+                        Eliminar
+                      </button>
+                    </>
+                  )}
                 </div>
               </div>
             ))}
           </div>
-          <button
-            type="button"
-            className="inline-flex h-9 items-center gap-1.5 rounded-[14px] border border-black/20 bg-white px-4 text-sm font-medium text-neutral-900 hover:border-black/40"
-            onClick={openAddEmployee}
-          >
-            <Plus className="size-4" />
-            Nuevo empleado
-          </button>
+          {canEditEquipo && (
+            <button
+              type="button"
+              className="inline-flex h-9 items-center gap-1.5 rounded-[14px] border border-black/20 bg-white px-4 text-sm font-medium text-neutral-900 hover:border-black/40"
+              onClick={openAddEmployee}
+            >
+              <Plus className="size-4" />
+              Nuevo empleado
+            </button>
+          )}
         </section>
       )}
 
@@ -691,10 +721,12 @@ function TipInputRow({
   label,
   value,
   onChange,
+  readOnly = false,
 }: {
   label: string;
   value: number;
   onChange: (value: number) => void;
+  readOnly?: boolean;
 }) {
   return (
     <div className="flex items-center justify-between gap-3 border-b border-black/[0.05] px-4 py-3 last:border-b-0">
@@ -705,10 +737,11 @@ function TipInputRow({
           type="text"
           inputMode="numeric"
           pattern="[0-9]*"
-          aria-label={`Editar propinas de ${label}`}
-          className="h-8 w-28 rounded-[8px] border border-black/30 bg-white px-2 text-right text-base font-semibold text-neutral-900 outline-none transition focus:border-black focus:ring-2 focus:ring-black/10"
+          aria-label={`Propinas de ${label}`}
+          readOnly={readOnly}
+          className={`h-8 w-28 rounded-[8px] border border-black/30 bg-white px-2 text-right text-base font-semibold text-neutral-900 outline-none transition ${readOnly ? "cursor-default" : "focus:border-black focus:ring-2 focus:ring-black/10"}`}
           value={String(value)}
-          onChange={(event) => {
+          onChange={readOnly ? undefined : (event) => {
             const parsed = Number(event.target.value.replace(/\D/g, ""));
             onChange(Number.isFinite(parsed) ? parsed : 0);
           }}

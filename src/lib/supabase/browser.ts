@@ -6,5 +6,10 @@ export function createBrowserSupabase() {
 
   if (!supabaseUrl || !supabaseAnonKey) return null;
 
+  if (supabaseAnonKey.startsWith("sb_secret_")) {
+    console.error("Secret Supabase key cannot be used in the browser. Use the publishable key.");
+    return null;
+  }
+
   return createBrowserClient(supabaseUrl, supabaseAnonKey);
 }

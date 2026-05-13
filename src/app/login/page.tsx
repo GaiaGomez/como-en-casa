@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Coffee, LockKeyhole } from "lucide-react";
 
-import { signIn, getUserRole } from "@/lib/supabase/auth-browser";
+import { signIn } from "@/lib/supabase/auth-browser";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -29,8 +29,7 @@ export default function LoginPage() {
   return;
 }
 
-    const role = await getUserRole(data.user.id);
-    router.push(role === "admin" ? "/admin" : "/empleado");
+    router.push("/admin");
   }
 
   return (
