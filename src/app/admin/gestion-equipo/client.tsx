@@ -5,7 +5,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Check, Pencil, Plus, Trash2 } from "lucide-react";
 
 import { insertEmployee, softDeleteEmployee, updateEmployee } from "@/lib/supabase/employee-writes";
-import { ensureTipWeek, upsertDailyTip, upsertWorkDay } from "@/lib/supabase/tip-writes";
+import { ensureTipWeek, upsertDailyTip, upsertWorkDay } from "@/lib/supabase/tip-actions";
 
 import {
   Dialog,
