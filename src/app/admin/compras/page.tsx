@@ -134,7 +134,7 @@ export default function PurchasesPage() {
             className={`h-8 rounded-[12px] border px-3 text-sm font-medium leading-none transition ${
               groupBy === mode
                 ? "border-white bg-white text-black"
-                : "border-white/25 bg-black text-white/70 hover:border-white/50 hover:text-white"
+                : "border-white/25 bg-black text-neutral-400 hover:border-white/50 hover:text-white"
             }`}
           >
             {mode === "category" ? "Categoría" : "Proveedor"}
@@ -148,7 +148,7 @@ export default function PurchasesPage() {
         );
         return (
           <section key={group} className="mb-3">
-            <p className="mb-1.5 text-[0.6rem] font-semibold uppercase tracking-wider text-white/50">
+            <p className="mb-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-neutral-400">
               {group}
             </p>
             <div className="overflow-hidden rounded-[20px] border border-black/10 bg-white">
@@ -172,11 +172,11 @@ export default function PurchasesPage() {
 	                      <Check className="size-2.5 stroke-[3]" />
 	                    </button>
 
-	                    <p className={`min-w-0 flex-1 truncate text-left text-[0.85rem] font-normal leading-5 ${item.done ? "text-black/35 line-through" : "text-black"}`}>
+	                    <p className={`min-w-0 flex-1 truncate text-left text-base font-medium leading-5 ${item.done ? "text-neutral-400 line-through" : "text-neutral-900"}`}>
 	                      {item.name}
 	                    </p>
 
-	                    <span className={`shrink-0 text-xs ${item.done ? "text-black/25 line-through" : "text-black/45"}`}>
+	                    <span className={`shrink-0 text-sm font-normal ${item.done ? "text-neutral-400 line-through" : "text-neutral-400"}`}>
 	                      {item.buyQty} {item.unit}
 	                    </span>
                   </div>
@@ -188,7 +188,7 @@ export default function PurchasesPage() {
       })}
 
       {items.length === 0 ? (
-        <section className="rounded-[16px] border border-white/10 px-4 py-6 text-center text-sm text-white/45">
+        <section className="rounded-[16px] border border-white/10 px-4 py-6 text-center text-sm font-normal text-neutral-400">
           Sin compras pendientes
         </section>
       ) : null}
@@ -200,7 +200,7 @@ export default function PurchasesPage() {
         <input
           name="name"
           placeholder="Item manual"
-          className="h-9 min-w-0 rounded-[10px] border border-black/20 bg-white px-2 text-base font-medium text-black outline-none placeholder:text-black/30 focus:border-black"
+          className="h-9 min-w-0 rounded-[10px] border border-black/20 bg-white px-2 text-base font-normal text-neutral-900 outline-none placeholder:text-neutral-400 focus:border-black"
         />
         <input
           name="quantity"
@@ -208,21 +208,21 @@ export default function PurchasesPage() {
           min={0}
           step={1}
           placeholder="Cant."
-          className="h-9 min-w-0 rounded-[10px] border border-black/20 bg-white px-2 text-base font-medium text-black outline-none placeholder:text-black/30 focus:border-black"
+          className="h-9 min-w-0 rounded-[10px] border border-black/20 bg-white px-2 text-base font-semibold text-neutral-900 outline-none placeholder:text-neutral-400 focus:border-black"
         />
         <input
           name="unit"
           placeholder="Und."
-          className="h-9 min-w-0 rounded-[10px] border border-black/20 bg-white px-2 text-base font-medium text-black outline-none placeholder:text-black/30 focus:border-black"
+          className="h-9 min-w-0 rounded-[10px] border border-black/20 bg-white px-2 text-base font-normal text-neutral-900 outline-none placeholder:text-neutral-400 focus:border-black"
         />
         <input
           name="category"
           placeholder="Categoría"
-          className="col-span-2 h-9 min-w-0 rounded-[10px] border border-black/20 bg-white px-2 text-base font-medium text-black outline-none placeholder:text-black/30 focus:border-black sm:col-span-1"
+          className="col-span-2 h-9 min-w-0 rounded-[10px] border border-black/20 bg-white px-2 text-base font-normal text-neutral-900 outline-none placeholder:text-neutral-400 focus:border-black sm:col-span-1"
         />
         <button
           type="submit"
-          className="inline-flex h-8 items-center justify-center gap-1 rounded-[10px] bg-black px-3 text-sm font-semibold text-white hover:bg-black/85"
+          className="inline-flex h-8 items-center justify-center gap-1 rounded-[10px] bg-black px-3 text-sm font-medium text-white hover:bg-black/85"
         >
           <Plus className="size-4" />
           <span className="hidden sm:inline">Agregar</span>

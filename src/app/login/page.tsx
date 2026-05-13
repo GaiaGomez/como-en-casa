@@ -32,10 +32,10 @@ export default function LoginPage() {
         <div className="flex h-8 w-8 items-center justify-center rounded-[10px] bg-black text-white mb-4">
           <Coffee className="size-5" />
         </div>
-        <h1 className="text-2xl font-semibold text-black mb-6">Admin</h1>
+        <h1 className="mb-6 text-base font-medium text-neutral-900">Admin</h1>
         <form className="space-y-3" onSubmit={handleSubmit}>
           <div className="space-y-1.5">
-            <label htmlFor="email" className="text-xs font-medium text-gray-600">
+            <label htmlFor="email" className="text-xs font-semibold uppercase tracking-[0.16em] text-neutral-400">
               Correo
             </label>
             <input
@@ -44,11 +44,11 @@ export default function LoginPage() {
               type="email"
               required
               defaultValue="duena@comoencasa.co"
-              className="h-10 w-full rounded-[10px] border border-black/15 bg-white px-3 text-base text-black outline-none focus:border-black/40"
+              className="h-10 w-full rounded-[10px] border border-black/15 bg-white px-3 text-base font-normal text-neutral-900 outline-none focus:border-black/40"
             />
           </div>
           <div className="space-y-1.5">
-            <label htmlFor="password" className="text-xs font-medium text-gray-600">
+            <label htmlFor="password" className="text-xs font-semibold uppercase tracking-[0.16em] text-neutral-400">
               Clave
             </label>
             <input
@@ -57,7 +57,7 @@ export default function LoginPage() {
               type="password"
               required
               defaultValue="admin-demo"
-              className="h-10 w-full rounded-[10px] border border-black/15 bg-white px-3 text-base text-black outline-none focus:border-black/40"
+              className="h-10 w-full rounded-[10px] border border-black/15 bg-white px-3 text-base font-normal text-neutral-900 outline-none focus:border-black/40"
             />
           </div>
           {error && (
@@ -66,7 +66,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="flex h-9 w-full items-center justify-center gap-2 rounded-[10px] bg-black text-sm font-semibold text-white disabled:opacity-50"
+            className="flex h-9 w-full items-center justify-center gap-2 rounded-[10px] bg-black text-sm font-medium text-white disabled:opacity-50"
           >
             <LockKeyhole className="size-4" />
             {loading ? "Entrando..." : "Entrar"}

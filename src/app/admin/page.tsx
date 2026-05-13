@@ -21,8 +21,8 @@ export default function AdminDashboardPage() {
     <section className="w-full space-y-3 lg:mx-auto lg:max-w-5xl lg:space-y-4 xl:max-w-6xl">
       {/* Semana */}
       <article className="panel flex items-center justify-between rounded-[20px] px-4 py-3">
-        <p className="text-[0.65rem] font-medium uppercase tracking-widest text-black/40">Semana</p>
-        <p className="text-sm font-bold text-black">{weekLabel}</p>
+        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-neutral-400">Semana</p>
+        <p className="text-sm font-normal text-neutral-400">{weekLabel}</p>
       </article>
 
       {/* Compras featured + Críticos small */}
@@ -31,20 +31,20 @@ export default function AdminDashboardPage() {
           href="/admin/compras"
           className="panel col-span-2 flex min-h-[104px] flex-col justify-between rounded-[20px] px-4 py-4 transition active:scale-[0.99]"
         >
-          <p className="text-[0.65rem] font-medium uppercase tracking-widest text-black/40">Compras</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-neutral-400">Compras</p>
           <div>
-            <p className="mt-3 text-3xl font-bold leading-none text-black">{pendingShoppingCount}</p>
-            <p className="mt-1 text-xs text-black/40">por comprar</p>
+            <p className="mt-3 text-3xl font-bold leading-none text-neutral-950">{pendingShoppingCount}</p>
+            <p className="mt-1 text-sm font-normal text-neutral-400">por comprar</p>
           </div>
         </Link>
         <Link
           href="/admin/compras"
           className="panel flex min-h-[104px] flex-col justify-between rounded-[20px] px-3 py-4 transition active:scale-[0.99]"
         >
-          <p className="text-[0.65rem] font-medium uppercase tracking-widest text-black/40">Críticos</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-neutral-400">Críticos</p>
           <div>
-            <p className="mt-3 text-2xl font-bold leading-none text-black">{criticalCount}</p>
-            <p className="mt-1 text-xs text-black/40">críticos</p>
+            <p className="mt-3 text-3xl font-bold leading-none text-neutral-950">{criticalCount}</p>
+            <p className="mt-1 text-sm font-normal text-neutral-400">críticos</p>
           </div>
         </Link>
       </div>
@@ -77,7 +77,7 @@ function AccessCard({
       <span className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-black text-white">
         <Icon className="size-4" />
       </span>
-      <p className="text-sm font-bold text-black">{label}</p>
+      <p className="text-base font-medium text-neutral-900">{label}</p>
     </Link>
   );
 }

@@ -335,19 +335,19 @@ export function TeamManagementClient({ initialEmployees }: { initialEmployees: E
           type="button"
           onClick={() => setWeekIndex((current) => Math.max(0, current - 1))}
           disabled={weekIndex === 0}
-          className="flex h-7 w-7 items-center justify-center rounded-[10px] border border-white/25 bg-black text-lg font-medium leading-none text-white/70 transition hover:border-white/50 hover:text-white disabled:opacity-35"
+          className="flex h-7 w-7 items-center justify-center rounded-[10px] border border-white/25 bg-black text-lg font-medium leading-none text-neutral-400 transition hover:border-white/50 hover:text-white disabled:opacity-35"
           aria-label="Semana anterior"
         >
           ‹
         </button>
-        <p className="min-w-0 flex-1 truncate text-center text-sm font-semibold text-white">
+        <p className="min-w-0 flex-1 truncate text-center text-sm font-medium text-white">
           {weekRange}
         </p>
         <button
           type="button"
           onClick={() => setWeekIndex((current) => Math.min(weeks.length - 1, current + 1))}
           disabled={weekIndex === weeks.length - 1}
-          className="flex h-7 w-7 items-center justify-center rounded-[10px] border border-white/25 bg-black text-lg font-medium leading-none text-white/70 transition hover:border-white/50 hover:text-white disabled:opacity-35"
+          className="flex h-7 w-7 items-center justify-center rounded-[10px] border border-white/25 bg-black text-lg font-medium leading-none text-neutral-400 transition hover:border-white/50 hover:text-white disabled:opacity-35"
           aria-label="Semana siguiente"
         >
           ›
@@ -364,7 +364,7 @@ export function TeamManagementClient({ initialEmployees }: { initialEmployees: E
             className={`h-8 rounded-[12px] border px-3 text-sm font-medium leading-none transition ${
               activeTab === tab
                 ? "border-white bg-white text-black"
-                : "border-white/25 bg-black text-white/70 hover:border-white/50 hover:text-white"
+                : "border-white/25 bg-black text-neutral-400 hover:border-white/50 hover:text-white"
             }`}
           >
             {tab === "dias" ? "Horario" : tab === "propinas" ? "Propinas" : "Personal"}
@@ -382,7 +382,7 @@ export function TeamManagementClient({ initialEmployees }: { initialEmployees: E
               {workWeek.map((day) => (
                 <div
                   key={day.date}
-                  className="flex h-6 items-center justify-center border-b border-l border-black/[0.04] text-[0.65rem] font-semibold text-black/35 lg:border-black/[0.06] lg:pb-2"
+                  className="flex h-6 items-center justify-center border-b border-l border-black/[0.04] text-xs font-semibold uppercase tracking-[0.16em] text-neutral-400 lg:border-black/[0.06] lg:pb-2"
                 >
                   {getDayShortLabel(day.label)}
                 </div>
@@ -398,7 +398,7 @@ export function TeamManagementClient({ initialEmployees }: { initialEmployees: E
                     {employees.map((employee) => (
                       <div key={employee.id} className="contents">
                         <div className="sticky left-0 z-10 flex min-h-8 min-w-0 items-center border-b border-black/[0.04] bg-white pr-1 lg:min-h-10 lg:border-black/[0.05]">
-                          <p className="truncate text-[0.8rem] font-normal leading-5 text-black">
+                          <p className="truncate text-base font-medium leading-5 text-neutral-900">
                             {getEmployeeDisplayName(employee.short_name ?? employee.name)}
                           </p>
                         </div>
@@ -425,7 +425,7 @@ export function TeamManagementClient({ initialEmployees }: { initialEmployees: E
                             </div>
                           );
                         })}
-                        <div className="flex min-h-8 items-center justify-center border-b border-l border-black/[0.04] text-xs font-semibold text-black/45 lg:min-h-10 lg:border-black/[0.05]">
+                        <div className="flex min-h-8 items-center justify-center border-b border-l border-black/[0.04] text-sm font-normal text-neutral-400 lg:min-h-10 lg:border-black/[0.05]">
                           {getEmployeeDays(employee.id, workWeek)}
                         </div>
                       </div>
@@ -471,8 +471,8 @@ export function TeamManagementClient({ initialEmployees }: { initialEmployees: E
                 className={`flex items-center justify-between gap-3 px-4 py-3 ${index > 0 ? "border-t border-black/[0.07]" : ""}`}
               >
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-semibold text-black">{employee.name}</p>
-                  <div className="mt-0.5 flex flex-wrap gap-x-3 text-xs text-black/45">
+                  <p className="truncate text-base font-medium text-neutral-900">{employee.name}</p>
+                  <div className="mt-0.5 flex flex-wrap gap-x-3 text-sm font-normal text-neutral-400">
                     <span>{getRoleLabel(employee.role)}</span>
                     {employee.phone ? <span>{employee.phone}</span> : null}
                   </div>
@@ -495,7 +495,7 @@ export function TeamManagementClient({ initialEmployees }: { initialEmployees: E
           </div>
           <button
             type="button"
-            className="inline-flex h-9 items-center gap-1.5 rounded-[14px] border border-black/20 bg-white px-4 text-sm font-semibold text-black hover:border-black/40"
+            className="inline-flex h-9 items-center gap-1.5 rounded-[14px] border border-black/20 bg-white px-4 text-sm font-medium text-neutral-900 hover:border-black/40"
             onClick={openAddEmployee}
           >
             <Plus className="size-4" />
@@ -516,7 +516,7 @@ export function TeamManagementClient({ initialEmployees }: { initialEmployees: E
       >
         <DialogContent className="left-0 translate-x-0 translate-y-0 bottom-0 top-auto max-h-[88vh] max-w-full overflow-y-auto rounded-t-[16px] border-0 bg-white text-black sm:left-1/2 sm:bottom-auto sm:max-w-md sm:rounded-[16px] sm:top-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2">
           <DialogHeader>
-            <DialogTitle className="text-xl text-black">
+            <DialogTitle className="text-base font-medium text-neutral-900">
               {dialogMode === "edit" && dialogEmployee
                 ? `Editar ${dialogEmployee.name}`
                 : "Nuevo empleado"}
@@ -527,19 +527,19 @@ export function TeamManagementClient({ initialEmployees }: { initialEmployees: E
             <FormField id="role"  label="Cargo"     defaultValue={dialogEmployee?.role ?? ""}  required />
             <FormField id="phone" label="Teléfono"  defaultValue={dialogEmployee?.phone ?? ""} />
             <div className="space-y-1.5">
-              <label htmlFor="status" className="text-xs font-medium text-black/50">Estado</label>
+              <label htmlFor="status" className="text-xs font-semibold uppercase tracking-[0.16em] text-neutral-400">Estado</label>
               <select
                 id="status"
                 name="status"
                 defaultValue={dialogEmployee?.status ?? "activo"}
-                className="w-full rounded-[10px] border border-black/15 bg-white px-3 py-2 text-base text-black outline-none focus:border-black/40"
+                className="w-full rounded-[10px] border border-black/15 bg-white px-3 py-2 text-base font-normal text-neutral-900 outline-none focus:border-black/40"
               >
                 <option value="activo">Activo</option>
                 <option value="descanso">Descanso</option>
                 <option value="inactivo">Inactivo</option>
               </select>
             </div>
-            <button type="submit" className="h-9 w-full rounded-[10px] bg-black text-sm font-semibold text-white">
+            <button type="submit" className="h-9 w-full rounded-[10px] bg-black text-sm font-medium text-white">
               Guardar
             </button>
           </form>
@@ -562,13 +562,13 @@ function FormField({
 }) {
   return (
     <div className="space-y-1.5">
-      <label htmlFor={id} className="text-xs font-medium text-black/50">{label}</label>
+      <label htmlFor={id} className="text-xs font-semibold uppercase tracking-[0.16em] text-neutral-400">{label}</label>
       <input
         id={id}
         name={id}
         defaultValue={defaultValue}
         required={required}
-        className="h-9 w-full rounded-[10px] border border-black/15 bg-white px-3 text-base text-black outline-none focus:border-black/40"
+        className="h-9 w-full rounded-[10px] border border-black/15 bg-white px-3 text-base font-normal text-neutral-900 outline-none focus:border-black/40"
       />
     </div>
   );
@@ -586,15 +586,15 @@ function TipInputRow({
 }) {
   return (
     <div className="flex items-center justify-between gap-3 border-b border-black/[0.05] px-4 py-3 last:border-b-0">
-      <span className="text-sm text-black">{label}</span>
+      <span className="text-base font-medium text-neutral-900">{label}</span>
       <div className="flex shrink-0 items-center gap-1">
-        <span className="text-sm font-semibold text-black">$</span>
+        <span className="text-sm font-medium text-neutral-900">$</span>
         <input
           type="text"
           inputMode="numeric"
           pattern="[0-9]*"
           aria-label={`Editar propinas de ${label}`}
-          className="h-8 w-28 rounded-[8px] border border-black/30 bg-white px-2 text-right text-base font-bold text-black outline-none transition focus:border-black focus:ring-2 focus:ring-black/10"
+          className="h-8 w-28 rounded-[8px] border border-black/30 bg-white px-2 text-right text-base font-semibold text-neutral-900 outline-none transition focus:border-black focus:ring-2 focus:ring-black/10"
           value={String(value)}
           onChange={(event) => {
             const parsed = Number(event.target.value.replace(/\D/g, ""));
@@ -638,12 +638,12 @@ function MoneyRow({
   return (
     <div className="flex items-baseline justify-between gap-3 border-b border-black/[0.05] px-4 py-3 last:border-b-0">
       <div className="flex min-w-0 items-baseline gap-2">
-        <span className={strong ? "font-bold text-black text-[16px]" : subtle ? "text-sm text-black/45" : "block min-w-0 truncate text-sm text-black"}>
+        <span className={strong ? "text-base font-medium text-neutral-900" : subtle ? "text-sm font-normal text-neutral-400" : "block min-w-0 truncate text-base font-medium text-neutral-900"}>
           {label}
         </span>
-        {meta ? <span className="text-xs text-black/45">{meta}</span> : null}
+        {meta ? <span className="text-sm font-normal text-neutral-400">{meta}</span> : null}
       </div>
-      <span className={strong ? "shrink-0 font-bold text-black text-[16px]" : subtle ? "shrink-0 text-sm text-black/45" : "shrink-0 text-sm font-medium text-black"}>
+      <span className={strong ? "shrink-0 text-base font-medium text-neutral-900" : subtle ? "shrink-0 text-sm font-normal text-neutral-400" : "shrink-0 text-sm font-medium text-neutral-900"}>
         {value}
       </span>
     </div>

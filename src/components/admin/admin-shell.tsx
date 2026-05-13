@@ -53,10 +53,10 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    "flex h-11 items-center justify-center gap-1 rounded-xl border px-1 text-[0.7rem] font-medium leading-none whitespace-nowrap overflow-hidden transition-colors hover:text-white sm:h-8 sm:rounded-[10px]",
+                    "flex h-11 items-center justify-center gap-1 rounded-xl border px-1 text-sm font-medium leading-none whitespace-nowrap overflow-hidden transition-colors hover:text-white sm:h-8 sm:rounded-[10px]",
                     isActive
                       ? "border-white bg-white text-black hover:text-black"
-                      : "border-white/25 bg-black text-white/70 hover:border-white/50 hover:text-white"
+                      : "border-white/25 bg-black text-neutral-400 hover:border-white/50 hover:text-white"
                   )}
                 >
                   <Icon className="size-3.5 sm:size-3" />
