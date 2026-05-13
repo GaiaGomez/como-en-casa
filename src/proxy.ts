@@ -47,12 +47,10 @@ export async function proxy(request: NextRequest) {
     role = profile?.role ?? "employee";
   }
 
-  // /login: redirect authenticated users to their portal
+  // /login: redirect authenticated users to the admin portal
   if (pathname === "/login") {
     if (user) {
-      return NextResponse.redirect(
-        new URL(role === "admin" ? "/admin" : "/empleado", request.url)
-      );
+      return NextResponse.redirect(new URL("/admin", request.url));
     }
     return supabaseResponse;
   }
@@ -62,10 +60,8 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  // Employees cannot access /admin/*
-  if (pathname.startsWith("/admin") && role !== "admin") {
-    return NextResponse.redirect(new URL("/empleado", request.url));
-  }
+  // Both admin and employee (equipo) can access /admin
+  // Unauthenticated users are already redirected above
 
   return supabaseResponse;
 }

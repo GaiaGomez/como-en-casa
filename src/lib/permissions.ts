@@ -1,5 +1,3 @@
-import type { UserRole } from "./supabase/auth";
-
 export type Permissions = {
   canEditHorario: boolean;
   canEditPropinas: boolean;
@@ -8,14 +6,14 @@ export type Permissions = {
   canEditCompras: boolean;
 };
 
-export function getPermissions(role: UserRole | null | undefined): Permissions {
+export function getPermissions(role: string | null | undefined): Permissions {
   const admin = role === "admin";
-  const equipo = role === "employee";
+  const team = role === "employee" || role === "equipo";
   return {
     canEditHorario: admin,
     canEditPropinas: admin,
     canEditEquipo: admin,
-    canEditInventario: admin || equipo,
+    canEditInventario: admin || team,
     canEditCompras: admin,
   };
 }
