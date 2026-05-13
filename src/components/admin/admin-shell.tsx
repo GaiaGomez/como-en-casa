@@ -37,7 +37,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
             </div>
           </div>
         </header>
-        <main className="mx-auto w-full max-w-7xl px-4 pb-[calc(env(safe-area-inset-bottom)+76px)] pt-5 sm:px-6 lg:px-8">
+        <main className="mx-auto w-full max-w-7xl px-4 pb-[calc(env(safe-area-inset-bottom)+104px)] pt-5 sm:px-6 lg:px-8">
           {children}
         </main>
         <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-white/10 bg-black/95 px-2 pt-2 pb-[calc(env(safe-area-inset-bottom)+14px)] backdrop-blur">

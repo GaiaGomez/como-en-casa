@@ -203,7 +203,7 @@ export default function PurchasesPage() {
         <input
           name="name"
           placeholder="Item manual"
-          className="h-8 min-w-0 rounded-[10px] border border-black/20 bg-white px-2 text-base font-medium text-black outline-none placeholder:text-black/30 focus:border-black sm:text-sm"
+          className="h-9 min-w-0 rounded-[10px] border border-black/20 bg-white px-2 text-base font-medium text-black outline-none placeholder:text-black/30 focus:border-black"
         />
         <input
           name="quantity"
@@ -211,17 +211,17 @@ export default function PurchasesPage() {
           min={0}
           step={1}
           placeholder="Cant."
-          className="h-8 min-w-0 rounded-[10px] border border-black/20 bg-white px-2 text-base font-medium text-black outline-none placeholder:text-black/30 focus:border-black sm:text-sm"
+          className="h-9 min-w-0 rounded-[10px] border border-black/20 bg-white px-2 text-base font-medium text-black outline-none placeholder:text-black/30 focus:border-black"
         />
         <input
           name="unit"
           placeholder="Und."
-          className="h-8 min-w-0 rounded-[10px] border border-black/20 bg-white px-2 text-base font-medium text-black outline-none placeholder:text-black/30 focus:border-black sm:text-sm"
+          className="h-9 min-w-0 rounded-[10px] border border-black/20 bg-white px-2 text-base font-medium text-black outline-none placeholder:text-black/30 focus:border-black"
         />
         <input
           name="category"
           placeholder="Categoría"
-          className="col-span-2 h-8 min-w-0 rounded-[10px] border border-black/20 bg-white px-2 text-base font-medium text-black outline-none placeholder:text-black/30 focus:border-black sm:col-span-1 sm:text-sm"
+          className="col-span-2 h-9 min-w-0 rounded-[10px] border border-black/20 bg-white px-2 text-base font-medium text-black outline-none placeholder:text-black/30 focus:border-black sm:col-span-1"
         />
         <button
           type="submit"

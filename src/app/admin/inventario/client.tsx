@@ -111,24 +111,76 @@ export default function InventoryClient({ initialItems }: { initialItems: Invent
               {category}
             </p>
 
-            <div className="grid items-start grid-cols-[minmax(0,1fr)_auto_auto_auto] overflow-hidden rounded-[20px] border border-black/10 bg-white lg:grid-cols-[minmax(280px,1fr)_96px_96px_128px]">
-
-              <span className="border-b border-black/[0.07] pl-4 pr-2 py-2 text-[0.6rem] font-semibold uppercase tracking-wider text-black/35">Producto</span>
-              <span className="border-b border-black/[0.07] px-2 py-2 text-[0.6rem] font-semibold uppercase tracking-wider text-black/35">Actual</span>
-              <span className="border-b border-black/[0.07] px-2 py-2 text-[0.6rem] font-semibold uppercase tracking-wider text-black/35">Ideal</span>
-              <span className="border-b border-black/[0.07] pl-2 pr-3 py-2 text-[0.6rem] font-semibold uppercase tracking-wider text-black/35">Comprar</span>
-
+            <div className="space-y-2 sm:hidden">
               {catItems.map((item) => {
                 const buyQty = getBuyQty(item);
                 return (
-                  <Fragment key={item.id}>
-                    <div className="min-w-0 border-b border-black/[0.04] py-2 pl-4 pr-2">
-                      <AutoResizeTextarea
-                        value={item.name}
-                        onChange={(value) => updateItemField(item.id, "name", value)}
-                        className="block w-full resize-none bg-transparent border-0 p-0 text-base leading-5 break-words font-medium text-black outline-none focus:ring-0 sm:text-[0.8125rem] sm:leading-4"
-                      />
+                  <div key={item.id} className="rounded-[18px] border border-black/10 bg-white p-3 text-black">
+                    <AutoResizeTextarea
+                      value={item.name}
+                      onChange={(value) => updateItemField(item.id, "name", value)}
+                      className="block w-full resize-none bg-transparent border-0 p-0 text-base leading-5 break-words font-semibold text-black outline-none focus:ring-0"
+                    />
+                    <div className="mt-3 grid grid-cols-3 gap-2">
+                      <label className="min-w-0">
+                        <span className="block text-[0.6rem] font-semibold uppercase tracking-wider text-black/35">Actual</span>
+                        <span className="mt-1 flex items-center gap-1">
+                          <input
+                            type="number"
+                            min={0}
+                            step={1}
+                            value={stocks[item.id] ?? item.currentStock}
+                            onChange={(e) => updateStock(item.id, Number(e.target.value))}
+                            className="h-9 min-w-0 flex-1 rounded-[8px] border border-black/20 bg-white text-center text-base font-bold text-black outline-none focus:border-black/50 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                          />
+                          <span className="shrink-0 text-[0.65rem] text-black/45">{item.unit}</span>
+                        </span>
+                      </label>
+                      <label className="min-w-0">
+                        <span className="block text-[0.6rem] font-semibold uppercase tracking-wider text-black/35">Ideal</span>
+                        <span className="mt-1 flex items-center gap-1">
+                          <input
+                            type="number"
+                            min={0}
+                            step={1}
+                            value={item.idealStock}
+                            onChange={(e) => updateItemField(item.id, "idealStock", Number(e.target.value))}
+                            className="h-9 min-w-0 flex-1 rounded-[8px] border border-black/20 bg-white text-center text-base text-black outline-none focus:border-black/50 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                          />
+                          <span className="shrink-0 text-[0.65rem] text-black/45">{item.unit}</span>
+                        </span>
+                      </label>
+                      <div className="min-w-0">
+                        <span className="block text-[0.6rem] font-semibold uppercase tracking-wider text-black/35">Comprar</span>
+                        <span className={`mt-2 block truncate text-sm ${buyQty > 0 ? "font-semibold text-black" : "text-black/25"}`}>
+                          {buyQty > 0 ? `+${buyQty} ${item.unit}` : "—"}
+                        </span>
+                      </div>
                     </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="hidden overflow-x-auto rounded-[20px] border border-black/10 bg-white sm:block" style={{ WebkitOverflowScrolling: "touch" } as React.CSSProperties}>
+              <div className="grid min-w-[520px] items-start grid-cols-[minmax(180px,1fr)_96px_96px_120px] overflow-hidden lg:min-w-0 lg:grid-cols-[minmax(280px,1fr)_96px_96px_128px]">
+
+                <span className="border-b border-black/[0.07] pl-4 pr-2 py-2 text-[0.6rem] font-semibold uppercase tracking-wider text-black/35">Producto</span>
+                <span className="border-b border-black/[0.07] px-2 py-2 text-[0.6rem] font-semibold uppercase tracking-wider text-black/35">Actual</span>
+                <span className="border-b border-black/[0.07] px-2 py-2 text-[0.6rem] font-semibold uppercase tracking-wider text-black/35">Ideal</span>
+                <span className="border-b border-black/[0.07] pl-2 pr-3 py-2 text-[0.6rem] font-semibold uppercase tracking-wider text-black/35">Comprar</span>
+
+                {catItems.map((item) => {
+                  const buyQty = getBuyQty(item);
+                  return (
+                    <Fragment key={item.id}>
+                      <div className="min-w-0 border-b border-black/[0.04] py-2 pl-4 pr-2">
+                        <AutoResizeTextarea
+                          value={item.name}
+                          onChange={(value) => updateItemField(item.id, "name", value)}
+                          className="block w-full resize-none bg-transparent border-0 p-0 text-base leading-5 break-words font-medium text-black outline-none focus:ring-0"
+                        />
+                      </div>
 
                     <div className="flex items-center gap-0.5 border-b border-black/[0.04] px-2 py-2">
                       <input
@@ -137,7 +189,7 @@ export default function InventoryClient({ initialItems }: { initialItems: Invent
                         step={1}
                         value={stocks[item.id] ?? item.currentStock}
                         onChange={(e) => updateStock(item.id, Number(e.target.value))}
-                        className="h-7 w-10 rounded-[8px] border border-black/20 bg-white text-center text-base font-bold text-black outline-none focus:border-black/50 sm:text-xs [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                        className="h-8 w-12 rounded-[8px] border border-black/20 bg-white text-center text-base font-bold text-black outline-none focus:border-black/50 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                       />
                       <span className="text-[0.65rem] text-black/45">{item.unit}</span>
                     </div>
@@ -149,7 +201,7 @@ export default function InventoryClient({ initialItems }: { initialItems: Invent
                         step={1}
                         value={item.idealStock}
                         onChange={(e) => updateItemField(item.id, "idealStock", Number(e.target.value))}
-                        className="h-7 w-10 rounded-[8px] border border-black/20 bg-white text-center text-base text-black outline-none focus:border-black/50 sm:text-xs [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                        className="h-8 w-12 rounded-[8px] border border-black/20 bg-white text-center text-base text-black outline-none focus:border-black/50 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                       />
                       <span className="ml-1">{item.unit}</span>
                     </span>
@@ -157,9 +209,10 @@ export default function InventoryClient({ initialItems }: { initialItems: Invent
                     <span className={`flex items-center border-b border-black/[0.04] py-2 pl-2 pr-3 text-xs ${buyQty > 0 ? "font-semibold text-black" : "text-black/20"}`}>
                       {buyQty > 0 ? `+${buyQty} ${item.unit}` : "—"}
                     </span>
-                  </Fragment>
-                );
-              })}
+                    </Fragment>
+                  );
+                })}
+              </div>
             </div>
           </section>
         );

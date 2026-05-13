@@ -44,7 +44,7 @@ export default function LoginPage() {
               type="email"
               required
               defaultValue="duena@comoencasa.co"
-              className="h-9 w-full rounded-[10px] border border-black/15 bg-white px-3 text-sm text-black outline-none focus:border-black/40"
+              className="h-10 w-full rounded-[10px] border border-black/15 bg-white px-3 text-base text-black outline-none focus:border-black/40"
             />
           </div>
           <div className="space-y-1.5">
@@ -57,7 +57,7 @@ export default function LoginPage() {
               type="password"
               required
               defaultValue="admin-demo"
-              className="h-9 w-full rounded-[10px] border border-black/15 bg-white px-3 text-sm text-black outline-none focus:border-black/40"
+              className="h-10 w-full rounded-[10px] border border-black/15 bg-white px-3 text-base text-black outline-none focus:border-black/40"
             />
           </div>
           {error && (

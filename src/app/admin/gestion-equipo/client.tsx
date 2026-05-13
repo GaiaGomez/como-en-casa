@@ -535,7 +535,7 @@ export function TeamManagementClient({ initialEmployees }: { initialEmployees: E
                 id="status"
                 name="status"
                 defaultValue={dialogEmployee?.status ?? "activo"}
-                className="w-full rounded-[10px] border border-black/15 bg-white px-3 py-2 text-base text-black outline-none focus:border-black/40 sm:text-sm"
+                className="w-full rounded-[10px] border border-black/15 bg-white px-3 py-2 text-base text-black outline-none focus:border-black/40"
               >
                 <option value="activo">Activo</option>
                 <option value="descanso">Descanso</option>
@@ -571,7 +571,7 @@ function FormField({
         name={id}
         defaultValue={defaultValue}
         required={required}
-        className="h-9 w-full rounded-[10px] border border-black/15 bg-white px-3 text-base text-black outline-none focus:border-black/40 sm:text-sm"
+        className="h-9 w-full rounded-[10px] border border-black/15 bg-white px-3 text-base text-black outline-none focus:border-black/40"
       />
     </div>
   );
@@ -597,7 +597,7 @@ function TipInputRow({
           inputMode="numeric"
           pattern="[0-9]*"
           aria-label={`Editar propinas de ${label}`}
-          className="h-7 w-24 rounded-[8px] border border-black/30 bg-white px-2 text-right text-base font-bold text-black outline-none transition focus:border-black focus:ring-2 focus:ring-black/10 sm:text-xs"
+          className="h-8 w-28 rounded-[8px] border border-black/30 bg-white px-2 text-right text-base font-bold text-black outline-none transition focus:border-black focus:ring-2 focus:ring-black/10"
           value={String(value)}
           onChange={(event) => {
             const parsed = Number(event.target.value.replace(/\D/g, ""));
