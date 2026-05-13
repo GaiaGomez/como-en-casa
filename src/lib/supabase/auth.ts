@@ -47,7 +47,7 @@ export async function requireRole(role: UserRole) {
   const profile = await getCurrentProfile();
   if (!profile) redirect("/login");
   if (profile.role !== role) {
-    redirect(profile.role === "admin" ? "/admin" : "/empleado");
+    redirect("/admin");
   }
   return profile;
 }
