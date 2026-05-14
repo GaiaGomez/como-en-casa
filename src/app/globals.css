@@ -85,11 +85,13 @@
     @apply border-border outline-ring/50;
   }
   html {
-    @apply font-sans overflow-x-hidden;
+    @apply font-sans;
+    overflow-x: clip;
     font-size: 17px;
   }
   body {
-    @apply bg-background text-foreground overflow-x-hidden;
+    @apply bg-background text-foreground;
+    overflow-x: clip;
   }
 }
 

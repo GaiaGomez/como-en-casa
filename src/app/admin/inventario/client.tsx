@@ -254,7 +254,7 @@ export default function InventoryClient({
               })}
             </div>
 
-            <div className="hidden overflow-x-auto rounded-[20px] border border-black/10 bg-white sm:block" style={{ WebkitOverflowScrolling: "touch" } as React.CSSProperties}>
+            <div className="hidden overflow-x-auto rounded-[20px] border border-black/10 bg-white sm:block">
               <div className="grid min-w-[520px] items-start grid-cols-[minmax(180px,1fr)_96px_96px_120px] overflow-hidden lg:min-w-0 lg:grid-cols-[minmax(280px,1fr)_96px_96px_128px]">
 
                 <span className="border-b border-black/[0.07] pl-4 pr-2 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-neutral-400">Producto</span>

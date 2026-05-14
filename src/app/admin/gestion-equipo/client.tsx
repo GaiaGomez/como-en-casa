@@ -537,7 +537,7 @@ export function TeamManagementClient({
           {!canEditHorario && (
             <p className="border-b border-black/[0.04] px-4 py-2 text-xs font-normal text-neutral-400">Solo lectura</p>
           )}
-          <div className="overflow-x-auto" style={{ WebkitOverflowScrolling: "touch" } as React.CSSProperties}>
+          <div className="overflow-x-auto">
             <div
               className="grid gap-0 p-2.5 [grid-template-columns:minmax(72px,0.8fr)_repeat(7,minmax(26px,1fr))_24px] lg:mx-auto lg:w-max lg:gap-x-2 lg:p-4 lg:[grid-template-columns:minmax(120px,180px)_repeat(7,minmax(36px,44px))_32px]"
             >
