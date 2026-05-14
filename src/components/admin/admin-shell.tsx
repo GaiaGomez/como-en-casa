@@ -24,8 +24,8 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="min-h-[100svh] bg-black text-white">
-      <header className="sticky top-0 z-20 border-b border-white/10 bg-black pt-[env(safe-area-inset-top)] backdrop-blur-sm">
+    <div className="flex h-[100svh] flex-col bg-black text-white">
+      <header className="shrink-0 z-20 border-b border-white/10 bg-black pt-[env(safe-area-inset-top)]">
         <div className="mx-auto flex min-h-12 max-w-7xl items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
           <img
             src="/logo-como-en-casa.png"
@@ -44,10 +44,12 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
           </div>
         </div>
       </header>
-      <main className="mx-auto w-full max-w-7xl px-4 pb-[calc(env(safe-area-inset-bottom)+104px)] pt-5 sm:px-6 lg:px-8">
-        {children}
+      <main className="min-h-0 flex-1 overflow-y-auto">
+        <div className="mx-auto w-full max-w-7xl px-4 pt-5 pb-6 sm:px-6 lg:px-8">
+          {children}
+        </div>
       </main>
-      <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-white/10 bg-black/95 px-2 pt-2 pb-[calc(env(safe-area-inset-bottom)+14px)] backdrop-blur">
+      <nav className="shrink-0 z-50 border-t border-white/10 bg-black/95 px-2 pt-2 pb-[calc(env(safe-area-inset-bottom)+14px)]">
         <div className="mx-auto grid max-w-xl grid-cols-4 gap-0.5">
           {navItems.map((item) => {
             const Icon = item.icon;
