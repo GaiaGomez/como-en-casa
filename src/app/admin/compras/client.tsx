@@ -176,13 +176,13 @@ export default function PurchasesPage({
         ))}
       </div>
 
-      <div className="xl:columns-2 xl:gap-x-5">
+      <div className="lg:columns-2 lg:gap-x-5">
       {groups.map((group) => {
         const groupItems = items.filter((i) =>
           groupBy === "supplier" ? i.supplier === group : i.category === group
         );
         return (
-          <section key={group} className="mb-3 w-full min-w-0 xl:mb-5 xl:break-inside-avoid">
+          <section key={group} className="mb-3 w-full min-w-0 lg:mb-5 lg:break-inside-avoid">
             <p className="mb-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-neutral-400">
               {group}
             </p>

@@ -194,11 +194,11 @@ export default function InventoryClient({
         </div>
       </div>
 
-      <div className="xl:columns-2 xl:gap-x-5">
+      <div className="lg:columns-2 lg:gap-x-5">
       {categories.map((category) => {
         const catItems = computedItems.filter((i) => i.category === category);
         return (
-          <section key={category} className="mb-3 w-full min-w-0 xl:mb-5 xl:break-inside-avoid">
+          <section key={category} className="mb-3 w-full min-w-0 lg:mb-5 lg:break-inside-avoid">
             <p className="mb-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-neutral-400">
               {category}
             </p>
@@ -254,7 +254,7 @@ export default function InventoryClient({
             </div>
 
             <div className="hidden overflow-x-auto rounded-[20px] border border-black/10 bg-white sm:block">
-              <div className="grid min-w-[520px] items-start grid-cols-[minmax(180px,1fr)_96px_96px_120px] lg:min-w-0 lg:grid-cols-[minmax(280px,1fr)_96px_96px_128px] xl:grid-cols-[minmax(160px,1fr)_88px_88px_104px]">
+              <div className="grid min-w-[520px] items-start grid-cols-[minmax(180px,1fr)_96px_96px_120px] lg:min-w-0 lg:grid-cols-[minmax(120px,1fr)_88px_88px_100px] xl:grid-cols-[minmax(160px,1fr)_88px_88px_104px]">
 
                 <span className="border-b border-black/[0.07] pl-4 pr-2 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-neutral-400">Producto</span>
                 <span className="border-b border-black/[0.07] px-2 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-neutral-400">Actual</span>
@@ -281,7 +281,7 @@ export default function InventoryClient({
                       <NumericInput
                         value={stocks[item.id] ?? item.currentStock}
                         onChange={(v) => updateStock(item.id, v)}
-                        className="h-8 w-12 rounded-[8px] border border-black/20 bg-white text-center text-base font-semibold text-neutral-900 outline-none focus:border-black/50"
+                        className="h-8 w-12 lg:w-10 xl:w-12 rounded-[8px] border border-black/20 bg-white text-center text-base font-semibold text-neutral-900 outline-none focus:border-black/50"
                       />
                       <span className="text-sm font-normal text-neutral-400">{formatUnit(item.unit)}</span>
                     </div>
@@ -291,7 +291,7 @@ export default function InventoryClient({
                         value={item.idealStock}
                         disabled={!canEditIdealStock}
                         onChange={(v) => updateItemField(item.id, "idealStock", v)}
-                        className="h-8 w-12 rounded-[8px] border border-black/20 bg-white text-center text-base font-semibold text-neutral-900 outline-none focus:border-black/50 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="h-8 w-12 lg:w-10 xl:w-12 rounded-[8px] border border-black/20 bg-white text-center text-base font-semibold text-neutral-900 outline-none focus:border-black/50 disabled:opacity-50 disabled:cursor-not-allowed"
                       />
                       <span className="ml-1">{formatUnit(item.unit)}</span>
                     </span>
