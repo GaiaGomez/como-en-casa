@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 import { signOut } from "@/lib/supabase/auth-browser";
 
 const navItems = [
-  { href: "/empleado/inventario", label: "Inventario", icon: Box },
+  { href: "/admin/inventario", label: "Inventario", icon: Box },
   { href: "/empleado/compras", label: "Compras", icon: ShoppingCart },
 ];
 

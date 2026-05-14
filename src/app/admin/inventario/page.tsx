@@ -7,11 +7,12 @@ export default async function InventoryPage() {
   const [items, profile] = await Promise.all([getInventory(), getCurrentProfile()]);
   const { canEditInventario } = getPermissions(profile?.role);
   const isAdmin = profile?.role === "admin";
+
   return (
     <InventoryClient
       initialItems={items}
       canReset={canEditInventario}
-      canEditIdealStock={isAdmin}
+      canEditIdealStock={canEditInventario}
       canEditName={isAdmin}
     />
   );
