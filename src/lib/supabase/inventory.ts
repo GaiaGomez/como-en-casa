@@ -33,8 +33,14 @@ export async function getInventory(): Promise<InventoryItem[]> {
     .order("category")
     .order("name");
 
-  if (error) return mockInventory;
-  if (!data || data.length === 0) return [];
+  if (error) {
+    console.error("[getInventory] error:", error.message, "| code:", error.code);
+    return mockInventory;
+  }
+  if (!data || data.length === 0) {
+    console.warn("[getInventory] query returned 0 rows — check RLS SELECT policies on inventory table");
+    return mockInventory;
+  }
 
   return (data as SupabaseInventoryRow[]).map(mapRow);
 }

@@ -44,8 +44,14 @@ export async function getEmployees(): Promise<Employee[]> {
     .eq("active", true)
     .order("name");
 
-  if (error) return mockEmployees;
-  if (!data || data.length === 0) return [];
+  if (error) {
+    console.error("[getEmployees] error:", error.message, "| code:", error.code);
+    return mockEmployees;
+  }
+  if (!data || data.length === 0) {
+    console.warn("[getEmployees] query returned 0 rows — check RLS SELECT policies on employees table");
+    return mockEmployees;
+  }
 
   return (data as SupabaseEmployeeRow[]).map(mapRow);
 }
