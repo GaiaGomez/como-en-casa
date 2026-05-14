@@ -216,33 +216,33 @@ export default function InventoryClient({
                     ) : (
                       <p className="text-base font-medium leading-5 break-words text-neutral-900">{item.name}</p>
                     )}
-                    <div className="mt-3 grid grid-cols-3 gap-2">
-                      <label className="min-w-0">
-                        <span className="block text-xs font-semibold uppercase tracking-[0.16em] text-neutral-400">Actual</span>
-                        <span className="mt-1 flex items-center gap-1">
+                    <div className="mt-3 grid grid-cols-3 gap-1">
+                      <label className="flex flex-col items-center gap-1">
+                        <span className="text-xs font-semibold uppercase tracking-[0.16em] text-neutral-400">Actual</span>
+                        <span className="flex items-center gap-1">
                           <NumericInput
                             value={stocks[item.id] ?? item.currentStock}
                             onChange={(v) => updateStock(item.id, v)}
-                            className="h-9 min-w-0 flex-1 rounded-[8px] border border-black/20 bg-white text-center text-base font-semibold text-neutral-900 outline-none focus:border-black/50"
+                            className="h-9 w-[72px] rounded-[8px] border border-black/20 bg-white text-center text-base font-semibold text-neutral-900 outline-none focus:border-black/50"
                           />
-                          <span className="shrink-0 text-sm font-normal text-neutral-400">{formatUnit(item.unit)}</span>
+                          <span className="text-sm font-normal text-neutral-400">{formatUnit(item.unit)}</span>
                         </span>
                       </label>
-                      <label className="min-w-0">
-                        <span className="block text-xs font-semibold uppercase tracking-[0.16em] text-neutral-400">Ideal</span>
-                        <span className="mt-1 flex items-center gap-1">
+                      <label className="flex flex-col items-center gap-1">
+                        <span className="text-xs font-semibold uppercase tracking-[0.16em] text-neutral-400">Ideal</span>
+                        <span className="flex items-center gap-1">
                           <NumericInput
                             value={item.idealStock}
                             disabled={!canEditIdealStock}
                             onChange={(v) => updateItemField(item.id, "idealStock", v)}
-                            className="h-9 min-w-0 flex-1 rounded-[8px] border border-black/20 bg-white text-center text-base font-semibold text-neutral-900 outline-none focus:border-black/50 disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="h-9 w-[72px] rounded-[8px] border border-black/20 bg-white text-center text-base font-semibold text-neutral-900 outline-none focus:border-black/50 disabled:opacity-50 disabled:cursor-not-allowed"
                           />
-                          <span className="shrink-0 text-sm font-normal text-neutral-400">{formatUnit(item.unit)}</span>
+                          <span className="text-sm font-normal text-neutral-400">{formatUnit(item.unit)}</span>
                         </span>
                       </label>
-                      <div className="min-w-0">
-                        <span className="block text-xs font-semibold uppercase tracking-[0.16em] text-neutral-400">Comprar</span>
-                        <div className={`mt-1 flex h-9 items-center text-sm font-semibold ${buyQty > 0 ? "text-neutral-900" : "text-neutral-400"}`}>
+                      <div className="flex flex-col items-center gap-1">
+                        <span className="text-xs font-semibold uppercase tracking-[0.16em] text-neutral-400">Comprar</span>
+                        <div className={`flex h-9 items-center text-sm font-semibold ${buyQty > 0 ? "text-neutral-900" : "text-neutral-400"}`}>
                           {buyQty > 0 ? `+${buyQty} ${formatUnit(item.unit)}` : "—"}
                         </div>
                       </div>
