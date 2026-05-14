@@ -47,7 +47,7 @@ export function EmployeeShell({ children }: { children: React.ReactNode }) {
           {children}
         </div>
       </main>
-      <nav className="shrink-0 z-50 border-t border-white/10 bg-black/95 px-2 pt-2 pb-[calc(env(safe-area-inset-bottom)+14px)]">
+      <nav className="shrink-0 z-50 border-t border-white/10 bg-black/95 px-2 pt-2 pb-[calc(env(safe-area-inset-bottom)+4px)]">
         <div className="mx-auto grid max-w-xs grid-cols-2 gap-0.5">
           {navItems.map((item) => {
             const Icon = item.icon;
