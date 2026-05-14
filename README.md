@@ -1,188 +1,272 @@
-# Como en Casa — Internal Operations App
+# Como en Casa Admin
 
-Internal management tool for a small food business. Handles inventory, work schedules, tip distribution, and purchase lists. Built as a mobile-first PWA for staff phones, with a full desktop view for admins.
+An internal operations dashboard for a small food business. Como en Casa Admin replaces notebooks, WhatsApp threads, paper tip calculations, and manual inventory checks with a single role-aware tool for daily café/restaurant operations. Built end to end as a solo project — from product scope and data modeling to mobile-first UI, Supabase persistence, role permissions, PWA setup, and deployment.
+
+> Demo access: This project is connected to a real internal workflow, so production business data is not public. Screenshots and a portfolio case study can be used to show the product without exposing private operational data.
 
 ---
 
 ## The Problem
 
-Day-to-day operations were tracked manually — inventory counts in notebooks, work schedules in WhatsApp groups, tip calculations on paper. This caused errors, inconsistencies, and friction for a team of ~10 people working across kitchen, floor, and pastry stations.
+Small food businesses often run critical operations through scattered, manual workflows: inventory counts in notebooks, purchase needs calculated by eye, employee schedules shared through chat, and tips split on paper.
 
-The app replaces that with a single, role-aware tool accessible from any phone.
+For Como en Casa, that meant the team could operate day to day, but the process was fragile: easy to forget, hard to audit, and difficult to keep consistent across kitchen, service, and pastry roles.
 
----
-
-## Features
-
-- **Inventory** — track current stock vs ideal stock per item; auto-generates a "to buy" list; admin can edit names and ideal levels
-- **Purchase list** — combines auto-generated inventory needs with manually added items; group by category or supplier; mark as bought (sets stock to ideal)
-- **Work schedule** — weekly grid per employee; toggle worked days; supports multiple weeks and week navigation
-- **Tip distribution** — enter daily totals; automatically distributes proportionally by days worked; tracks payment status
-- **Team management** — add/edit/deactivate employees with role assignment
-- **Role-based access** — admin has full write access; employee role can only update current stock levels
-- **Mobile-first PWA** — installable on iPhone/Android; consistent nav position across all routes; safe-area support
-- **Supabase backend** — live data with Row Level Security; mock data fallback for demo/offline
+Como en Casa Admin turns those recurring tasks into a structured internal system designed around the way the team actually works.
 
 ---
 
-## Stack
+## What It Does
 
-| Layer | Technology |
-|---|---|
-| Framework | Next.js 16 (App Router, Turbopack) |
-| Language | TypeScript |
-| Styling | Tailwind CSS v4 |
-| Backend | Supabase (PostgreSQL + Auth + RLS) |
-| Hosting | Vercel |
-| PWA | Web App Manifest + Apple meta tags |
+### Inventory and purchase planning
 
----
+Tracks products by current stock, ideal stock, category, supplier, and unit. The app calculates what needs to be purchased from the difference between current and ideal stock.
 
-## Roles & Permissions
+```txt
+ideal stock - current stock = quantity to buy
+```
+
+Admins can manage product names and inventory structure. Team users can update current and ideal stock values from their phones.
+
+### Purchases
+
+Combines auto-generated inventory needs with manually added purchase items. Items can be grouped by category or supplier, helping the team quickly understand what needs to be restocked.
+
+### Team management
+
+Stores employee information, roles, contact details, and active/inactive status. Employee data is shared across scheduling and tip distribution.
+
+### Work schedule
+
+Weekly grid for tracking worked days by employee. Admins can toggle work days, navigate between weeks, and persist schedule data in Supabase.
+
+### Tip distribution
+
+Admins enter daily tip totals. The app distributes tips proportionally based on the number of days worked during the week, using persisted schedule and tip data.
+
+### Role-based access
+
+Admin users can manage the full system. Employee users can view the main sections and update inventory quantities, but cannot mutate purchases, employees, schedules, or tips.
 
 | Permission | `admin` | `employee` / `equipo` |
-|---|---|---|
-| Edit inventory stock | ✅ | ✅ |
-| Edit ideal stock / item names | ✅ | ❌ |
-| Reset all stock | ✅ | ❌ |
-| Manage purchases | ✅ | ❌ (read-only view) |
-| Edit work schedule | ✅ | ❌ |
+|---|---:|---:|
+| View dashboard | ✅ | ✅ |
+| View inventory | ✅ | ✅ |
+| Edit current stock | ✅ | ✅ |
+| Edit ideal stock | ✅ | ✅ |
+| Edit product names | ✅ | ❌ |
+| View purchases | ✅ | ✅ |
+| Manage purchases | ✅ | ❌ |
+| View team | ✅ | ✅ |
+| Manage employees | ✅ | ❌ |
+| View schedule | ✅ | ✅ |
+| Edit schedule | ✅ | ❌ |
+| View tips | ✅ | ✅ |
 | Edit tip amounts | ✅ | ❌ |
-| Manage team (add/edit/remove) | ✅ | ❌ |
-
-Permissions are centralized in [`src/lib/permissions.ts`](src/lib/permissions.ts) and derived from the user's `role` field in the `profiles` table.
 
 ---
 
-## Architecture
+## Technical Highlights
 
-```
+### Stack
+
+| Layer | Technology | Why |
+|---|---|---|
+| Framework | Next.js 16 App Router | Server-rendered admin pages, protected routes, and fast deployment through Vercel. |
+| Frontend | React, TypeScript, Tailwind CSS v4 | Typed UI logic, responsive layouts, and fast iteration on internal tool screens. |
+| Backend | Supabase: Postgres, Auth, RLS | Managed database, authentication, and database-level access control. |
+| Persistence | PostgreSQL tables per domain | Inventory, employees, purchases, schedule, tips, and profiles are modeled separately. |
+| PWA | Web App Manifest + Apple mobile metadata | App-like install experience for staff phones. |
+| Hosting | Vercel | Automatic deployment from `main`. |
+
+### Architecture
+
+```txt
 src/
 ├── app/
-│   ├── admin/          # Admin routes (dashboard, inventory, purchases, team)
-│   ├── empleado/       # Employee routes (inventory via /admin/inventario, own purchases view)
-│   └── login/          # Auth page
+│   ├── admin/
+│   │   ├── compras/           # Purchase planning
+│   │   ├── gestion-equipo/    # Employees, schedule, and tips
+│   │   ├── inventario/        # Inventory management
+│   │   └── page.tsx           # Dashboard
+│   ├── empleado/              # Legacy employee routes / redirects
+│   └── login/                 # Authentication
 ├── components/
-│   └── admin/          # AdminShell, EmployeeShell (layout + nav)
+│   └── admin/                 # Admin shell, employee shell, mobile navigation
 └── lib/
-    ├── mock-data.ts     # Types, helpers, demo fallback data
-    ├── permissions.ts   # Role → permissions map
-    └── supabase/        # Server client, browser client, read/write modules per domain
+    ├── permissions.ts         # Role → permissions map
+    ├── mock-data.ts           # Types, helpers, demo fallback data
+    └── supabase/              # Supabase clients and domain data modules
+        ├── auth.ts
+        ├── browser.ts
+        ├── employees.ts
+        ├── employee-writes.ts
+        ├── inventory.ts
+        ├── schedule.ts
+        ├── tips.ts
+        └── tip-actions.ts
 ```
 
-**Data flow:**
-- Server Components (`page.tsx`) fetch from Supabase via server client (cookie-based session)
-- Client Components (`client.tsx`) receive initial data as props and write changes via browser client (debounced, optimistic)
-- Middleware (`src/proxy.ts`) handles session refresh and auth redirects
-
-**Mock fallback:**
-When Supabase returns no rows (empty DB, RLS blocking reads), functions return demo data from `mock-data.ts` with a console warning. This lets the app run as a demo without a live database.
+Pattern: Server-rendered pages load authenticated data from Supabase and pass it into client components. Client components handle interaction-heavy flows like inventory edits, schedule toggles, and tip inputs. Domain data access lives in `src/lib/supabase`, while role permissions are centralized in `src/lib/permissions.ts`.
 
 ---
 
-## Supabase Schema
+## Key Technical Decisions
 
-```sql
-profiles          -- id (uuid, FK auth.users), role ('admin' | 'employee' | 'equipo')
-employees         -- id, name, short_name, role, phone, active, created_at
-inventory         -- id, name, category, supplier, unit, current_stock, ideal_stock
-manual_shopping_items -- id, name, quantity, unit, category, status
-tip_weeks         -- id, start_date, end_date, status ('abierta' | 'cerrada')
-tip_daily_amounts -- id, week_id, tip_date, amount
-work_schedule     -- id, week_id, employee_id, work_date, worked
-tip_payments      -- id, week_id, employee_id, status
-```
+### Supabase as the source of truth
 
-**RLS policies needed (minimum for authenticated users):**
-```sql
--- Read
-create policy "auth read employees"  on employees  for select to authenticated using (true);
-create policy "auth read inventory"  on inventory  for select to authenticated using (true);
+Inventory, employees, manual shopping items, work schedules, tip weeks, daily tip amounts, and payment status are persisted in Postgres. Mock data is kept only as a fallback/demo layer, not as the production source of truth.
 
--- Write (admin only in production; use role check or service role for tighter control)
-create policy "auth update inventory" on inventory for update to authenticated using (true) with check (true);
-create policy "auth write schedule"   on work_schedule for all to authenticated using (true) with check (true);
-create policy "auth write tips"       on tip_daily_amounts for all to authenticated using (true) with check (true);
-create policy "auth write tip_weeks"  on tip_weeks for all to authenticated using (true) with check (true);
-create policy "auth write employees"  on employees for all to authenticated using (true) with check (true);
-```
+### Role permissions in one place
+
+Permissions are derived from the user's `profiles.role` value and mapped through `src/lib/permissions.ts`. UI controls are hidden or disabled based on permissions, and mutation handlers also guard restricted actions.
+
+### RLS-backed access model
+
+Supabase Row Level Security protects reads and writes at the database level. The UI permission layer improves user experience, but database policies remain the final boundary.
+
+### Server Actions for RLS-sensitive writes
+
+Schedule and tip writes use Server Actions so Supabase can resolve `auth.uid()` from the server-side session context. This avoids silent client-side RLS failures for authenticated mutations.
+
+### Inventory-driven purchase logic
+
+Purchase needs are derived from inventory state instead of entered manually every time. The app calculates buy quantities from `ideal_stock - current_stock`, keeping restock decisions tied to the inventory source of truth.
+
+### Mobile-first shell
+
+The interface is designed for staff phones first. The shell uses an internal scroll container and in-flow bottom navigation to avoid iOS Safari/PWA viewport jumps and keep navigation stable across routes.
 
 ---
 
-## Setup
+## Data Model
 
-**Prerequisites:** Node 20+, a Supabase project
+Main tables:
+
+| Table | Purpose |
+|---|---|
+| `profiles` | User role and auth-linked profile |
+| `employees` | Team members and employee details |
+| `inventory` | Product stock, category, supplier, and ideal quantity |
+| `manual_shopping_items` | Manually added purchase items |
+| `tip_weeks` | Weekly tip periods |
+| `tip_daily_amounts` | Daily tip totals per week |
+| `work_schedule` | Worked days per employee |
+| `tip_payments` | Tip payment status per employee/week |
+
+---
+
+## Mobile and Desktop UX
+
+Como en Casa Admin is built as a mobile-first PWA because the staff workflow happens mostly from phones.
+
+Mobile work includes:
+
+- Installable PWA configuration.
+- Web App Manifest and Apple mobile metadata.
+- Safe-area support for iPhone.
+- Stable bottom navigation across short and long pages.
+- Compact inventory cards with editable quantity inputs.
+
+Desktop work includes:
+
+- Wider admin layouts.
+- Two-column category layouts for inventory and purchases.
+- Larger schedule and tip management views.
+
+---
+
+## Local Setup
+
+Requires Node.js 20+ and a Supabase project.
 
 ```bash
-git clone <repo>
-cd como-en-casa-admin
 npm install
 cp .env.example .env.local
-# fill in NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000). Without Supabase credentials or an empty DB, the app renders with mock/demo data.
+Environment variables:
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+```
+
+Open:
+
+```txt
+http://localhost:3000
+```
 
 ---
 
-## Environment Variables
-
-```
-NEXT_PUBLIC_SUPABASE_URL      # Your Supabase project URL
-NEXT_PUBLIC_SUPABASE_ANON_KEY # Your Supabase anon/public key (not the service role key)
-```
-
-See `.env.example` for the template.
-
----
-
-## Scripts
+## Commands
 
 ```bash
-npm run dev    # Dev server with Turbopack
-npm run build  # Production build
-npm run start  # Start production server
-npm run lint   # ESLint
+npm run dev       # Local development server with Turbopack
+npm run build     # Production build
+npm run start     # Run production build
+npm run lint      # ESLint, if configured
 ```
 
 ---
 
-## Deploy
+## Project Status
 
-The app is deployed on Vercel. Push to `main` triggers a deploy.
+Core product flows are implemented:
 
-1. Connect repo to Vercel
-2. Set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` in Vercel environment settings
-3. Deploy
+- Authenticated admin and employee access.
+- Inventory persistence.
+- Purchase planning.
+- Employee management.
+- Weekly schedule tracking.
+- Tip distribution.
+- Mobile PWA setup.
+- Desktop responsive layouts.
 
----
+Current follow-up items:
 
-## Current Status
-
-Core features are complete and in active use. Known open items:
-
-- RLS policies need to be tightened per role (currently blanket authenticated-user access)
-- Employee `canAdd` on purchases view needs an explicit permission prop
-- Tip payment status updates (mark as paid) not yet wired to DB writes
-- Some mock data still uses hardcoded demo employee names as fallback
+- Tighten RLS policies further per role.
+- Add a write path for marking tip payments as paid.
+- Replace demo fallback staff names before making the repo fully public.
+- Add final screenshots to the README and portfolio case study.
 
 ---
 
 ## Screenshots
 
-> _Add screenshots here_
+### Mobile
 
-| Mobile — Inicio | Mobile — Inventario | Desktop — Equipo |
-|---|---|---|
-| _(screenshot)_ | _(screenshot)_ | _(screenshot)_ |
+| Dashboard | Inventory |
+|---|---|
+| ![Mobile dashboard](public/screenshots/mobile-dashboard.png) | ![Mobile inventory](public/screenshots/mobile-inventory.png) |
+
+| Purchases | Tips |
+|---|---|
+| ![Mobile purchases](public/screenshots/mobile-purchases.png) | ![Mobile tips](public/screenshots/mobile-tips.png) |
+
+### Desktop
+
+| Purchases |
+|---|
+| ![Desktop purchases](public/screenshots/desktop-purchases.png) |
 
 ---
 
-## Portfolio Note
+## Case Study Notes
 
-Built as a real internal tool for a small restaurant/café business, not a demo project. The main technical challenges were:
+This project is strongest as a portfolio case study because it shows a real workflow turned into software:
 
-- **iOS PWA layout**: getting `position: fixed` nav to sit consistently across routes required switching to a `h-[100svh] flex flex-col` shell with in-flow nav to prevent iOS dynamic toolbar from causing positional drift
-- **Role-based data access**: Supabase RLS enforced at the DB layer, permissions map in one place, Server Components decide which props to pass to Client Components
-- **Optimistic writes**: stock/schedule edits are debounced and written to Supabase in the background; UI updates immediately with local state
+- Translating restaurant operations into a data model.
+- Building role-aware internal tools.
+- Debugging Supabase RLS and persistence issues.
+- Solving iOS PWA layout problems.
+- Designing for non-technical users on mobile devices.
+- Keeping desktop useful for admin work.
+
+---
+
+## License
+
+Private/internal project.
