@@ -10,6 +10,15 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "Como en Casa",
   description: "Operación interna de Como en Casa",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Como en Casa",
+  },
+  icons: {
+    apple: "/logo-como-en-casa.png",
+  },
 };
 
 export const viewport: Viewport = {
@@ -17,6 +26,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   viewportFit: "cover",
+  themeColor: "#191919",
 };
 
 export default function RootLayout({
@@ -25,8 +35,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es" className={`${inter.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col">{children}</body>
+    <html lang="es" className={`${inter.variable} antialiased`}>
+      <body>{children}</body>
     </html>
   );
 }

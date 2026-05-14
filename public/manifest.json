@@ -1,0 +1,18 @@
+{
+  "name": "Como en Casa",
+  "short_name": "Como en Casa",
+  "description": "Operación interna de Como en Casa",
+  "start_url": "/admin",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#191919",
+  "theme_color": "#191919",
+  "icons": [
+    {
+      "src": "/logo-como-en-casa.png",
+      "sizes": "554x738",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
