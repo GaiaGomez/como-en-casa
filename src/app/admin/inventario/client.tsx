@@ -194,11 +194,11 @@ export default function InventoryClient({
         </div>
       </div>
 
-      <div className="lg:grid lg:grid-cols-2 lg:gap-x-5 lg:items-start">
+      <div className="lg:columns-2 lg:gap-x-5">
       {categories.map((category) => {
         const catItems = computedItems.filter((i) => i.category === category);
         return (
-          <section key={category} className="mb-3">
+          <section key={category} className="mb-3 lg:mb-5 lg:break-inside-avoid">
             <p className="mb-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-neutral-400">
               {category}
             </p>
