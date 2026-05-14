@@ -17,7 +17,7 @@ export const metadata: Metadata = {
     title: "Como en Casa",
   },
   icons: {
-    apple: "/logo-como-en-casa.png",
+    apple: "/icon-192.png",
   },
 };
 
