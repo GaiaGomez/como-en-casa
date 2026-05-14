@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { Fragment, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 
 import {
   formatUnit,
@@ -41,6 +41,51 @@ function AutoResizeTextarea({
       }}
       className={className}
       style={{ height: "auto", minHeight: "1.5rem", whiteSpace: "pre-wrap" }}
+    />
+  );
+}
+
+function NumericInput({
+  value,
+  disabled,
+  onChange,
+  className,
+}: {
+  value: number;
+  disabled?: boolean;
+  onChange: (value: number) => void;
+  className?: string;
+}) {
+  const [raw, setRaw] = useState(() => String(value));
+  const hasFocus = useRef(false);
+
+  useEffect(() => {
+    if (!hasFocus.current) setRaw(String(value));
+  }, [value]);
+
+  return (
+    <input
+      type="text"
+      inputMode="numeric"
+      pattern="[0-9]*"
+      value={raw}
+      disabled={disabled}
+      onFocus={(e) => {
+        hasFocus.current = true;
+        if (raw === "0") e.target.select();
+      }}
+      onChange={(e) => {
+        const str = e.target.value.replace(/[^0-9]/g, "");
+        setRaw(str);
+        if (str !== "") onChange(Math.max(0, Number(str)));
+      }}
+      onBlur={() => {
+        hasFocus.current = false;
+        const num = raw === "" || Number.isNaN(Number(raw)) ? 0 : Math.max(0, Number(raw));
+        setRaw(String(num));
+        onChange(num);
+      }}
+      className={className}
     />
   );
 }
@@ -177,13 +222,10 @@ export default function InventoryClient({
                       <label className="min-w-0">
                         <span className="block text-xs font-semibold uppercase tracking-[0.16em] text-neutral-400">Actual</span>
                         <span className="mt-1 flex items-center gap-1">
-                          <input
-                            type="number"
-                            min={0}
-                            step={1}
+                          <NumericInput
                             value={stocks[item.id] ?? item.currentStock}
-                            onChange={(e) => updateStock(item.id, Number(e.target.value))}
-                            className="h-9 min-w-0 flex-1 rounded-[8px] border border-black/20 bg-white text-center text-base font-semibold text-neutral-900 outline-none focus:border-black/50 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                            onChange={(v) => updateStock(item.id, v)}
+                            className="h-9 min-w-0 flex-1 rounded-[8px] border border-black/20 bg-white text-center text-base font-semibold text-neutral-900 outline-none focus:border-black/50"
                           />
                           <span className="shrink-0 text-sm font-normal text-neutral-400">{formatUnit(item.unit)}</span>
                         </span>
@@ -191,14 +233,11 @@ export default function InventoryClient({
                       <label className="min-w-0">
                         <span className="block text-xs font-semibold uppercase tracking-[0.16em] text-neutral-400">Ideal</span>
                         <span className="mt-1 flex items-center gap-1">
-                          <input
-                            type="number"
-                            min={0}
-                            step={1}
+                          <NumericInput
                             value={item.idealStock}
                             disabled={!canEditIdealStock}
-                            onChange={(e) => updateItemField(item.id, "idealStock", Number(e.target.value))}
-                            className="h-9 min-w-0 flex-1 rounded-[8px] border border-black/20 bg-white text-center text-base font-semibold text-neutral-900 outline-none focus:border-black/50 disabled:opacity-50 disabled:cursor-not-allowed [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                            onChange={(v) => updateItemField(item.id, "idealStock", v)}
+                            className="h-9 min-w-0 flex-1 rounded-[8px] border border-black/20 bg-white text-center text-base font-semibold text-neutral-900 outline-none focus:border-black/50 disabled:opacity-50 disabled:cursor-not-allowed"
                           />
                           <span className="shrink-0 text-sm font-normal text-neutral-400">{formatUnit(item.unit)}</span>
                         </span>
@@ -240,26 +279,20 @@ export default function InventoryClient({
                       </div>
 
                     <div className="flex items-center gap-0.5 border-b border-black/[0.04] px-2 py-2">
-                      <input
-                        type="number"
-                        min={0}
-                        step={1}
+                      <NumericInput
                         value={stocks[item.id] ?? item.currentStock}
-                        onChange={(e) => updateStock(item.id, Number(e.target.value))}
-                        className="h-8 w-12 rounded-[8px] border border-black/20 bg-white text-center text-base font-semibold text-neutral-900 outline-none focus:border-black/50 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                        onChange={(v) => updateStock(item.id, v)}
+                        className="h-8 w-12 rounded-[8px] border border-black/20 bg-white text-center text-base font-semibold text-neutral-900 outline-none focus:border-black/50"
                       />
                       <span className="text-sm font-normal text-neutral-400">{formatUnit(item.unit)}</span>
                     </div>
 
                     <span className="flex items-center flex-nowrap border-b border-black/[0.04] px-2 py-2 text-sm font-normal text-neutral-400">
-                      <input
-                        type="number"
-                        min={0}
-                        step={1}
+                      <NumericInput
                         value={item.idealStock}
                         disabled={!canEditIdealStock}
-                        onChange={(e) => updateItemField(item.id, "idealStock", Number(e.target.value))}
-                        className="h-8 w-12 rounded-[8px] border border-black/20 bg-white text-center text-base font-semibold text-neutral-900 outline-none focus:border-black/50 disabled:opacity-50 disabled:cursor-not-allowed [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                        onChange={(v) => updateItemField(item.id, "idealStock", v)}
+                        className="h-8 w-12 rounded-[8px] border border-black/20 bg-white text-center text-base font-semibold text-neutral-900 outline-none focus:border-black/50 disabled:opacity-50 disabled:cursor-not-allowed"
                       />
                       <span className="ml-1">{formatUnit(item.unit)}</span>
                     </span>
