@@ -901,12 +901,12 @@ function getCompactWeekLabel(startDate: string, endDate: string) {
   const endYear = end.getFullYear();
 
   if (startYear !== endYear) {
-    return `Semana del viernes ${startDay} de ${startMonth} de ${startYear} al jueves ${endDay} de ${endMonth} de ${endYear}`;
+    return `Semana del ${startDay} de ${startMonth} de ${startYear} al ${endDay} de ${endMonth} de ${endYear}`;
   }
 
   if (startMonth !== endMonth) {
-    return `Semana del viernes ${startDay} de ${startMonth} al jueves ${endDay} de ${endMonth}`;
+    return `Semana del ${startDay} de ${startMonth} al ${endDay} de ${endMonth}`;
   }
 
-  return `Semana del viernes ${startDay} al jueves ${endDay} de ${endMonth}`;
+  return `Semana del ${startDay} al ${endDay} de ${endMonth}`;
 }

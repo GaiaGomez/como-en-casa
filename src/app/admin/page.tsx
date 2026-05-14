@@ -17,7 +17,7 @@ export default async function AdminDashboardPage() {
   const pendingShoppingCount = toBuyCount + manualItems.length;
 
   return (
-    <section className="w-full space-y-3 lg:mx-auto lg:max-w-5xl lg:space-y-4 xl:max-w-6xl">
+    <section className="flex w-full flex-col gap-3 lg:mx-auto lg:max-w-5xl xl:max-w-6xl">
       {/* Semana */}
       <article className="panel flex items-center justify-between rounded-[20px] px-4 py-3">
         <p className="text-xs font-semibold uppercase tracking-[0.16em] text-neutral-400">Semana</p>

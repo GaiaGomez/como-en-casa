@@ -513,14 +513,14 @@ export function getWeekLabel(startDate: string, endDate = getThursdayWeekEnd(sta
   const endYear = end.getFullYear();
 
   if (startYear !== endYear) {
-    return `Semana del viernes ${start.getDate()} de ${startMonth} de ${startYear} al jueves ${end.getDate()} de ${endMonth} de ${endYear}`;
+    return `Del ${start.getDate()} de ${startMonth} de ${startYear} al ${end.getDate()} de ${endMonth} de ${endYear}`;
   }
 
   if (startMonth !== endMonth) {
-    return `Semana del viernes ${start.getDate()} de ${startMonth} al jueves ${end.getDate()} de ${endMonth}`;
+    return `Del ${start.getDate()} de ${startMonth} al ${end.getDate()} de ${endMonth}`;
   }
 
-  return `Semana del viernes ${start.getDate()} al jueves ${end.getDate()} de ${endMonth}`;
+  return `Del ${start.getDate()} al ${end.getDate()} de ${endMonth}`;
 }
 
 export function getWorkDayLabel(dateStr: string) {

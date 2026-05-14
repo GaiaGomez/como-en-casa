@@ -174,15 +174,13 @@ export default function InventoryClient({
   return (
     <section className="w-full lg:mx-auto lg:max-w-5xl xl:max-w-6xl">
       {canReset && (
-        <div className="mb-3 flex justify-end">
-          <button
-            type="button"
-            onClick={resetCurrentQuantities}
-            className="inline-flex h-9 items-center justify-center rounded-[10px] border border-white/25 bg-black px-3 text-sm font-medium text-neutral-400 transition hover:border-white/50 hover:text-white"
-          >
-            Reiniciar cantidades
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={resetCurrentQuantities}
+          className="mb-3 flex h-9 w-full items-center justify-center rounded-[14px] border border-white/15 bg-black text-sm font-medium text-neutral-400 transition hover:border-white/35 hover:text-white"
+        >
+          Reiniciar cantidades
+        </button>
       )}
 
       <div className="mb-4 grid grid-cols-2 gap-2">
@@ -244,9 +242,9 @@ export default function InventoryClient({
                       </label>
                       <div className="min-w-0">
                         <span className="block text-xs font-semibold uppercase tracking-[0.16em] text-neutral-400">Comprar</span>
-                        <span className={`mt-2 block truncate text-sm font-normal ${buyQty > 0 ? "text-neutral-900" : "text-neutral-400"}`}>
+                        <div className={`mt-1 flex h-9 items-center text-sm font-semibold ${buyQty > 0 ? "text-neutral-900" : "text-neutral-400"}`}>
                           {buyQty > 0 ? `+${buyQty} ${formatUnit(item.unit)}` : "—"}
-                        </span>
+                        </div>
                       </div>
                     </div>
                   </div>
