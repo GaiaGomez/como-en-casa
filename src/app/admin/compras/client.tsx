@@ -176,6 +176,7 @@ export default function PurchasesPage({
         ))}
       </div>
 
+      <div className="lg:grid lg:grid-cols-2 lg:gap-x-5 lg:items-start">
       {groups.map((group) => {
         const groupItems = items.filter((i) =>
           groupBy === "supplier" ? i.supplier === group : i.category === group
@@ -233,6 +234,7 @@ export default function PurchasesPage({
           </section>
         );
       })}
+      </div>
 
       {items.length === 0 ? (
         <section className="rounded-[16px] border border-white/10 px-4 py-6 text-center text-sm font-normal text-neutral-400">

@@ -24,36 +24,38 @@ export default async function AdminDashboardPage() {
         <p className="text-sm font-normal text-neutral-400">{weekLabel}</p>
       </article>
 
-      {/* Compras featured + Críticos small */}
-      <div className="grid grid-cols-3 gap-2">
-        <Link
-          href="/admin/compras"
-          className="panel col-span-2 flex min-h-[104px] flex-col justify-between rounded-[20px] px-4 py-4 transition active:scale-[0.99]"
-        >
-          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-neutral-400">Compras</p>
-          <div>
-            <p className="mt-3 text-3xl font-bold leading-none text-neutral-950">{pendingShoppingCount}</p>
-            <p className="mt-1 text-sm font-normal text-neutral-400">por comprar</p>
-          </div>
-        </Link>
-        <Link
-          href="/admin/compras"
-          className="panel flex min-h-[104px] flex-col justify-between rounded-[20px] px-3 py-4 transition active:scale-[0.99]"
-        >
-          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-neutral-400">Críticos</p>
-          <div>
-            <p className="mt-3 text-3xl font-bold leading-none text-neutral-950">{criticalCount}</p>
-            <p className="mt-1 text-sm font-normal text-neutral-400">críticos</p>
-          </div>
-        </Link>
-      </div>
+      <div className="flex flex-col gap-3 lg:grid lg:grid-cols-2 lg:gap-3">
+        {/* Compras featured + Críticos small */}
+        <div className="grid grid-cols-3 gap-2">
+          <Link
+            href="/admin/compras"
+            className="panel col-span-2 flex min-h-[104px] flex-col justify-between rounded-[20px] px-4 py-4 transition active:scale-[0.99]"
+          >
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-neutral-400">Compras</p>
+            <div>
+              <p className="mt-3 text-3xl font-bold leading-none text-neutral-950">{pendingShoppingCount}</p>
+              <p className="mt-1 text-sm font-normal text-neutral-400">por comprar</p>
+            </div>
+          </Link>
+          <Link
+            href="/admin/compras"
+            className="panel flex min-h-[104px] flex-col justify-between rounded-[20px] px-3 py-4 transition active:scale-[0.99]"
+          >
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-neutral-400">Críticos</p>
+            <div>
+              <p className="mt-3 text-3xl font-bold leading-none text-neutral-950">{criticalCount}</p>
+              <p className="mt-1 text-sm font-normal text-neutral-400">críticos</p>
+            </div>
+          </Link>
+        </div>
 
-      {/* Accesos 2×2 */}
-      <div className="grid grid-cols-2 gap-2">
-        <AccessCard href="/admin/gestion-equipo" icon={CalendarDays} label="Horario" />
-        <AccessCard href="/admin/gestion-equipo?tab=propinas" icon={HandCoins} label="Propinas" />
-        <AccessCard href="/admin/inventario" icon={Box} label="Inventario" />
-        <AccessCard href="/admin/compras" icon={ShoppingCart} label="Compras" />
+        {/* Accesos 2×2 */}
+        <div className="grid grid-cols-2 gap-2">
+          <AccessCard href="/admin/gestion-equipo" icon={CalendarDays} label="Horario" />
+          <AccessCard href="/admin/gestion-equipo?tab=propinas" icon={HandCoins} label="Propinas" />
+          <AccessCard href="/admin/inventario" icon={Box} label="Inventario" />
+          <AccessCard href="/admin/compras" icon={ShoppingCart} label="Compras" />
+        </div>
       </div>
     </section>
   );

@@ -596,7 +596,7 @@ export function TeamManagementClient({
           </div>
         </section>
       ) : activeTab === "propinas" ? (
-        <section className="space-y-3 lg:mx-auto lg:max-w-2xl">
+        <section className="flex flex-col gap-3 lg:grid lg:grid-cols-2 lg:gap-4 lg:items-start">
           {!canEditPropinas && (
             <p className="text-xs font-normal text-neutral-400">Solo lectura</p>
           )}
@@ -626,7 +626,7 @@ export function TeamManagementClient({
           </div>
         </section>
       ) : (
-        <section className="space-y-3 lg:mx-auto lg:max-w-3xl">
+        <section className="space-y-3">
           <div className="panel overflow-hidden rounded-[20px]">
             {team.map((employee, index) => (
               <div

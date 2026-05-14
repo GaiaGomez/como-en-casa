@@ -194,6 +194,7 @@ export default function InventoryClient({
         </div>
       </div>
 
+      <div className="lg:grid lg:grid-cols-2 lg:gap-x-5 lg:items-start">
       {categories.map((category) => {
         const catItems = computedItems.filter((i) => i.category === category);
         return (
@@ -306,6 +307,7 @@ export default function InventoryClient({
           </section>
         );
       })}
+      </div>
     </section>
   );
 }
