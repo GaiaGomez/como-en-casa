@@ -31,7 +31,7 @@ export async function updateEmployee(
   const { error } = await supabase
     .from("employees")
     .update(update)
-    .or(`local_key.eq.${id},id.eq.${id}`);
+    .eq("id", id);
   return !error;
 }
 
@@ -42,7 +42,7 @@ export async function softDeleteEmployee(id: string): Promise<boolean> {
   const { error } = await supabase
     .from("employees")
     .update({ active: false })
-    .or(`local_key.eq.${id},id.eq.${id}`);
+    .eq("id", id);
 
   return !error;
 }

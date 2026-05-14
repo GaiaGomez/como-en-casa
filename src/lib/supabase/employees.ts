@@ -3,7 +3,6 @@ import { createServerSupabase } from "./server";
 
 type SupabaseEmployeeRow = {
   id: string;
-  local_key: string | null;
   name: string;
   short_name: string | null;
   role: string;
@@ -40,7 +39,7 @@ export async function getEmployees(): Promise<Employee[]> {
 
   const { data, error } = await supabase
     .from("employees")
-    .select("id, local_key, name, short_name, role, phone, active, created_at")
+    .select("id, name, short_name, role, phone, active, created_at")
     .eq("active", true)
     .order("name");
 
