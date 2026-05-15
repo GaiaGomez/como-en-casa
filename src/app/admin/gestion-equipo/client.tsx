@@ -244,6 +244,10 @@ export function TeamManagementClient({
     return activeTeam.map((employee) => ({
       employee,
       daysWorked: workWeek.filter((day) => day.worked[employee.id]).length,
+      workedDays: workWeek
+        .filter((day) => day.worked[employee.id])
+        .sort((a, b) => (a.date < b.date ? -1 : 1))
+        .map((day) => getDayShortLabel(day.label)),
       amount: amountMap[employee.id] ?? 0,
       paymentStatus: currentWeek.payments[employee.id] ?? "pendiente",
     }));
@@ -604,12 +608,22 @@ export function TeamManagementClient({
 
           <div className="panel overflow-hidden rounded-[20px]">
             {tipDistribution.map((item) => (
-              <MoneyRow
+              <div
                 key={item.employee.id}
-                label={item.employee.name}
-                meta={`${item.daysWorked}d`}
-                value={formatCurrency(item.amount)}
-              />
+                className="flex items-center justify-between gap-3 border-b border-black/[0.05] px-4 py-3 last:border-b-0"
+              >
+                <div className="min-w-0">
+                  <p className="truncate text-base font-medium text-neutral-900">{item.employee.name}</p>
+                  {item.workedDays.length > 0 && (
+                    <p className="mt-0.5 text-xs font-normal tracking-wide text-neutral-400">
+                      {item.daysWorked}d · {item.workedDays.join(" ")}
+                    </p>
+                  )}
+                </div>
+                <span className="shrink-0 text-sm font-medium text-neutral-900">
+                  {formatCurrency(item.amount)}
+                </span>
+              </div>
             ))}
             <MoneyRow label="Total" value={formatCurrency(displayedTipTotal)} strong />
           </div>
