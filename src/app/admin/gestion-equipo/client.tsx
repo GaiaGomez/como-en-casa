@@ -612,15 +612,17 @@ export function TeamManagementClient({
                 key={item.employee.id}
                 className="flex items-center justify-between gap-3 border-b border-black/[0.05] px-4 py-3 last:border-b-0"
               >
-                <div className="min-w-0">
-                  <p className="truncate text-base font-medium text-neutral-900">{item.employee.name}</p>
+                <div className="flex min-w-0 items-baseline gap-2">
+                  <span className="min-w-0 truncate text-base font-medium text-neutral-900">
+                    {item.employee.name}
+                  </span>
                   {item.workedDays.length > 0 && (
-                    <p className="mt-0.5 text-xs font-normal tracking-wide text-neutral-400">
+                    <span className="shrink-0 text-xs font-normal text-neutral-400">
                       {item.daysWorked}d · {item.workedDays.join(" ")}
-                    </p>
+                    </span>
                   )}
                 </div>
-                <span className="shrink-0 text-sm font-medium text-neutral-900">
+                <span className="shrink-0 text-right text-sm font-medium text-neutral-900">
                   {formatCurrency(item.amount)}
                 </span>
               </div>
