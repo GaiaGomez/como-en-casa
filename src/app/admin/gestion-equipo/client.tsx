@@ -226,39 +226,28 @@ export function TeamManagementClient({
     [dailyTipRows]
   );
 
-  const totalWorkedDays = useMemo(
-    () =>
-      activeTeam.reduce((total, employee) => {
-        return total + workWeek.filter((day) => day.worked[employee.id]).length;
-      }, 0),
-    [activeTeam, workWeek]
-  );
-
   const tipDistribution = useMemo(() => {
-    const workers = activeTeam.filter((e) =>
-      workWeek.some((day) => day.worked[e.id])
-    );
-    let assigned = 0;
     const amountMap: Record<string, number> = {};
-    workers.forEach((employee, index) => {
-      const daysWorked = workWeek.filter((day) => day.worked[employee.id]).length;
-      const isLast = index === workers.length - 1;
-      const amount =
-        totalWorkedDays === 0
-          ? 0
-          : isLast
-            ? weeklyTipTotal - assigned
-            : Math.round((weeklyTipTotal * daysWorked) / totalWorkedDays);
-      assigned += amount;
-      amountMap[employee.id] = amount;
-    });
+
+    for (const day of workWeek) {
+      const tipAmount = dailyTips[day.date] ?? 0;
+      if (tipAmount === 0) continue;
+      const workersToday = activeTeam.filter((e) => day.worked[e.id]);
+      if (workersToday.length === 0) continue;
+      const perWorker = Math.floor(tipAmount / workersToday.length);
+      const remainder = tipAmount - perWorker * workersToday.length;
+      workersToday.forEach((employee, index) => {
+        amountMap[employee.id] = (amountMap[employee.id] ?? 0) + perWorker + (index === workersToday.length - 1 ? remainder : 0);
+      });
+    }
+
     return activeTeam.map((employee) => ({
       employee,
       daysWorked: workWeek.filter((day) => day.worked[employee.id]).length,
       amount: amountMap[employee.id] ?? 0,
       paymentStatus: currentWeek.payments[employee.id] ?? "pendiente",
     }));
-  }, [activeTeam, currentWeek.payments, totalWorkedDays, weeklyTipTotal, workWeek]);
+  }, [activeTeam, currentWeek.payments, dailyTips, workWeek]);
 
   const displayedTipTotal = useMemo(
     () => tipDistribution.reduce((sum, item) => sum + item.amount, 0),
