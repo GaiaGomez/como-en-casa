@@ -67,6 +67,7 @@ type TeamWeek = {
   id: string;
   startDate: string;
   endDate: string;
+  status: "abierta" | "cerrada";
   dailyTips: Record<string, number>;
   payments: Record<string, PaymentStatus>;
   workWeek: WorkDay[];
@@ -98,6 +99,7 @@ const teamWeeks: TeamWeek[] = [
     id: closedTipWeek.id,
     startDate: closedTipWeek.startDate,
     endDate: closedTipWeek.endDate,
+    status: "cerrada",
     dailyTips: closedTipWeek.dailyTips,
     payments: closedTipWeek.payments,
     workWeek: createWorkWeek(closedTipWeek.startDate, [
@@ -114,6 +116,7 @@ const teamWeeks: TeamWeek[] = [
     id: openTipWeek.id,
     startDate: openTipWeek.startDate,
     endDate: openTipWeek.endDate,
+    status: "abierta",
     dailyTips: openTipWeek.dailyTips,
     payments: openTipWeek.payments,
     workWeek: currentWorkWeek,
@@ -122,6 +125,7 @@ const teamWeeks: TeamWeek[] = [
     id: "tips-2026-05-15",
     startDate: "2026-05-15",
     endDate: "2026-05-21",
+    status: "abierta",
     dailyTips: createDailyTips("2026-05-15", [242000, 154000, 138000, 149000, 157000, 166000, 225000]),
     payments: {},
     workWeek: createWorkWeek("2026-05-15", [
@@ -150,6 +154,7 @@ function tipWeekDataToTeamWeek(data: TipWeekData): TeamWeek {
     id: data.id || data.startDate,
     startDate: data.startDate,
     endDate: data.endDate,
+    status: data.status,
     dailyTips: data.dailyTips,
     payments: data.payments,
     workWeek,
@@ -189,6 +194,7 @@ export function TeamManagementClient({
   const [dialogMode, setDialogMode] = useState<"add" | "edit">("add");
   const [dialogEmployee, setDialogEmployee] = useState<Employee | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
 
   useEffect(() => {
     const tab = searchParams.get("tab");
@@ -629,6 +635,14 @@ export function TeamManagementClient({
             ))}
             <MoneyRow label="Total" value={formatCurrency(displayedTipTotal)} strong />
           </div>
+
+          <button
+            type="button"
+            onClick={() => setIsHistoryOpen(true)}
+            className="inline-flex h-9 items-center rounded-[14px] border border-black/20 bg-white px-4 text-sm font-medium text-neutral-900 hover:border-black/40 lg:col-span-2"
+          >
+            Ver historial de propinas
+          </button>
         </section>
       ) : (
         <section className="space-y-3">
@@ -742,6 +756,53 @@ export function TeamManagementClient({
               Guardar
             </button>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isHistoryOpen} onOpenChange={setIsHistoryOpen}>
+        <DialogContent className="left-0 translate-x-0 translate-y-0 bottom-0 top-auto max-h-[88vh] max-w-full overflow-y-auto rounded-t-[16px] border-0 bg-white text-black sm:left-1/2 sm:bottom-auto sm:max-w-md sm:rounded-[16px] sm:top-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2">
+          <DialogHeader>
+            <DialogTitle className="text-base font-medium text-neutral-900">
+              Historial de propinas
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-2 pb-1">
+            {weeks.length === 0 ? (
+              <p className="py-6 text-center text-sm text-neutral-400">Aún no hay historial de propinas.</p>
+            ) : (
+              [...weeks]
+                .sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime())
+                .map((week) => {
+                  const weekTotal = Object.values(week.dailyTips).reduce((a, b) => a + b, 0);
+                  const label = getCompactWeekLabel(week.startDate, week.endDate);
+                  return (
+                    <div
+                      key={week.id || week.startDate}
+                      className="flex items-center justify-between gap-3 rounded-[12px] border border-black/[0.07] px-4 py-3"
+                    >
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-medium text-neutral-900">{label}</p>
+                        <p className="mt-0.5 text-xs text-neutral-400">
+                          {formatCurrency(weekTotal)}
+                          {week.status === "cerrada" && <span className="ml-2 text-neutral-300">· cerrada</span>}
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        className="shrink-0 rounded-[8px] border border-black/15 bg-white px-3 py-1.5 text-xs font-medium text-neutral-900 hover:border-black/35 transition"
+                        onClick={() => {
+                          const originalIndex = weeks.findIndex((w) => w.startDate === week.startDate);
+                          if (originalIndex !== -1) setWeekIndex(originalIndex);
+                          setIsHistoryOpen(false);
+                        }}
+                      >
+                        Ver semana
+                      </button>
+                    </div>
+                  );
+                })
+            )}
+          </div>
         </DialogContent>
       </Dialog>
     </section>
