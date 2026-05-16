@@ -48,21 +48,23 @@ Admins enter daily tip totals. The app distributes tips proportionally based on 
 
 Admin users can manage the full system. Employee users can view the main sections and update inventory quantities, but cannot mutate purchases, employees, schedules, or tips.
 
-| Permission | `admin` | `employee` / `equipo` |
-|---|---:|---:|
-| View dashboard | ✅ | ✅ |
-| View inventory | ✅ | ✅ |
-| Edit current stock | ✅ | ✅ |
-| Edit ideal stock | ✅ | ✅ |
-| Edit product names | ✅ | ❌ |
-| View purchases | ✅ | ✅ |
-| Manage purchases | ✅ | ❌ |
-| View team | ✅ | ✅ |
-| Manage employees | ✅ | ❌ |
-| View schedule | ✅ | ✅ |
-| Edit schedule | ✅ | ❌ |
-| View tips | ✅ | ✅ |
-| Edit tip amounts | ✅ | ❌ |
+| Permission | `admin` | `employee` / `equipo` | `demo` |
+|---|---:|---:|---:|
+| View dashboard | ✅ | ✅ | ✅ |
+| View inventory | ✅ | ✅ | ✅ |
+| Edit current stock | ✅ | ✅ | ❌ |
+| Edit ideal stock | ✅ | ✅ | ❌ |
+| Edit product names | ✅ | ❌ | ❌ |
+| View purchases | ✅ | ✅ | ✅ |
+| Manage purchases | ✅ | ❌ | ❌ |
+| View team | ✅ | ✅ | ✅ |
+| Manage employees | ✅ | ❌ | ❌ |
+| View schedule | ✅ | ✅ | ✅ |
+| Edit schedule | ✅ | ❌ | ❌ |
+| View tips | ✅ | ✅ | ✅ |
+| Edit tip amounts | ✅ | ❌ | ❌ |
+
+A **"Ver demo"** button on the login screen allows recruiters to explore the app without credentials. Demo users have the `demo` role — view-only access across all sections, no writes.
 
 ---
 
@@ -191,6 +193,10 @@ Environment variables:
 ```env
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
+
+# Optional: enables the "Ver demo" button on the login screen
+NEXT_PUBLIC_DEMO_EMAIL=
+NEXT_PUBLIC_DEMO_PASSWORD=
 ```
 
 Open:

@@ -6,7 +6,7 @@ export async function signIn(email: string, password: string) {
   return supabase.auth.signInWithPassword({ email, password });
 }
 
-export async function getUserRole(userId: string): Promise<"admin" | "employee"> {
+export async function getUserRole(userId: string): Promise<"admin" | "employee" | "demo"> {
   const supabase = createBrowserSupabase();
   if (!supabase) return "employee";
   const { data } = await supabase
@@ -14,7 +14,7 @@ export async function getUserRole(userId: string): Promise<"admin" | "employee">
     .select("role")
     .eq("id", userId)
     .single();
-  return (data?.role as "admin" | "employee") ?? "employee";
+  return (data?.role as "admin" | "employee" | "demo") ?? "employee";
 }
 
 export async function signOut() {

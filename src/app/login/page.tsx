@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Coffee, LockKeyhole } from "lucide-react";
+import Link from "next/link";
+import { Coffee, LockKeyhole, Eye } from "lucide-react";
 
 import { signIn } from "@/lib/supabase/auth-browser";
 
@@ -76,6 +77,16 @@ export default function LoginPage() {
             {loading ? "Entrando..." : "Entrar"}
           </button>
         </form>
+
+        <div className="mt-3">
+          <Link
+            href="/demo"
+            className="flex h-9 w-full items-center justify-center gap-2 rounded-[10px] border border-black/15 bg-white text-sm font-medium text-neutral-600 hover:border-black/30 hover:text-neutral-900"
+          >
+            <Eye className="size-4" />
+            Ver demo
+          </Link>
+        </div>
       </div>
     </main>
   );

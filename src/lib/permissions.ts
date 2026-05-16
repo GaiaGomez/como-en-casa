@@ -17,3 +17,7 @@ export function getPermissions(role: string | null | undefined): Permissions {
     canEditCompras: admin,
   };
 }
+
+export function isDemoRole(role: string | null | undefined): boolean {
+  return role === "demo";
+}

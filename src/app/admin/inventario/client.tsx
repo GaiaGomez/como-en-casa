@@ -95,11 +95,13 @@ export default function InventoryClient({
   canReset = false,
   canEditIdealStock = true,
   canEditName = true,
+  canEditCurrentStock = true,
 }: {
   initialItems: InventoryItem[];
   canReset?: boolean;
   canEditIdealStock?: boolean;
   canEditName?: boolean;
+  canEditCurrentStock?: boolean;
 }) {
   const [items, setItems] = useState<InventoryItem[]>(initialItems);
   const [stocks, setStocks] = useState<Record<string, number>>(
@@ -135,6 +137,7 @@ export default function InventoryClient({
   }
 
   function updateStock(id: string, raw: number) {
+    if (!canEditCurrentStock) return;
     const value = Number.isNaN(raw) ? 0 : Math.max(0, raw);
     setStocks((prev) => ({ ...prev, [id]: value }));
 
@@ -223,8 +226,9 @@ export default function InventoryClient({
                         <span className="flex items-center gap-1">
                           <NumericInput
                             value={stocks[item.id] ?? item.currentStock}
+                            disabled={!canEditCurrentStock}
                             onChange={(v) => updateStock(item.id, v)}
-                            className="h-9 w-[72px] rounded-[8px] border border-black/20 bg-white text-center text-base font-semibold text-neutral-900 outline-none focus:border-black/50"
+                            className="h-9 w-[72px] rounded-[8px] border border-black/20 bg-white text-center text-base font-semibold text-neutral-900 outline-none focus:border-black/50 disabled:opacity-60 disabled:cursor-default"
                           />
                           <span className="text-sm font-normal text-neutral-400">{formatUnit(item.unit)}</span>
                         </span>
@@ -280,8 +284,9 @@ export default function InventoryClient({
                     <div className="flex items-center gap-0.5 border-b border-black/[0.04] px-2 py-2">
                       <NumericInput
                         value={stocks[item.id] ?? item.currentStock}
+                        disabled={!canEditCurrentStock}
                         onChange={(v) => updateStock(item.id, v)}
-                        className="h-8 w-12 lg:w-10 xl:w-12 rounded-[8px] border border-black/20 bg-white text-center text-base font-semibold text-neutral-900 outline-none focus:border-black/50"
+                        className="h-8 w-12 lg:w-10 xl:w-12 rounded-[8px] border border-black/20 bg-white text-center text-base font-semibold text-neutral-900 outline-none focus:border-black/50 disabled:opacity-60 disabled:cursor-default"
                       />
                       <span className="text-sm font-normal text-neutral-400">{formatUnit(item.unit)}</span>
                     </div>
