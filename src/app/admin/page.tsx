@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Box, CalendarDays, HandCoins, ShoppingCart } from "lucide-react";
 
-import { currentWorkWeek, getBuyQty, getStockLevel, getWeekLabel } from "@/lib/mock-data";
+import { getBuyQty, getFridayWeekStart, getStockLevel, getWeekLabel } from "@/lib/mock-data";
 import { getInventory } from "@/lib/supabase/inventory";
 import { getManualShoppingItems } from "@/lib/supabase/shopping-items";
 
@@ -11,7 +11,7 @@ export default async function AdminDashboardPage() {
     getManualShoppingItems(),
   ]);
 
-  const weekLabel = getWeekLabel(currentWorkWeek[0].date, currentWorkWeek[currentWorkWeek.length - 1].date);
+  const weekLabel = getWeekLabel(getFridayWeekStart(new Date().toISOString().slice(0, 10)));
   const criticalCount = inventoryItems.filter((i) => getStockLevel(i) === "crítico").length;
   const toBuyCount = inventoryItems.filter((i) => getBuyQty(i) > 0).length;
   const pendingShoppingCount = toBuyCount + manualItems.length;
