@@ -179,15 +179,9 @@ export function TeamManagementClient({
   const router = useRouter();
   const searchParams = useSearchParams();
   const [team, setTeam] = useState<Employee[]>(initialEmployees);
-  const [selectedWeekStart, setSelectedWeekStart] = useState<string>(() => {
-    const today = new Date().toISOString().slice(0, 10);
-    const currentFriday = getFridayWeekStart(today);
-    if (initialWeeks.length > 0) {
-      const last = initialWeeks[initialWeeks.length - 1];
-      return last.startDate <= currentFriday ? last.startDate : currentFriday;
-    }
-    return currentFriday;
-  });
+  const [selectedWeekStart, setSelectedWeekStart] = useState<string>(() =>
+    getFridayWeekStart(new Date().toISOString().slice(0, 10))
+  );
   const [weeks, setWeeks] = useState<TeamWeek[]>(() =>
     initialWeeks.length > 0 ? initialWeeks.map(tipWeekDataToTeamWeek) : teamWeeks
   );
