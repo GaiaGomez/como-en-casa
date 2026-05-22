@@ -17,6 +17,7 @@ import {
   addDays,
   currentWorkWeek,
   formatCurrency,
+  getFridayWeekStart,
   getWorkDayLabel,
   getWorkDayShortLabel,
   tipWeeks,
@@ -178,9 +179,15 @@ export function TeamManagementClient({
   const router = useRouter();
   const searchParams = useSearchParams();
   const [team, setTeam] = useState<Employee[]>(initialEmployees);
-  const [weekIndex, setWeekIndex] = useState(() =>
-    initialWeeks.length > 0 ? initialWeeks.length - 1 : 1
-  );
+  const [selectedWeekStart, setSelectedWeekStart] = useState<string>(() => {
+    const today = new Date().toISOString().slice(0, 10);
+    const currentFriday = getFridayWeekStart(today);
+    if (initialWeeks.length > 0) {
+      const last = initialWeeks[initialWeeks.length - 1];
+      return last.startDate <= currentFriday ? last.startDate : currentFriday;
+    }
+    return currentFriday;
+  });
   const [weeks, setWeeks] = useState<TeamWeek[]>(() =>
     initialWeeks.length > 0 ? initialWeeks.map(tipWeekDataToTeamWeek) : teamWeeks
   );
@@ -218,7 +225,23 @@ export function TeamManagementClient({
       employees: activeTeam.filter((e) => e.role === role),
     }));
   }, [activeTeam]);
-  const currentWeek = weeks[weekIndex] ?? weeks[1];
+  const currentWeek = useMemo((): TeamWeek => {
+    const found = weeks.find((w) => w.startDate === selectedWeekStart);
+    if (found) return found;
+    const endDate = addDays(selectedWeekStart, 6);
+    return {
+      id: selectedWeekStart,
+      startDate: selectedWeekStart,
+      endDate,
+      status: "abierta",
+      dailyTips: {},
+      payments: {},
+      workWeek: Array.from({ length: 7 }, (_, i) => {
+        const date = addDays(selectedWeekStart, i);
+        return { date, label: getWorkDayLabel(date), shortLabel: getWorkDayShortLabel(date), worked: {} };
+      }),
+    };
+  }, [selectedWeekStart, weeks]);
   const workWeek = currentWeek.workWeek;
   const dailyTips = currentWeek.dailyTips;
   const weekRange = getCompactWeekLabel(currentWeek.startDate, currentWeek.endDate);
@@ -267,14 +290,15 @@ export function TeamManagementClient({
   async function toggleWorked(employeeId: string, date: string) {
     if (!canEditHorario) return;
 
-    const week = weeks[weekIndex];
-    if (!week) return;
+    const week = currentWeek;
     const currentWorked = week.workWeek.find((d) => d.date === date)?.worked[employeeId] ?? false;
     const newWorked = !currentWorked;
 
-    setWeeks((current) =>
-      current.map((w, i) =>
-        i === weekIndex
+    setWeeks((current) => {
+      const weekExists = current.some((w) => w.startDate === week.startDate);
+      const base = weekExists ? current : [...current, week];
+      return base.map((w) =>
+        w.startDate === week.startDate
           ? {
               ...w,
               workWeek: w.workWeek.map((day) =>
@@ -284,8 +308,8 @@ export function TeamManagementClient({
               ),
             }
           : w
-      )
-    );
+      );
+    });
 
     let dbId = weekDbIds.current[week.startDate];
     if (!dbId) {
@@ -301,14 +325,15 @@ export function TeamManagementClient({
   function updateDailyTip(date: string, value: number) {
     if (!canEditPropinas) return;
 
-    const week = weeks[weekIndex];
-    if (!week) return;
+    const week = currentWeek;
 
-    setWeeks((current) =>
-      current.map((w, i) =>
-        i === weekIndex ? { ...w, dailyTips: { ...w.dailyTips, [date]: value } } : w
-      )
-    );
+    setWeeks((current) => {
+      const weekExists = current.some((w) => w.startDate === week.startDate);
+      const base = weekExists ? current : [...current, week];
+      return base.map((w) =>
+        w.startDate === week.startDate ? { ...w, dailyTips: { ...w.dailyTips, [date]: value } } : w
+      );
+    });
 
     const writeKey = `${week.startDate}:${date}`;
     clearTimeout(pendingTipWrites.current[writeKey]);
@@ -492,8 +517,7 @@ export function TeamManagementClient({
       <div className="mb-3 flex items-center justify-between gap-2 rounded-[16px] border border-white/10 bg-white/[0.03] p-1">
         <button
           type="button"
-          onClick={() => setWeekIndex((current) => Math.max(0, current - 1))}
-          disabled={weekIndex === 0}
+          onClick={() => setSelectedWeekStart((prev) => addDays(prev, -7))}
           className="flex h-7 w-7 items-center justify-center rounded-[10px] border border-white/25 bg-black text-lg font-medium leading-none text-neutral-400 transition hover:border-white/50 hover:text-white disabled:opacity-35"
           aria-label="Semana anterior"
         >
@@ -504,8 +528,8 @@ export function TeamManagementClient({
         </p>
         <button
           type="button"
-          onClick={() => setWeekIndex((current) => Math.min(weeks.length - 1, current + 1))}
-          disabled={weekIndex === weeks.length - 1}
+          onClick={() => setSelectedWeekStart((prev) => addDays(prev, 7))}
+          disabled={selectedWeekStart >= getFridayWeekStart(new Date().toISOString().slice(0, 10))}
           className="flex h-7 w-7 items-center justify-center rounded-[10px] border border-white/25 bg-black text-lg font-medium leading-none text-neutral-400 transition hover:border-white/50 hover:text-white disabled:opacity-35"
           aria-label="Semana siguiente"
         >
@@ -791,8 +815,7 @@ export function TeamManagementClient({
                         type="button"
                         className="shrink-0 rounded-[8px] border border-black/15 bg-white px-3 py-1.5 text-xs font-medium text-neutral-900 hover:border-black/35 transition"
                         onClick={() => {
-                          const originalIndex = weeks.findIndex((w) => w.startDate === week.startDate);
-                          if (originalIndex !== -1) setWeekIndex(originalIndex);
+                          setSelectedWeekStart(week.startDate);
                           setIsHistoryOpen(false);
                         }}
                       >
