@@ -482,6 +482,15 @@ export const manualShoppingItems: ManualShoppingItem[] = [
 const dayNames = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
 const shortDayNames = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
 
+export function getTodayColombiaDate(): string {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/Bogota",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date());
+}
+
 export function addDays(dateStr: string, days: number) {
   const date = new Date(`${dateStr}T00:00:00`);
   date.setDate(date.getDate() + days);

@@ -18,6 +18,7 @@ import {
   currentWorkWeek,
   formatCurrency,
   getFridayWeekStart,
+  getTodayColombiaDate,
   getWorkDayLabel,
   getWorkDayShortLabel,
   tipWeeks,
@@ -180,7 +181,7 @@ export function TeamManagementClient({
   const searchParams = useSearchParams();
   const [team, setTeam] = useState<Employee[]>(initialEmployees);
   const [selectedWeekStart, setSelectedWeekStart] = useState<string>(() =>
-    getFridayWeekStart(new Date().toISOString().slice(0, 10))
+    getFridayWeekStart(getTodayColombiaDate())
   );
   const [weeks, setWeeks] = useState<TeamWeek[]>(() =>
     initialWeeks.length > 0 ? initialWeeks.map(tipWeekDataToTeamWeek) : teamWeeks
@@ -523,7 +524,7 @@ export function TeamManagementClient({
         <button
           type="button"
           onClick={() => setSelectedWeekStart((prev) => addDays(prev, 7))}
-          disabled={selectedWeekStart >= getFridayWeekStart(new Date().toISOString().slice(0, 10))}
+          disabled={selectedWeekStart >= getFridayWeekStart(getTodayColombiaDate())}
           className="flex h-7 w-7 items-center justify-center rounded-[10px] border border-white/25 bg-black text-lg font-medium leading-none text-neutral-400 transition hover:border-white/50 hover:text-white disabled:opacity-35"
           aria-label="Semana siguiente"
         >
