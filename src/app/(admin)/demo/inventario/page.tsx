@@ -1,4 +1,4 @@
-import InventoryClient from "@/app/admin/inventario/client";
+import InventoryClient from "@/app/(admin)/admin/inventario/client";
 import { inventory } from "@/lib/demo-data";
 
 export default function DemoInventarioPage() {

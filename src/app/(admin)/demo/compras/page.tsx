@@ -1,4 +1,4 @@
-import PurchasesClient from "@/app/admin/compras/client";
+import PurchasesClient from "@/app/(admin)/admin/compras/client";
 import { inventory, manualShoppingItems } from "@/lib/demo-data";
 
 export default function DemoComprasPage() {
