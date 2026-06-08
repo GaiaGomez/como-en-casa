@@ -36,6 +36,18 @@ export async function proxy(request: NextRequest) {
 
   const { pathname } = request.nextUrl;
 
+  // Public routes: no auth required — pass through immediately.
+  // Route group folders like (public) do not appear in the URL,
+  // so we match by pathname only.
+  const PUBLIC_PREFIXES = ["/momentos", "/reservar", "/tienda"];
+  const isPublic =
+    pathname === "/" ||
+    PUBLIC_PREFIXES.some((p) => pathname === p || pathname.startsWith(p + "/"));
+
+  if (isPublic) {
+    return supabaseResponse;
+  }
+
   // Resolve role from profiles table (not user_metadata)
   let role = "employee";
   if (user) {
@@ -55,7 +67,7 @@ export async function proxy(request: NextRequest) {
     return supabaseResponse;
   }
 
-  // All other protected routes: require auth
+  // All other routes (/admin/*, /empleado/*, /demo/*): require auth
   if (!user) {
     return NextResponse.redirect(new URL("/login", request.url));
   }

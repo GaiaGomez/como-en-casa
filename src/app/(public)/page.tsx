@@ -15,7 +15,7 @@ export default function HomePage() {
           Ver momentos
         </Link>
         <Link
-          href="/reservar"
+          href="/momentos"
           className="inline-flex h-10 items-center rounded-[10px] border border-black/20 px-5 text-sm font-medium text-neutral-900 hover:border-black/40"
         >
           Reservar momento

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Home, Users, Box, ShoppingCart, LogOut } from "lucide-react";
+import { Home, Users, Box, ShoppingCart, Calendar, LogOut } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { signOut } from "@/lib/supabase/auth-browser";
@@ -12,6 +12,7 @@ const navItems = [
   { href: "/admin/gestion-equipo", label: "Equipo", icon: Users },
   { href: "/admin/inventario", label: "Inventario", icon: Box },
   { href: "/admin/compras", label: "Compras", icon: ShoppingCart },
+  { href: "/admin/reservas", label: "Reservas", icon: Calendar },
 ];
 
 export function AdminShell({ children }: { children: React.ReactNode }) {
@@ -50,7 +51,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
         </div>
       </main>
       <nav className="shrink-0 z-50 border-t border-white/10 bg-black/95 px-2 pt-2 pb-[calc(env(safe-area-inset-bottom)+4px)]">
-        <div className="mx-auto grid max-w-xl grid-cols-4 gap-0.5">
+        <div className="mx-auto grid max-w-xl grid-cols-5 gap-0.5">
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive =

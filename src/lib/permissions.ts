@@ -4,6 +4,7 @@ export type Permissions = {
   canEditEquipo: boolean;
   canEditInventario: boolean;
   canEditCompras: boolean;
+  canEditReservas: boolean;
 };
 
 export function getPermissions(role: string | null | undefined): Permissions {
@@ -15,6 +16,7 @@ export function getPermissions(role: string | null | undefined): Permissions {
     canEditEquipo: admin,
     canEditInventario: admin || team,
     canEditCompras: admin,
+    canEditReservas: admin,
   };
 }
 
