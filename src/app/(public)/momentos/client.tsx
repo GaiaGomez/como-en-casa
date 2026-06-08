@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { X } from "lucide-react";
+import { ChevronDown, X } from "lucide-react";
 
+import { cn } from "@/lib/utils";
 import type { CelebrationPackage } from "@/lib/supabase/packages";
 import {
   createReservation,
@@ -76,6 +77,107 @@ function FieldLabel({
 
 const inputClass =
   "h-10 w-full rounded-[10px] border border-black/15 bg-white px-3 text-base text-neutral-900 outline-none focus:border-black/40";
+
+function PackageCard({
+  pkg,
+  onReserve,
+}: {
+  pkg: CelebrationPackage;
+  onReserve: (pkg: CelebrationPackage) => void;
+}) {
+  const [expanded, setExpanded] = useState(false);
+  const hasDetails = pkg.includes.length > 0 || pkg.conditions.length > 0;
+
+  return (
+    <div className="flex flex-col rounded-[20px] border border-black/10 bg-white p-5">
+      {/* Title */}
+      <h2 className="text-base font-semibold text-neutral-900">{pkg.name}</h2>
+
+      {/* Price + servings */}
+      <div className="mt-2 flex flex-wrap items-center gap-2">
+        <span className="inline-flex items-center rounded-full bg-black px-2.5 py-0.5 text-xs font-medium text-white">
+          {pkg.priceLabel}
+        </span>
+        {pkg.servingsLabel && (
+          <span className="text-xs text-neutral-500">{pkg.servingsLabel}</span>
+        )}
+      </div>
+
+      {/* Short description */}
+      <p className="mt-3 text-sm text-neutral-500">{pkg.description}</p>
+
+      {/* Ver detalles toggle */}
+      {hasDetails && (
+        <button
+          type="button"
+          onClick={() => setExpanded((v) => !v)}
+          className="mt-3 flex items-center gap-1 text-xs font-medium text-neutral-500 hover:text-neutral-800"
+        >
+          <ChevronDown
+            className={cn("size-3.5 transition-transform duration-200", expanded && "rotate-180")}
+          />
+          {expanded ? "Ocultar detalles" : "Ver detalles"}
+        </button>
+      )}
+
+      {/* Expandable section — grid-rows trick gives smooth height animation */}
+      {hasDetails && (
+        <div
+          className={cn(
+            "grid transition-[grid-template-rows] duration-200 ease-in-out",
+            expanded ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+          )}
+        >
+          <div className="overflow-hidden">
+            <div className="mt-3 space-y-3">
+              {pkg.includes.length > 0 && (
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.12em] text-neutral-400">
+                    Incluye
+                  </p>
+                  <ul className="mt-1.5 space-y-1">
+                    {pkg.includes.map((item) => (
+                      <li key={item} className="flex items-start gap-2 text-sm text-neutral-700">
+                        <span className="mt-0.5 shrink-0 text-[10px] text-neutral-400">•</span>
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {pkg.conditions.length > 0 && (
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.12em] text-neutral-400">
+                    Condiciones
+                  </p>
+                  <ul className="mt-1.5 space-y-1">
+                    {pkg.conditions.map((item) => (
+                      <li key={item} className="flex items-start gap-2 text-sm text-neutral-500">
+                        <span className="mt-0.5 shrink-0 text-[10px] text-neutral-400">•</span>
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* CTA — pushed to bottom */}
+      <div className="mt-auto pt-5">
+        <button
+          type="button"
+          onClick={() => onReserve(pkg)}
+          className="inline-flex h-9 w-full items-center justify-center rounded-[10px] bg-black px-4 text-sm font-medium text-white hover:bg-neutral-800"
+        >
+          Reservar momento
+        </button>
+      </div>
+    </div>
+  );
+}
 
 export function MomentosClient({
   packages,
@@ -196,26 +298,7 @@ export function MomentosClient({
         </p>
         <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {packages.map((pkg) => (
-            <div
-              key={pkg.id}
-              className="flex flex-col justify-between rounded-[20px] border border-black/10 bg-white p-5"
-            >
-              <div>
-                <h2 className="text-base font-semibold text-neutral-900">
-                  {pkg.name}
-                </h2>
-                <p className="mt-1.5 text-sm text-neutral-500">
-                  {pkg.description}
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => openSheet(pkg)}
-                className="mt-5 inline-flex h-9 items-center justify-center rounded-[10px] bg-black px-4 text-sm font-medium text-white hover:bg-neutral-800"
-              >
-                Reservar momento
-              </button>
-            </div>
+            <PackageCard key={pkg.id} pkg={pkg} onReserve={openSheet} />
           ))}
         </div>
       </section>
