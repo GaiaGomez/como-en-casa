@@ -21,14 +21,37 @@ type SupabasePackageRow = {
   position: number;
 };
 
+// Merge a DB row with static details. Static content wins for all card fields;
+// description falls back to the DB value when no static description is set.
+function mergePackage(
+  id: string,
+  slug: string,
+  name: string,
+  dbDescription: string,
+  position: number,
+): CelebrationPackage {
+  const d = getPackageDetails(slug);
+  return {
+    id,
+    slug,
+    name,
+    description: d.description ?? dbDescription,
+    position,
+    priceLabel: d.priceLabel,
+    servingsLabel: d.servingsLabel,
+    includes: d.includes,
+    conditions: d.conditions,
+  };
+}
+
 const FALLBACK_PACKAGES: CelebrationPackage[] = [
-  { id: "1", slug: "momento-de-celebracion", name: "Momento de celebración",  description: "El momento perfecto para celebrar juntos.",                     position: 1, ...getPackageDetails("momento-de-celebracion") },
-  { id: "2", slug: "momento-de-felicidad",   name: "Momento de felicidad",    description: "Regala una experiencia llena de amor.",                         position: 2, ...getPackageDetails("momento-de-felicidad") },
-  { id: "3", slug: "momento-con-minicake",   name: "Momento con minicake",    description: "Una celebración dulce con minicake incluido.",                  position: 3, ...getPackageDetails("momento-con-minicake") },
-  { id: "4", slug: "momento-como-en-casa",   name: "Momento Como en Casa",    description: "Nuestra experiencia más completa y especial.",                  position: 4, ...getPackageDetails("momento-como-en-casa") },
-  { id: "5", slug: "torta-de-corazon",       name: "Torta de corazón",        description: "Una torta en forma de corazón para los que amas.",              position: 5, ...getPackageDetails("torta-de-corazon") },
-  { id: "6", slug: "aniversario-corazon",    name: "Aniversario corazón",     description: "Celebra tu amor con una experiencia única.",                    position: 6, ...getPackageDetails("aniversario-corazon") },
-  { id: "7", slug: "pinta-tu-torta",         name: "Pinta tu torta",          description: "Una actividad especial: personaliza y decora tu propia torta.", position: 7, ...getPackageDetails("pinta-tu-torta") },
+  mergePackage("1", "momento-de-celebracion", "Momento de celebración",  "El momento perfecto para celebrar juntos.",                     1),
+  mergePackage("2", "momento-de-felicidad",   "Momento de felicidad",    "Regala una experiencia llena de amor.",                         2),
+  mergePackage("3", "momento-con-minicake",   "Momento con minicake",    "Una celebración dulce con minicake incluido.",                  3),
+  mergePackage("4", "momento-como-en-casa",   "Momento Como en Casa",    "Nuestra experiencia más completa y especial.",                  4),
+  mergePackage("5", "torta-de-corazon",       "Torta de corazón",        "Una torta en forma de corazón para los que amas.",              5),
+  mergePackage("6", "aniversario-corazon",    "Aniversario corazón",     "Celebra tu amor con una experiencia única.",                    6),
+  mergePackage("7", "pinta-tu-torta",         "Pinta tu torta",          "Una actividad especial: personaliza y decora tu propia torta.", 7),
 ];
 
 export async function getPackages(): Promise<CelebrationPackage[]> {
@@ -47,12 +70,7 @@ export async function getPackages(): Promise<CelebrationPackage[]> {
   }
   if (!data || data.length === 0) return FALLBACK_PACKAGES;
 
-  return (data as SupabasePackageRow[]).map((row) => ({
-    id: row.id,
-    slug: row.slug,
-    name: row.name,
-    description: row.description,
-    position: row.position,
-    ...getPackageDetails(row.slug),
-  }));
+  return (data as SupabasePackageRow[]).map((row) =>
+    mergePackage(row.id, row.slug, row.name, row.description, row.position)
+  );
 }

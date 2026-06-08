@@ -1,129 +1,128 @@
-// Static rich content for each celebration package.
-// Keyed by slug to match celebration_packages.slug in the DB.
-// Update prices and details here when they change.
+// Static marketing content for each celebration package.
+// Keyed by slug. This is the source of truth for all public card content.
+// Update here when prices, descriptions, or details change.
 
 export type PackageDetails = {
+  description?: string;
   priceLabel: string;
   servingsLabel: string;
   includes: string[];
   conditions: string[];
 };
 
+const STANDARD_CONDITIONS = [
+  "Se consume de la carta",
+  "No se permite ingresar alimentos ni bebidas",
+  "No se permite ingresar decoración externa",
+];
+
 const DEFAULT: PackageDetails = {
   priceLabel: "A consultar",
   servingsLabel: "",
   includes: [],
-  conditions: [
-    "Reserva con mínimo 48 horas de anticipación",
-    "Sujeto a disponibilidad",
-  ],
+  conditions: STANDARD_CONDITIONS,
 };
 
 const DETAILS: Record<string, PackageDetails> = {
   "momento-de-celebracion": {
-    priceLabel: "A consultar",
-    servingsLabel: "Para 6 a 10 personas",
+    description: "Ideal para cumpleaños, aniversarios o fechas especiales rápidas.",
+    priceLabel: "$40.000",
+    servingsLabel: "",
     includes: [
-      "Decoración del espacio al estilo de la ocasión",
-      "Torta personalizada",
-      "Globos y detalles de celebración",
-      "Atención personalizada durante el momento",
+      "Espacio decorado para el momento",
+      "Foto y tarjeta personalizada",
+      "3 globos con helio en color personalizado",
+      "Letrero decorativo",
+      "Tarjeta de obsequio",
+      "Vela de flor",
+      "Postre de cumpleaños con vela volcán",
     ],
-    conditions: [
-      "Reserva con mínimo 48 horas de anticipación",
-      "El diseño de la torta se confirma al reservar",
-      "Sujeto a disponibilidad",
-    ],
+    conditions: STANDARD_CONDITIONS,
   },
   "momento-de-felicidad": {
-    priceLabel: "A consultar",
-    servingsLabel: "Para 4 a 8 personas",
+    description: "Un momento completo con torta rectangular personalizada y decoración especial.",
+    priceLabel: "$210.000",
+    servingsLabel: "Para 16 porciones",
     includes: [
-      "Decoración especial del espacio",
-      "Torta de celebración",
-      "Detalles sorpresa para el homenajeado",
-      "Atención personalizada durante el momento",
+      "Torta rectangular decorada y personalizada",
+      "Decoración con globos",
+      "Letrero decorativo",
+      "Tarjeta con foto personalizada",
+      "Tarjeta con vela de flor",
     ],
-    conditions: [
-      "Reserva con mínimo 48 horas de anticipación",
-      "El mensaje de la tarjeta se confirma al reservar",
-      "Sujeto a disponibilidad",
-    ],
+    conditions: STANDARD_CONDITIONS,
   },
   "momento-con-minicake": {
-    priceLabel: "A consultar",
-    servingsLabel: "Para 1 a 4 personas",
+    description: "Una opción pequeña y especial con mini cake personalizado.",
+    priceLabel: "$65.000",
+    servingsLabel: "Para 1 a 4 porciones",
     includes: [
-      "Minicake personalizado",
-      "Decoración del espacio",
-      "Detalles de celebración",
-      "Atención personalizada",
+      "Mini cake personalizado",
+      "Espacio decorado para el momento",
+      "Globos",
+      "Letrero decorativo",
+      "Tarjeta personalizada",
+      "Tarjeta con vela de flor",
     ],
-    conditions: [
-      "Reserva con mínimo 24 horas de anticipación",
-      "El diseño del minicake se confirma al reservar",
-      "Sujeto a disponibilidad",
-    ],
+    conditions: STANDARD_CONDITIONS,
   },
   "momento-como-en-casa": {
-    priceLabel: "A consultar",
-    servingsLabel: "Para 8 a 15 personas",
+    description: "Una experiencia completa para celebrar con torta personalizada y decoración.",
+    priceLabel: "$130.000 para 1 a 5 personas / $220.000 para 1 a 12 personas",
+    servingsLabel: "",
     includes: [
-      "Decoración completa del espacio",
-      "Torta personalizada de gran formato",
-      "Globos, flores y detalles",
-      "Servicio de mesero dedicado",
-      "Coordinación y atención personalizada del momento",
+      "Torta decorada y personalizada",
+      "Servilletas y platos decorados para la torta",
+      "Espacio decorado con globos",
+      "Letrero decorativo",
+      "Tarjeta con foto personalizada",
+      "Tarjeta con vela de flor",
     ],
-    conditions: [
-      "Reserva con mínimo 72 horas de anticipación",
-      "Todos los detalles se coordinan antes del evento",
-      "Sujeto a disponibilidad",
-    ],
+    conditions: STANDARD_CONDITIONS,
   },
   "torta-de-corazon": {
-    priceLabel: "A consultar",
-    servingsLabel: "De 10 a 15 porciones",
+    description: "Momento especial con torta de corazón decorada y personalizada.",
+    priceLabel: "$125.000 para 1 a 6 porciones / $200.000 para 1 a 13 porciones",
+    servingsLabel: "",
     includes: [
-      "Torta en forma de corazón con diseño personalizado",
-      "Decoración del espacio",
-      "Atención personalizada",
+      "Torta de corazón decorada y personalizada",
+      "Servilletas y platos decorados para la torta",
+      "Espacio decorado con globos",
+      "Letrero decorativo",
+      "Tarjeta con foto personalizada",
+      "Tarjeta con vela de flor",
     ],
-    conditions: [
-      "Reserva con mínimo 48 horas de anticipación",
-      "El diseño debe confirmarse al reservar",
-      "Sujeto a disponibilidad",
-    ],
+    conditions: STANDARD_CONDITIONS,
   },
   "aniversario-corazon": {
-    priceLabel: "A consultar",
-    servingsLabel: "Para 2 a 6 personas",
+    description: "Una experiencia romántica con torta de corazón y decoración de aniversario.",
+    priceLabel: "$125.000 para 1 a 6 porciones / $200.000 para 1 a 13 porciones",
+    servingsLabel: "",
     includes: [
-      "Decoración romántica del espacio",
-      "Torta de corazón personalizada",
-      "Detalles especiales para la pareja",
-      "Atención personalizada",
+      "Torta de corazón decorada",
+      "Decoración romántica para aniversario",
+      "Globos y letrero decorativo",
+      "Tarjeta personalizada",
+      "Tarjeta con vela de flor",
     ],
-    conditions: [
-      "Reserva con mínimo 48 horas de anticipación",
-      "El mensaje y diseño se confirman al reservar",
-      "Sujeto a disponibilidad",
-    ],
+    conditions: STANDARD_CONDITIONS,
   },
   "pinta-tu-torta": {
-    priceLabel: "A consultar",
-    servingsLabel: "Para 2 a 8 personas",
+    description: "Una experiencia creativa para pintar y decorar tu propia torta.",
+    priceLabel: "$45.000 torta sola / $80.000 experiencia completa",
+    servingsLabel: "",
     includes: [
-      "Torta base lista para decorar",
-      "Kit de colores comestibles",
-      "Utensilios de decoración",
-      "Guía y acompañamiento durante la experiencia",
-      "Atención personalizada",
+      "Torta sabor vainilla con relleno de frutos rojos y crema de chocolate blanco",
+      "Pintura comestible",
+      "Sprinkles para decorar",
+      "Mini mariposas comestibles",
+      "Blonda de madera",
+      "Caja para llevar",
+      "Decoración con globos de helio y tarjeta de cumpleaños (solo experiencia completa)",
     ],
     conditions: [
-      "La experiencia dura aproximadamente 60-90 minutos",
-      "Reserva con mínimo 24 horas de anticipación",
-      "Disponible para grupos de hasta 8 personas",
+      "Reserva tu experiencia",
+      "Sujeto a disponibilidad",
     ],
   },
 };
