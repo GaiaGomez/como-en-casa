@@ -4,6 +4,8 @@ import type { ReservationStatus, PaymentStatus } from "./reservations";
 export type CreateReservationPayload = {
   packageId: string | null;
   packageName: string;
+  selectedVariantLabel?: string;
+  selectedVariantPrice?: string;
   eventDate: string;
   eventTime: string;
   guestCount: number;
@@ -50,6 +52,8 @@ export async function createReservation(
   const { error } = await supabase.from("reservations").insert({
     package_id: payload.packageId ?? null,
     package_name: payload.packageName,
+    selected_variant_label: payload.selectedVariantLabel || null,
+    selected_variant_price: payload.selectedVariantPrice || null,
     event_date: payload.eventDate,
     event_time: payload.eventTime,
     guest_count: payload.guestCount,

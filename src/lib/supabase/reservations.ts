@@ -17,6 +17,8 @@ export type PaymentStatus =
 export type ReservationListItem = {
   id: string;
   packageName: string;
+  selectedVariantLabel: string | null;
+  selectedVariantPrice: string | null;
   eventDate: string;
   eventTime: string;
   guestCount: number;
@@ -44,6 +46,8 @@ type SupabaseRow = {
   id: string;
   package_id: string | null;
   package_name: string;
+  selected_variant_label: string | null;
+  selected_variant_price: string | null;
   event_date: string;
   event_time: string;
   guest_count: number;
@@ -70,7 +74,7 @@ export async function getReservations(): Promise<ReservationListItem[]> {
   const { data, error } = await supabase
     .from("reservations")
     .select(
-      "id, package_name, event_date, event_time, guest_count, client_name, client_whatsapp, reservation_status, payment_status, created_at"
+      "id, package_name, selected_variant_label, selected_variant_price, event_date, event_time, guest_count, client_name, client_whatsapp, reservation_status, payment_status, created_at"
     )
     .order("created_at", { ascending: false });
 
@@ -82,6 +86,8 @@ export async function getReservations(): Promise<ReservationListItem[]> {
   return (data as SupabaseRow[]).map((row) => ({
     id: row.id,
     packageName: row.package_name,
+    selectedVariantLabel: row.selected_variant_label,
+    selectedVariantPrice: row.selected_variant_price,
     eventDate: row.event_date,
     eventTime: row.event_time,
     guestCount: row.guest_count,
@@ -110,6 +116,8 @@ export async function getReservation(id: string): Promise<ReservationDetail | nu
     id: row.id,
     packageId: row.package_id,
     packageName: row.package_name,
+    selectedVariantLabel: row.selected_variant_label,
+    selectedVariantPrice: row.selected_variant_price,
     eventDate: row.event_date,
     eventTime: row.event_time,
     guestCount: row.guest_count,

@@ -90,9 +90,16 @@ export function ReservasClient({
             className="panel flex flex-col gap-2 rounded-[16px] px-4 py-3 transition active:scale-[0.99]"
           >
             <div className="flex items-start justify-between gap-2">
-              <p className="text-sm font-medium text-neutral-900 leading-snug">
-                {r.packageName}
-              </p>
+              <div>
+                <p className="text-sm font-medium text-neutral-900 leading-snug">
+                  {r.packageName}
+                </p>
+                {r.selectedVariantLabel && (
+                  <p className="text-xs text-neutral-400">
+                    {r.selectedVariantLabel} · {r.selectedVariantPrice}
+                  </p>
+                )}
+              </div>
               <StatusBadge
                 label={RESERVATION_STATUS_LABEL[r.reservationStatus]}
                 className={RESERVATION_STATUS_CLASS[r.reservationStatus]}
@@ -137,13 +144,18 @@ export function ReservasClient({
                 key={r.id}
                 className="hover:bg-black/2 transition-colors"
               >
-                <td className="pl-5 pr-4 py-3 font-medium text-neutral-900 max-w-[180px] truncate">
+                <td className="pl-5 pr-4 py-3 max-w-[200px]">
                   <Link
                     href={`/admin/reservas/${r.id}`}
-                    className="hover:underline underline-offset-2"
+                    className="font-medium text-neutral-900 hover:underline underline-offset-2"
                   >
                     {r.packageName}
                   </Link>
+                  {r.selectedVariantLabel && (
+                    <p className="text-xs text-neutral-400 truncate">
+                      {r.selectedVariantLabel} · {r.selectedVariantPrice}
+                    </p>
+                  )}
                 </td>
                 <td className="px-4 py-3 text-neutral-600 whitespace-nowrap">
                   {formatDate(r.eventDate)}

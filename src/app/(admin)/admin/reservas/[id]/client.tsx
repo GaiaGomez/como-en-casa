@@ -142,6 +142,11 @@ export function ReservationDetailClient({
           <p className="mt-0.5 text-lg font-semibold text-neutral-900">
             {reservation.packageName}
           </p>
+          {reservation.selectedVariantLabel && (
+            <p className="mt-0.5 text-sm font-medium text-neutral-600">
+              {reservation.selectedVariantLabel} · {reservation.selectedVariantPrice}
+            </p>
+          )}
           <p className="mt-1 text-sm text-neutral-500">
             {formatDate(reservation.eventDate)} · {reservation.eventTime.slice(0, 5)} · {reservation.guestCount} pers.
           </p>

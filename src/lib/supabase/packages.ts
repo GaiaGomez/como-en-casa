@@ -1,5 +1,7 @@
-import { getPackageDetails } from "@/lib/package-details";
+import { type PackageVariant, getPackageDetails } from "@/lib/package-details";
 import { createServerSupabase } from "./server";
+
+export type { PackageVariant };
 
 export type CelebrationPackage = {
   id: string;
@@ -9,6 +11,7 @@ export type CelebrationPackage = {
   position: number;
   priceLabel: string;
   servingsLabel: string;
+  variants: PackageVariant[];
   includes: string[];
   conditions: string[];
 };
@@ -21,8 +24,8 @@ type SupabasePackageRow = {
   position: number;
 };
 
-// Merge a DB row with static details. Static content wins for all card fields;
-// description falls back to the DB value when no static description is set.
+// Static details win for all card content; DB provides identity fields only.
+// Description prefers static copy; falls back to DB value when not set.
 function mergePackage(
   id: string,
   slug: string,
@@ -39,6 +42,7 @@ function mergePackage(
     position,
     priceLabel: d.priceLabel,
     servingsLabel: d.servingsLabel,
+    variants: d.variants,
     includes: d.includes,
     conditions: d.conditions,
   };

@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ChevronDown, X } from "lucide-react";
+import { ChevronDown, ChevronRight, X } from "lucide-react";
 
 import { cn } from "@/lib/utils";
-import type { CelebrationPackage } from "@/lib/supabase/packages";
+import type { CelebrationPackage, PackageVariant } from "@/lib/supabase/packages";
 import {
   createReservation,
   uploadReservationFile,
@@ -78,32 +78,38 @@ function FieldLabel({
 const inputClass =
   "h-10 w-full rounded-[10px] border border-black/15 bg-white px-3 text-base text-neutral-900 outline-none focus:border-black/40";
 
+// ─── Package card ─────────────────────────────────────────────
+
 function PackageCard({
   pkg,
   onReserve,
 }: {
   pkg: CelebrationPackage;
-  onReserve: (pkg: CelebrationPackage) => void;
+  onReserve: (pkg: CelebrationPackage, variant: PackageVariant) => void;
 }) {
   const [expanded, setExpanded] = useState(false);
   const hasDetails = pkg.includes.length > 0 || pkg.conditions.length > 0;
+  const isMultiVariant = pkg.variants.length > 1;
+  const singleVariant = !isMultiVariant ? (pkg.variants[0] ?? null) : null;
 
   return (
     <div className="flex flex-col rounded-[20px] border border-black/10 bg-white p-5">
       {/* Title */}
       <h2 className="text-base font-semibold text-neutral-900">{pkg.name}</h2>
 
-      {/* Price + servings */}
-      <div className="mt-2 flex flex-wrap items-center gap-2">
-        <span className="inline-flex items-center rounded-full bg-black px-2.5 py-0.5 text-xs font-medium text-white">
-          {pkg.priceLabel}
-        </span>
-        {pkg.servingsLabel && (
-          <span className="text-xs text-neutral-500">{pkg.servingsLabel}</span>
-        )}
-      </div>
+      {/* Single-variant: price badge + servings */}
+      {!isMultiVariant && singleVariant && (
+        <div className="mt-2 flex flex-wrap items-center gap-2">
+          <span className="inline-flex items-center rounded-full bg-black px-2.5 py-0.5 text-xs font-medium text-white">
+            {singleVariant.priceLabel}
+          </span>
+          {pkg.servingsLabel && (
+            <span className="text-xs text-neutral-500">{pkg.servingsLabel}</span>
+          )}
+        </div>
+      )}
 
-      {/* Short description */}
+      {/* Description */}
       <p className="mt-3 text-sm text-neutral-500">{pkg.description}</p>
 
       {/* Ver detalles toggle */}
@@ -114,13 +120,16 @@ function PackageCard({
           className="mt-3 flex items-center gap-1 text-xs font-medium text-neutral-500 hover:text-neutral-800"
         >
           <ChevronDown
-            className={cn("size-3.5 transition-transform duration-200", expanded && "rotate-180")}
+            className={cn(
+              "size-3.5 transition-transform duration-200",
+              expanded && "rotate-180"
+            )}
           />
           {expanded ? "Ocultar detalles" : "Ver detalles"}
         </button>
       )}
 
-      {/* Expandable section — grid-rows trick gives smooth height animation */}
+      {/* Expandable section — grid-rows trick for smooth animation */}
       {hasDetails && (
         <div
           className={cn(
@@ -137,8 +146,13 @@ function PackageCard({
                   </p>
                   <ul className="mt-1.5 space-y-1">
                     {pkg.includes.map((item) => (
-                      <li key={item} className="flex items-start gap-2 text-sm text-neutral-700">
-                        <span className="mt-0.5 shrink-0 text-[10px] text-neutral-400">•</span>
+                      <li
+                        key={item}
+                        className="flex items-start gap-2 text-sm text-neutral-700"
+                      >
+                        <span className="mt-0.5 shrink-0 text-[10px] text-neutral-400">
+                          •
+                        </span>
                         {item}
                       </li>
                     ))}
@@ -152,8 +166,13 @@ function PackageCard({
                   </p>
                   <ul className="mt-1.5 space-y-1">
                     {pkg.conditions.map((item) => (
-                      <li key={item} className="flex items-start gap-2 text-sm text-neutral-500">
-                        <span className="mt-0.5 shrink-0 text-[10px] text-neutral-400">•</span>
+                      <li
+                        key={item}
+                        className="flex items-start gap-2 text-sm text-neutral-500"
+                      >
+                        <span className="mt-0.5 shrink-0 text-[10px] text-neutral-400">
+                          •
+                        </span>
                         {item}
                       </li>
                     ))}
@@ -165,19 +184,48 @@ function PackageCard({
         </div>
       )}
 
-      {/* CTA — pushed to bottom */}
-      <div className="mt-auto pt-5">
-        <button
-          type="button"
-          onClick={() => onReserve(pkg)}
-          className="inline-flex h-9 w-full items-center justify-center rounded-[10px] bg-black px-4 text-sm font-medium text-white hover:bg-neutral-800"
-        >
-          Reservar momento
-        </button>
+      {/* CTA */}
+      <div className="mt-auto pt-4">
+        {isMultiVariant ? (
+          // Multi-variant: each option is a clickable row
+          <div className="space-y-2">
+            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-neutral-400">
+              Elige una opción
+            </p>
+            {pkg.variants.map((v) => (
+              <button
+                key={v.label}
+                type="button"
+                onClick={() => onReserve(pkg, v)}
+                className="flex w-full items-center justify-between rounded-[10px] border border-black/12 px-3.5 py-2.5 text-sm transition-colors hover:border-black/30 hover:bg-neutral-50"
+              >
+                <span className="font-medium text-neutral-900">{v.label}</span>
+                <span className="flex items-center gap-1.5 text-neutral-500">
+                  {v.priceLabel}
+                  <ChevronRight className="size-3.5 text-neutral-400" />
+                </span>
+              </button>
+            ))}
+          </div>
+        ) : (
+          // Single-variant: direct CTA
+          <button
+            type="button"
+            onClick={() => {
+              const v = singleVariant ?? { label: "Estándar", priceLabel: pkg.priceLabel };
+              onReserve(pkg, v);
+            }}
+            className="inline-flex h-9 w-full items-center justify-center rounded-[10px] bg-black px-4 text-sm font-medium text-white hover:bg-neutral-800"
+          >
+            Reservar momento
+          </button>
+        )}
       </div>
     </div>
   );
 }
+
+// ─── Main client ──────────────────────────────────────────────
 
 export function MomentosClient({
   packages,
@@ -185,6 +233,7 @@ export function MomentosClient({
   packages: CelebrationPackage[];
 }) {
   const [selectedPkg, setSelectedPkg] = useState<CelebrationPackage | null>(null);
+  const [selectedVariant, setSelectedVariant] = useState<PackageVariant | null>(null);
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -194,8 +243,9 @@ export function MomentosClient({
     setForm((prev) => ({ ...prev, [key]: value }));
   }
 
-  function openSheet(pkg: CelebrationPackage) {
+  function openSheet(pkg: CelebrationPackage, variant: PackageVariant) {
     setSelectedPkg(pkg);
+    setSelectedVariant(variant);
     setForm(EMPTY_FORM);
     setError(null);
     setSuccess(false);
@@ -204,13 +254,14 @@ export function MomentosClient({
 
   function closeSheet() {
     setSelectedPkg(null);
+    setSelectedVariant(null);
     setError(null);
     setSuccess(false);
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!selectedPkg) return;
+    if (!selectedPkg || !selectedVariant) return;
 
     setError(null);
     setLoading(true);
@@ -252,6 +303,8 @@ export function MomentosClient({
     const ok = await createReservation({
       packageId: selectedPkg.id,
       packageName: selectedPkg.name,
+      selectedVariantLabel: selectedVariant.label,
+      selectedVariantPrice: selectedVariant.priceLabel,
       eventDate: form.eventDate,
       eventTime: form.eventTime,
       guestCount: Number(form.guestCount),
@@ -320,10 +373,8 @@ export function MomentosClient({
             aria-label={`Reservar ${selectedPkg!.name}`}
             className={[
               "fixed z-50 overflow-y-auto bg-white",
-              // mobile: full-width bottom sheet
               "inset-x-0 bottom-0 max-h-[92svh] rounded-t-[24px] px-5 pt-4",
               "pb-[calc(env(safe-area-inset-bottom)+20px)]",
-              // desktop: centered modal
               "sm:inset-x-auto sm:left-1/2 sm:right-auto sm:bottom-auto sm:top-1/2",
               "sm:-translate-x-1/2 sm:-translate-y-1/2",
               "sm:w-full sm:max-w-lg sm:rounded-[20px] sm:px-6 sm:pt-6 sm:pb-6",
@@ -336,7 +387,7 @@ export function MomentosClient({
               <span className="h-1 w-10 rounded-full bg-black/15" />
             </div>
 
-            {/* Sheet header: locked package + close button */}
+            {/* Sheet header: locked package + variant + close */}
             <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.14em] text-neutral-400">
@@ -345,6 +396,11 @@ export function MomentosClient({
                 <p className="mt-0.5 text-base font-semibold text-neutral-900">
                   {selectedPkg!.name}
                 </p>
+                {selectedVariant && (
+                  <p className="mt-0.5 text-sm text-neutral-500">
+                    {selectedVariant.label} · {selectedVariant.priceLabel}
+                  </p>
+                )}
               </div>
               <button
                 type="button"
@@ -376,7 +432,6 @@ export function MomentosClient({
                 </button>
               </div>
             ) : (
-              /* Form */
               <form onSubmit={handleSubmit} className="mt-5 space-y-4">
                 {/* Fecha + Hora */}
                 <div className="grid grid-cols-2 gap-3">
@@ -406,9 +461,7 @@ export function MomentosClient({
 
                 {/* Personas */}
                 <div className="space-y-1.5">
-                  <FieldLabel htmlFor="guest-count">
-                    Personas que asistirán
-                  </FieldLabel>
+                  <FieldLabel htmlFor="guest-count">Personas que asistirán</FieldLabel>
                   <input
                     id="guest-count"
                     type="number"
@@ -423,9 +476,7 @@ export function MomentosClient({
 
                 {/* Nombre */}
                 <div className="space-y-1.5">
-                  <FieldLabel htmlFor="client-name">
-                    Nombre de quien reserva
-                  </FieldLabel>
+                  <FieldLabel htmlFor="client-name">Nombre de quien reserva</FieldLabel>
                   <input
                     id="client-name"
                     type="text"
@@ -452,9 +503,7 @@ export function MomentosClient({
 
                 {/* Homenajeado */}
                 <div className="space-y-1.5">
-                  <FieldLabel htmlFor="honoree-name" optional>
-                    Nombre del homenajeado
-                  </FieldLabel>
+                  <FieldLabel htmlFor="honoree-name" optional>Nombre del homenajeado</FieldLabel>
                   <input
                     id="honoree-name"
                     type="text"
@@ -466,9 +515,7 @@ export function MomentosClient({
 
                 {/* Ocasión */}
                 <div className="space-y-1.5">
-                  <FieldLabel htmlFor="occasion" optional>
-                    Ocasión
-                  </FieldLabel>
+                  <FieldLabel htmlFor="occasion" optional>Ocasión</FieldLabel>
                   <select
                     id="occasion"
                     value={form.occasion}
@@ -486,9 +533,7 @@ export function MomentosClient({
 
                 {/* Mensaje */}
                 <div className="space-y-1.5">
-                  <FieldLabel htmlFor="card-message" optional>
-                    Mensaje para tarjeta
-                  </FieldLabel>
+                  <FieldLabel htmlFor="card-message" optional>Mensaje para tarjeta</FieldLabel>
                   <textarea
                     id="card-message"
                     rows={3}
@@ -500,9 +545,7 @@ export function MomentosClient({
 
                 {/* Color */}
                 <div className="space-y-1.5">
-                  <FieldLabel htmlFor="decoration-color" optional>
-                    Color de decoración
-                  </FieldLabel>
+                  <FieldLabel htmlFor="decoration-color" optional>Color de decoración</FieldLabel>
                   <input
                     id="decoration-color"
                     type="text"
@@ -515,9 +558,7 @@ export function MomentosClient({
 
                 {/* Foto */}
                 <div className="space-y-1.5">
-                  <FieldLabel htmlFor="card-photo" optional>
-                    Foto para tarjeta
-                  </FieldLabel>
+                  <FieldLabel htmlFor="card-photo" optional>Foto para tarjeta</FieldLabel>
                   <input
                     id="card-photo"
                     type="file"
@@ -531,9 +572,7 @@ export function MomentosClient({
 
                 {/* Comprobante */}
                 <div className="space-y-1.5">
-                  <FieldLabel htmlFor="payment-proof" optional>
-                    Comprobante de pago
-                  </FieldLabel>
+                  <FieldLabel htmlFor="payment-proof" optional>Comprobante de pago</FieldLabel>
                   <input
                     id="payment-proof"
                     type="file"
@@ -547,9 +586,7 @@ export function MomentosClient({
 
                 {/* Observaciones */}
                 <div className="space-y-1.5">
-                  <FieldLabel htmlFor="observations" optional>
-                    Observaciones
-                  </FieldLabel>
+                  <FieldLabel htmlFor="observations" optional>Observaciones</FieldLabel>
                   <textarea
                     id="observations"
                     rows={3}

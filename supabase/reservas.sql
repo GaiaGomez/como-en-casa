@@ -57,6 +57,9 @@ CREATE TABLE IF NOT EXISTS reservations (
   card_photo_path     text,
   payment_proof_path  text,
   observations        text,
+  -- selected variant (label + price chosen by customer at time of reservation)
+  selected_variant_label text,
+  selected_variant_price text,
   -- admin-only fields
   assigned_zone       text,
   internal_notes      text,
@@ -175,3 +178,9 @@ INSERT INTO celebration_packages (slug, name, description, position, active) VAL
   ('aniversario-corazon',    'Aniversario corazón',     'Celebra tu amor con una experiencia única.',                    6, true),
   ('pinta-tu-torta',         'Pinta tu torta',          'Una actividad especial: personaliza y decora tu propia torta.', 7, true)
 ON CONFLICT (slug) DO NOTHING;
+
+
+-- ─── Migration: run once on existing databases ───────────────
+-- ALTER TABLE reservations
+--   ADD COLUMN IF NOT EXISTS selected_variant_label text,
+--   ADD COLUMN IF NOT EXISTS selected_variant_price  text;

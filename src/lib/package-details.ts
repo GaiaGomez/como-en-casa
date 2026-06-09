@@ -2,10 +2,16 @@
 // Keyed by slug. This is the source of truth for all public card content.
 // Update here when prices, descriptions, or details change.
 
+export type PackageVariant = {
+  label: string;
+  priceLabel: string;
+};
+
 export type PackageDetails = {
   description?: string;
   priceLabel: string;
   servingsLabel: string;
+  variants: PackageVariant[];
   includes: string[];
   conditions: string[];
 };
@@ -19,6 +25,7 @@ const STANDARD_CONDITIONS = [
 const DEFAULT: PackageDetails = {
   priceLabel: "A consultar",
   servingsLabel: "",
+  variants: [],
   includes: [],
   conditions: STANDARD_CONDITIONS,
 };
@@ -28,6 +35,9 @@ const DETAILS: Record<string, PackageDetails> = {
     description: "Ideal para cumpleaños, aniversarios o fechas especiales rápidas.",
     priceLabel: "$40.000",
     servingsLabel: "",
+    variants: [
+      { label: "Valor", priceLabel: "$40.000" },
+    ],
     includes: [
       "Espacio decorado para el momento",
       "Foto y tarjeta personalizada",
@@ -43,6 +53,9 @@ const DETAILS: Record<string, PackageDetails> = {
     description: "Un momento completo con torta rectangular personalizada y decoración especial.",
     priceLabel: "$210.000",
     servingsLabel: "Para 16 porciones",
+    variants: [
+      { label: "Para 16 porciones", priceLabel: "$210.000" },
+    ],
     includes: [
       "Torta rectangular decorada y personalizada",
       "Decoración con globos",
@@ -56,6 +69,9 @@ const DETAILS: Record<string, PackageDetails> = {
     description: "Una opción pequeña y especial con mini cake personalizado.",
     priceLabel: "$65.000",
     servingsLabel: "Para 1 a 4 porciones",
+    variants: [
+      { label: "Para 1 a 4 porciones", priceLabel: "$65.000" },
+    ],
     includes: [
       "Mini cake personalizado",
       "Espacio decorado para el momento",
@@ -68,8 +84,12 @@ const DETAILS: Record<string, PackageDetails> = {
   },
   "momento-como-en-casa": {
     description: "Una experiencia completa para celebrar con torta personalizada y decoración.",
-    priceLabel: "$130.000 para 1 a 5 personas / $220.000 para 1 a 12 personas",
+    priceLabel: "Desde $130.000",
     servingsLabel: "",
+    variants: [
+      { label: "Para 1 a 5 personas", priceLabel: "$130.000" },
+      { label: "Para 1 a 12 personas", priceLabel: "$220.000" },
+    ],
     includes: [
       "Torta decorada y personalizada",
       "Servilletas y platos decorados para la torta",
@@ -82,8 +102,12 @@ const DETAILS: Record<string, PackageDetails> = {
   },
   "torta-de-corazon": {
     description: "Momento especial con torta de corazón decorada y personalizada.",
-    priceLabel: "$125.000 para 1 a 6 porciones / $200.000 para 1 a 13 porciones",
+    priceLabel: "Desde $125.000",
     servingsLabel: "",
+    variants: [
+      { label: "Para 1 a 6 porciones", priceLabel: "$125.000" },
+      { label: "Para 1 a 13 porciones", priceLabel: "$200.000" },
+    ],
     includes: [
       "Torta de corazón decorada y personalizada",
       "Servilletas y platos decorados para la torta",
@@ -96,8 +120,12 @@ const DETAILS: Record<string, PackageDetails> = {
   },
   "aniversario-corazon": {
     description: "Una experiencia romántica con torta de corazón y decoración de aniversario.",
-    priceLabel: "$125.000 para 1 a 6 porciones / $200.000 para 1 a 13 porciones",
+    priceLabel: "Desde $125.000",
     servingsLabel: "",
+    variants: [
+      { label: "Para 1 a 6 porciones", priceLabel: "$125.000" },
+      { label: "Para 1 a 13 porciones", priceLabel: "$200.000" },
+    ],
     includes: [
       "Torta de corazón decorada",
       "Decoración romántica para aniversario",
@@ -109,8 +137,12 @@ const DETAILS: Record<string, PackageDetails> = {
   },
   "pinta-tu-torta": {
     description: "Una experiencia creativa para pintar y decorar tu propia torta.",
-    priceLabel: "$45.000 torta sola / $80.000 experiencia completa",
+    priceLabel: "Desde $45.000",
     servingsLabel: "",
+    variants: [
+      { label: "Torta sola", priceLabel: "$45.000" },
+      { label: "Experiencia completa", priceLabel: "$80.000" },
+    ],
     includes: [
       "Torta sabor vainilla con relleno de frutos rojos y crema de chocolate blanco",
       "Pintura comestible",
