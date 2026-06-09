@@ -1,5 +1,3 @@
-const LINA_WHATSAPP = process.env.NEXT_PUBLIC_LINA_WHATSAPP_NUMBER ?? "TODO_AGREGAR_NUMERO";
-
 const CATEGORIES = [
   {
     emoji: "☕",
@@ -24,10 +22,6 @@ const CATEGORIES = [
 ];
 
 export default function CartaPage() {
-  const whatsappUrl = `https://wa.me/${LINA_WHATSAPP}?text=${encodeURIComponent(
-    "Hola! Quisiera ver la carta de Como en Casa 😊"
-  )}`;
-
   return (
     <div className="mx-auto max-w-4xl space-y-10 px-4 py-12 sm:px-6 lg:px-8">
       {/* Header */}
@@ -38,14 +32,6 @@ export default function CartaPage() {
         <p className="mt-2 text-base text-neutral-500">
           Explora nuestros cafés, postres y opciones para compartir.
         </p>
-        <a
-          href={whatsappUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mt-6 inline-flex h-11 items-center rounded-xl bg-neutral-950 px-6 text-sm font-medium text-white hover:bg-neutral-800 active:bg-neutral-900"
-        >
-          Solicitar carta por WhatsApp
-        </a>
       </section>
 
       {/* Category cards */}

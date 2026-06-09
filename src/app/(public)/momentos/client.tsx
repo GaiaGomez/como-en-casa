@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ChevronDown, X } from "lucide-react";
+import { ChevronDown, ChevronLeft, ChevronRight, X } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import type { CelebrationPackage, PackageVariant } from "@/lib/supabase/packages";
@@ -110,6 +110,68 @@ function buildWhatsAppUrl(
   return `https://wa.me/${LINA_WHATSAPP}?text=${encodeURIComponent(lines.join("\n"))}`;
 }
 
+// ─── Photo carousel ───────────────────────────────────────────
+
+function PhotoCarousel({ images }: { images: string[] }) {
+  const [idx, setIdx] = useState(0);
+  const [errors, setErrors] = useState<Set<number>>(new Set());
+
+  if (images.length === 0) return null;
+
+  const multi = images.length > 1;
+
+  function markError(i: number) {
+    setErrors((prev) => {
+      const next = new Set(prev);
+      next.add(i);
+      return next;
+    });
+  }
+
+  return (
+    <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-neutral-100">
+      {errors.has(idx) ? (
+        <div className="flex h-full items-center justify-center">
+          <span className="text-xs text-neutral-300">Sin imagen</span>
+        </div>
+      ) : (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          key={images[idx]}
+          src={images[idx]}
+          alt=""
+          className="h-full w-full object-cover"
+          onError={() => markError(idx)}
+        />
+      )}
+
+      {multi && (
+        <>
+          <button
+            type="button"
+            onClick={() => setIdx((i) => (i === 0 ? images.length - 1 : i - 1))}
+            aria-label="Imagen anterior"
+            className="absolute left-2 top-1/2 -translate-y-1/2 flex h-7 w-7 items-center justify-center rounded-full bg-black/40 text-white hover:bg-black/60"
+          >
+            <ChevronLeft className="size-4" />
+          </button>
+          <button
+            type="button"
+            onClick={() => setIdx((i) => (i === images.length - 1 ? 0 : i + 1))}
+            aria-label="Imagen siguiente"
+            className="absolute right-2 top-1/2 -translate-y-1/2 flex h-7 w-7 items-center justify-center rounded-full bg-black/40 text-white hover:bg-black/60"
+          >
+            <ChevronRight className="size-4" />
+          </button>
+          <span className="absolute bottom-2 right-2 rounded-full bg-black/40 px-2 py-0.5 text-[11px] font-medium text-white">
+            {idx + 1} / {images.length}
+          </span>
+        </>
+      )}
+    </div>
+  );
+}
+
 // ─── Package card ─────────────────────────────────────────────
 
 function PackageCard({
@@ -133,7 +195,14 @@ function PackageCard({
         <p className="mt-1.5 text-sm text-neutral-500">{pkg.description}</p>
       </div>
 
-      {/* 3–4. Options */}
+      {/* 3. Carousel */}
+      {pkg.images.length > 0 && (
+        <div className="mt-4">
+          <PhotoCarousel images={pkg.images} />
+        </div>
+      )}
+
+      {/* 4–5. Options */}
       <div className="mt-4">
         <p className="text-xs font-semibold uppercase tracking-[0.12em] text-neutral-400">
           Opciones disponibles

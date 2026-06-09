@@ -12,6 +12,7 @@ export type CelebrationPackage = {
   priceLabel: string;
   servingsLabel: string;
   variants: PackageVariant[];
+  images: string[];
   includes: string[];
   conditions: string[];
 };
@@ -43,6 +44,7 @@ function mergePackage(
     priceLabel: d.priceLabel,
     servingsLabel: d.servingsLabel,
     variants: d.variants,
+    images: d.images,
     includes: d.includes,
     conditions: d.conditions,
   };

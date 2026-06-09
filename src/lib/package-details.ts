@@ -12,6 +12,7 @@ export type PackageDetails = {
   priceLabel: string;
   servingsLabel: string;
   variants: PackageVariant[];
+  images: string[];
   includes: string[];
   conditions: string[];
 };
@@ -26,6 +27,7 @@ const DEFAULT: PackageDetails = {
   priceLabel: "A consultar",
   servingsLabel: "",
   variants: [],
+  images: [],
   includes: [],
   conditions: STANDARD_CONDITIONS,
 };
@@ -37,6 +39,10 @@ const DETAILS: Record<string, PackageDetails> = {
     servingsLabel: "",
     variants: [
       { label: "Momento especial", priceLabel: "$40.000" },
+    ],
+    images: [
+      "/momentos/momento-celebracion-1.jpg",
+      "/momentos/momento-celebracion-2.jpg",
     ],
     includes: [
       "Espacio decorado para el momento",
@@ -56,6 +62,10 @@ const DETAILS: Record<string, PackageDetails> = {
     variants: [
       { label: "16 porciones", priceLabel: "$210.000" },
     ],
+    images: [
+      "/momentos/momento-felicidad-1.jpg",
+      "/momentos/momento-felicidad-2.jpg",
+    ],
     includes: [
       "Torta rectangular decorada y personalizada",
       "Decoración con globos",
@@ -71,6 +81,10 @@ const DETAILS: Record<string, PackageDetails> = {
     servingsLabel: "Para 1 a 4 porciones",
     variants: [
       { label: "1–4 porciones", priceLabel: "$65.000" },
+    ],
+    images: [
+      "/momentos/momento-minicake-1.jpg",
+      "/momentos/momento-minicake-2.jpg",
     ],
     includes: [
       "Mini cake personalizado",
@@ -90,6 +104,10 @@ const DETAILS: Record<string, PackageDetails> = {
       { label: "1–5 personas", priceLabel: "$130.000" },
       { label: "1–12 personas", priceLabel: "$220.000" },
     ],
+    images: [
+      "/momentos/momento-como-en-casa-1.jpg",
+      "/momentos/momento-como-en-casa-2.jpg",
+    ],
     includes: [
       "Torta decorada y personalizada",
       "Servilletas y platos decorados para la torta",
@@ -107,6 +125,10 @@ const DETAILS: Record<string, PackageDetails> = {
     variants: [
       { label: "1–6 porciones", priceLabel: "$125.000" },
       { label: "1–13 porciones", priceLabel: "$200.000" },
+    ],
+    images: [
+      "/momentos/torta-corazon-1.jpg",
+      "/momentos/torta-corazon-2.jpg",
     ],
     includes: [
       "Torta de corazón decorada y personalizada",
@@ -126,6 +148,10 @@ const DETAILS: Record<string, PackageDetails> = {
       { label: "1–6 porciones", priceLabel: "$125.000" },
       { label: "1–13 porciones", priceLabel: "$200.000" },
     ],
+    images: [
+      "/momentos/aniversario-corazon-1.jpg",
+      "/momentos/aniversario-corazon-2.jpg",
+    ],
     includes: [
       "Torta de corazón decorada",
       "Decoración romántica para aniversario",
@@ -142,6 +168,10 @@ const DETAILS: Record<string, PackageDetails> = {
     variants: [
       { label: "Torta sola", priceLabel: "$45.000" },
       { label: "Experiencia completa", priceLabel: "$80.000" },
+    ],
+    images: [
+      "/momentos/pinta-tu-torta-1.jpg",
+      "/momentos/pinta-tu-torta-2.jpg",
     ],
     includes: [
       "Torta sabor vainilla con relleno de frutos rojos y crema de chocolate blanco",
