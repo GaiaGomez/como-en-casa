@@ -94,28 +94,28 @@ function PackageCard({
   );
 
   return (
-    <div className="flex flex-col rounded-[20px] border border-black/10 bg-white p-5">
-      {/* 1. Title */}
-      <h2 className="text-base font-semibold text-neutral-900">{pkg.name}</h2>
+    <div className="flex flex-col rounded-3xl border border-neutral-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-md lg:min-h-[300px]">
+      {/* 1–2. Header block */}
+      <div className="border-b border-neutral-100 pb-4">
+        <h2 className="text-lg font-semibold text-neutral-900">{pkg.name}</h2>
+        <p className="mt-1.5 text-sm text-neutral-500">{pkg.description}</p>
+      </div>
 
-      {/* 2. Description */}
-      <p className="mt-2 text-sm text-neutral-500">{pkg.description}</p>
-
-      {/* 3–4. Options — same layout for every package */}
+      {/* 3–4. Options */}
       <div className="mt-4">
         <p className="text-xs font-semibold uppercase tracking-[0.12em] text-neutral-400">
           Opciones disponibles
         </p>
-        <div className="mt-2 space-y-1.5">
+        <div className="mt-2 space-y-2">
           {pkg.variants.map((v) => (
             <button
               key={v.label}
               type="button"
               onClick={() => onReserve(pkg, v)}
-              className="flex w-full items-center justify-between gap-3 rounded-[10px] border border-black/10 px-3.5 py-2.5 text-sm transition-colors hover:border-black/25 hover:bg-neutral-50 active:bg-neutral-100"
+              className="flex w-full items-center justify-between gap-3 rounded-xl bg-neutral-950 px-4 py-3 text-sm text-white transition-colors hover:bg-neutral-800 active:bg-neutral-900"
             >
-              <span className="font-medium text-neutral-900">{v.label}</span>
-              <span className="shrink-0 font-medium text-neutral-600">{v.priceLabel}</span>
+              <span className="font-medium">{v.label}</span>
+              <span className="shrink-0 text-white/80">{v.priceLabel}</span>
             </button>
           ))}
         </div>
@@ -133,7 +133,7 @@ function PackageCard({
         <button
           type="button"
           onClick={() => setExpanded((v) => !v)}
-          className="mt-4 flex items-center gap-1 text-xs font-medium text-neutral-500 hover:text-neutral-800"
+          className="mt-4 flex items-center gap-1 text-xs font-medium text-neutral-400 hover:text-neutral-700"
         >
           <ChevronDown
             className={cn(
@@ -323,7 +323,7 @@ export function MomentosClient({
         <p className="mt-3 text-lg text-neutral-600">
           Experiencias diseñadas para celebrar.
         </p>
-        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 lg:gap-8">
           {packages.map((pkg) => (
             <PackageCard key={pkg.id} pkg={pkg} onReserve={openSheet} />
           ))}
