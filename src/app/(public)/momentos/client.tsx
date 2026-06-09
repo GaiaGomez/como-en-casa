@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ChevronDown, ChevronRight, X } from "lucide-react";
+import { ChevronDown, X } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import type { CelebrationPackage, PackageVariant } from "@/lib/supabase/packages";
@@ -89,35 +89,51 @@ function PackageCard({
 }) {
   const [expanded, setExpanded] = useState(false);
   const hasDetails = pkg.includes.length > 0 || pkg.conditions.length > 0;
-  const isMultiVariant = pkg.variants.length > 1;
-  const singleVariant = !isMultiVariant ? (pkg.variants[0] ?? null) : null;
+  const showPortionHelper = pkg.variants.some((v) =>
+    v.label.toLowerCase().includes("porciones")
+  );
 
   return (
     <div className="flex flex-col rounded-[20px] border border-black/10 bg-white p-5">
-      {/* Title */}
+      {/* 1. Title */}
       <h2 className="text-base font-semibold text-neutral-900">{pkg.name}</h2>
 
-      {/* Single-variant: price badge + servings */}
-      {!isMultiVariant && singleVariant && (
-        <div className="mt-2 flex flex-wrap items-center gap-2">
-          <span className="inline-flex items-center rounded-full bg-black px-2.5 py-0.5 text-xs font-medium text-white">
-            {singleVariant.priceLabel}
-          </span>
-          {pkg.servingsLabel && (
-            <span className="text-xs text-neutral-500">{pkg.servingsLabel}</span>
-          )}
+      {/* 2. Description */}
+      <p className="mt-2 text-sm text-neutral-500">{pkg.description}</p>
+
+      {/* 3–4. Options — same layout for every package */}
+      <div className="mt-4">
+        <p className="text-xs font-semibold uppercase tracking-[0.12em] text-neutral-400">
+          Opciones disponibles
+        </p>
+        <div className="mt-2 space-y-1.5">
+          {pkg.variants.map((v) => (
+            <button
+              key={v.label}
+              type="button"
+              onClick={() => onReserve(pkg, v)}
+              className="flex w-full items-center justify-between gap-3 rounded-[10px] border border-black/10 px-3.5 py-2.5 text-sm transition-colors hover:border-black/25 hover:bg-neutral-50 active:bg-neutral-100"
+            >
+              <span className="font-medium text-neutral-900">{v.label}</span>
+              <span className="shrink-0 font-medium text-neutral-600">{v.priceLabel}</span>
+            </button>
+          ))}
         </div>
-      )}
 
-      {/* Description */}
-      <p className="mt-3 text-sm text-neutral-500">{pkg.description}</p>
+        {/* 5. Helper text — only for packages with porciones */}
+        {showPortionHelper && (
+          <p className="mt-2 text-xs text-neutral-400">
+            Las porciones corresponden al tamaño de la torta.
+          </p>
+        )}
+      </div>
 
-      {/* Ver detalles toggle */}
+      {/* 6. Ver detalles toggle */}
       {hasDetails && (
         <button
           type="button"
           onClick={() => setExpanded((v) => !v)}
-          className="mt-3 flex items-center gap-1 text-xs font-medium text-neutral-500 hover:text-neutral-800"
+          className="mt-4 flex items-center gap-1 text-xs font-medium text-neutral-500 hover:text-neutral-800"
         >
           <ChevronDown
             className={cn(
@@ -129,7 +145,7 @@ function PackageCard({
         </button>
       )}
 
-      {/* Expandable section — grid-rows trick for smooth animation */}
+      {/* 7. Expandable details — grid-rows for smooth animation */}
       {hasDetails && (
         <div
           className={cn(
@@ -150,9 +166,7 @@ function PackageCard({
                         key={item}
                         className="flex items-start gap-2 text-sm text-neutral-700"
                       >
-                        <span className="mt-0.5 shrink-0 text-[10px] text-neutral-400">
-                          •
-                        </span>
+                        <span className="mt-0.5 shrink-0 text-[10px] text-neutral-400">•</span>
                         {item}
                       </li>
                     ))}
@@ -170,9 +184,7 @@ function PackageCard({
                         key={item}
                         className="flex items-start gap-2 text-sm text-neutral-500"
                       >
-                        <span className="mt-0.5 shrink-0 text-[10px] text-neutral-400">
-                          •
-                        </span>
+                        <span className="mt-0.5 shrink-0 text-[10px] text-neutral-400">•</span>
                         {item}
                       </li>
                     ))}
@@ -183,44 +195,6 @@ function PackageCard({
           </div>
         </div>
       )}
-
-      {/* CTA */}
-      <div className="mt-auto pt-4">
-        {isMultiVariant ? (
-          // Multi-variant: each option is a clickable row
-          <div className="space-y-2">
-            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-neutral-400">
-              Elige una opción
-            </p>
-            {pkg.variants.map((v) => (
-              <button
-                key={v.label}
-                type="button"
-                onClick={() => onReserve(pkg, v)}
-                className="flex w-full items-center justify-between rounded-[10px] border border-black/12 px-3.5 py-2.5 text-sm transition-colors hover:border-black/30 hover:bg-neutral-50"
-              >
-                <span className="font-medium text-neutral-900">{v.label}</span>
-                <span className="flex items-center gap-1.5 text-neutral-500">
-                  {v.priceLabel}
-                  <ChevronRight className="size-3.5 text-neutral-400" />
-                </span>
-              </button>
-            ))}
-          </div>
-        ) : (
-          // Single-variant: direct CTA
-          <button
-            type="button"
-            onClick={() => {
-              const v = singleVariant ?? { label: "Estándar", priceLabel: pkg.priceLabel };
-              onReserve(pkg, v);
-            }}
-            className="inline-flex h-9 w-full items-center justify-center rounded-[10px] bg-black px-4 text-sm font-medium text-white hover:bg-neutral-800"
-          >
-            Reservar momento
-          </button>
-        )}
-      </div>
     </div>
   );
 }

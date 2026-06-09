@@ -36,7 +36,7 @@ const DETAILS: Record<string, PackageDetails> = {
     priceLabel: "$40.000",
     servingsLabel: "",
     variants: [
-      { label: "Valor", priceLabel: "$40.000" },
+      { label: "Momento especial", priceLabel: "$40.000" },
     ],
     includes: [
       "Espacio decorado para el momento",
@@ -54,7 +54,7 @@ const DETAILS: Record<string, PackageDetails> = {
     priceLabel: "$210.000",
     servingsLabel: "Para 16 porciones",
     variants: [
-      { label: "Para 16 porciones", priceLabel: "$210.000" },
+      { label: "16 porciones", priceLabel: "$210.000" },
     ],
     includes: [
       "Torta rectangular decorada y personalizada",
@@ -70,7 +70,7 @@ const DETAILS: Record<string, PackageDetails> = {
     priceLabel: "$65.000",
     servingsLabel: "Para 1 a 4 porciones",
     variants: [
-      { label: "Para 1 a 4 porciones", priceLabel: "$65.000" },
+      { label: "1–4 porciones", priceLabel: "$65.000" },
     ],
     includes: [
       "Mini cake personalizado",
@@ -87,8 +87,8 @@ const DETAILS: Record<string, PackageDetails> = {
     priceLabel: "Desde $130.000",
     servingsLabel: "",
     variants: [
-      { label: "Para 1 a 5 personas", priceLabel: "$130.000" },
-      { label: "Para 1 a 12 personas", priceLabel: "$220.000" },
+      { label: "1–5 personas", priceLabel: "$130.000" },
+      { label: "1–12 personas", priceLabel: "$220.000" },
     ],
     includes: [
       "Torta decorada y personalizada",
@@ -105,8 +105,8 @@ const DETAILS: Record<string, PackageDetails> = {
     priceLabel: "Desde $125.000",
     servingsLabel: "",
     variants: [
-      { label: "Para 1 a 6 porciones", priceLabel: "$125.000" },
-      { label: "Para 1 a 13 porciones", priceLabel: "$200.000" },
+      { label: "1–6 porciones", priceLabel: "$125.000" },
+      { label: "1–13 porciones", priceLabel: "$200.000" },
     ],
     includes: [
       "Torta de corazón decorada y personalizada",
@@ -123,8 +123,8 @@ const DETAILS: Record<string, PackageDetails> = {
     priceLabel: "Desde $125.000",
     servingsLabel: "",
     variants: [
-      { label: "Para 1 a 6 porciones", priceLabel: "$125.000" },
-      { label: "Para 1 a 13 porciones", priceLabel: "$200.000" },
+      { label: "1–6 porciones", priceLabel: "$125.000" },
+      { label: "1–13 porciones", priceLabel: "$200.000" },
     ],
     includes: [
       "Torta de corazón decorada",
