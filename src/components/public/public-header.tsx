@@ -1,7 +1,9 @@
 import Link from "next/link";
 
 const navLinks = [
+  { href: "/", label: "Inicio" },
   { href: "/momentos", label: "Momentos" },
+  { href: "/carta", label: "Carta" },
   { href: "/tienda", label: "Tienda" },
 ];
 
@@ -12,7 +14,7 @@ export function PublicHeader() {
         <Link href="/" className="text-base font-semibold text-neutral-900">
           Como en Casa
         </Link>
-        <nav className="flex items-center gap-6">
+        <nav className="flex items-center gap-4 sm:gap-6">
           {navLinks.map((link) => (
             <Link
               key={link.href}
