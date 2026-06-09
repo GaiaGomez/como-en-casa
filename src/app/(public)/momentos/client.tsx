@@ -32,7 +32,6 @@ type FormState = {
   cardMessage: string;
   decorationColor: string;
   cardPhotoFile: File | null;
-  paymentProofFile: File | null;
   observations: string;
 };
 
@@ -47,7 +46,6 @@ const EMPTY_FORM: FormState = {
   cardMessage: "",
   decorationColor: "",
   cardPhotoFile: null,
-  paymentProofFile: null,
   observations: "",
 };
 
@@ -77,6 +75,40 @@ function FieldLabel({
 
 const inputClass =
   "h-10 w-full rounded-[10px] border border-black/15 bg-white px-3 text-base text-neutral-900 outline-none focus:border-black/40";
+
+// ─── WhatsApp ─────────────────────────────────────────────────
+
+const LINA_WHATSAPP =
+  process.env.NEXT_PUBLIC_LINA_WHATSAPP_NUMBER ?? "TODO_AGREGAR_NUMERO";
+
+function fmtDate(iso: string): string {
+  const [y, m, d] = iso.split("-");
+  return `${d}/${m}/${y}`;
+}
+
+function buildWhatsAppUrl(
+  pkg: CelebrationPackage,
+  variant: PackageVariant,
+  form: FormState
+): string {
+  const lines = [
+    "Hola Lina! 👋 Quiero reservar un momento en Como en Casa.",
+    "",
+    `*Momento:* ${pkg.name}`,
+    `*Opción:* ${variant.label} · ${variant.priceLabel}`,
+    `*Fecha:* ${fmtDate(form.eventDate)}`,
+    `*Hora:* ${form.eventTime.slice(0, 5)}`,
+    `*Personas:* ${form.guestCount}`,
+    `*Nombre:* ${form.clientName}`,
+    `*WhatsApp:* ${form.clientWhatsapp}`,
+  ];
+  if (form.honoreeName) lines.push(`*Homenajeado/a:* ${form.honoreeName}`);
+  if (form.occasion) lines.push(`*Ocasión:* ${form.occasion}`);
+  if (form.cardMessage) lines.push(`*Mensaje para tarjeta:* ${form.cardMessage}`);
+  if (form.decorationColor) lines.push(`*Color de decoración:* ${form.decorationColor}`);
+  if (form.observations) lines.push(`*Observaciones:* ${form.observations}`);
+  return `https://wa.me/${LINA_WHATSAPP}?text=${encodeURIComponent(lines.join("\n"))}`;
+}
 
 // ─── Package card ─────────────────────────────────────────────
 
@@ -245,14 +277,8 @@ export function MomentosClient({
       setLoading(false);
       return;
     }
-    if (form.paymentProofFile && form.paymentProofFile.size > MAX_FILE_BYTES) {
-      setError("El comprobante de pago no puede superar 10 MB.");
-      setLoading(false);
-      return;
-    }
 
     let cardPhotoPath: string | undefined;
-    let paymentProofPath: string | undefined;
 
     if (form.cardPhotoFile) {
       const path = await uploadReservationFile("reservation-photos", form.cardPhotoFile);
@@ -262,16 +288,6 @@ export function MomentosClient({
         return;
       }
       cardPhotoPath = path;
-    }
-
-    if (form.paymentProofFile) {
-      const path = await uploadReservationFile("payment-proofs", form.paymentProofFile);
-      if (!path) {
-        setError("No se pudo subir el comprobante de pago. Intenta de nuevo.");
-        setLoading(false);
-        return;
-      }
-      paymentProofPath = path;
     }
 
     const ok = await createReservation({
@@ -289,7 +305,6 @@ export function MomentosClient({
       cardMessage: form.cardMessage || undefined,
       decorationColor: form.decorationColor || undefined,
       cardPhotoPath,
-      paymentProofPath,
       observations: form.observations || undefined,
     });
 
@@ -394,13 +409,21 @@ export function MomentosClient({
                   ¡Solicitud recibida!
                 </h2>
                 <p className="mt-2 text-sm text-neutral-600">
-                  Recibimos tu solicitud. Lina revisará la información y
-                  confirmará tu momento por WhatsApp.
+                  Recibimos tu solicitud. Continúa por WhatsApp para coordinar
+                  el pago y confirmar disponibilidad con Lina.
                 </p>
+                <a
+                  href={buildWhatsAppUrl(selectedPkg!, selectedVariant!, form)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-5 flex h-10 w-full items-center justify-center rounded-[10px] bg-neutral-950 px-4 text-sm font-medium text-white hover:bg-neutral-800"
+                >
+                  Continuar por WhatsApp
+                </a>
                 <button
                   type="button"
                   onClick={closeSheet}
-                  className="mt-5 inline-flex h-9 items-center rounded-[10px] border border-black/15 px-4 text-sm font-medium text-neutral-700 hover:border-black/30"
+                  className="mt-3 inline-flex h-9 items-center rounded-[10px] border border-black/15 px-4 text-sm font-medium text-neutral-700 hover:border-black/30"
                 >
                   Ver más momentos
                 </button>
@@ -539,20 +562,6 @@ export function MomentosClient({
                     accept="image/jpeg,image/png,image/webp,image/heic,image/heif"
                     onChange={(e) =>
                       setField("cardPhotoFile", e.target.files?.[0] ?? null)
-                    }
-                    className="block w-full text-sm text-neutral-600 file:mr-3 file:h-8 file:cursor-pointer file:rounded-[8px] file:border-0 file:bg-black file:px-3 file:text-sm file:font-medium file:text-white"
-                  />
-                </div>
-
-                {/* Comprobante */}
-                <div className="space-y-1.5">
-                  <FieldLabel htmlFor="payment-proof" optional>Comprobante de pago</FieldLabel>
-                  <input
-                    id="payment-proof"
-                    type="file"
-                    accept="image/jpeg,image/png,image/webp,application/pdf"
-                    onChange={(e) =>
-                      setField("paymentProofFile", e.target.files?.[0] ?? null)
                     }
                     className="block w-full text-sm text-neutral-600 file:mr-3 file:h-8 file:cursor-pointer file:rounded-[8px] file:border-0 file:bg-black file:px-3 file:text-sm file:font-medium file:text-white"
                   />
