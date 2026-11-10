@@ -129,57 +129,62 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ═══ VISÍTANOS ═════════════════════════════════════════ */}
+      {/* ═══ VISÍTANOS ═════════════════════════════════════════
+          Arriba: horarios (negro) + dirección (blanco), con alturas
+          parecidas. Abajo: el mapa a lo ancho de toda la tarjeta.
+          Antes el mapa vivía en la columna derecha y estiraba el
+          bloque negro, dejando un hueco vacío. */}
       <section className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-        <Reveal className="grid overflow-hidden rounded-[28px] border border-cec-ink/10 md:grid-cols-2">
-          {/* Horarios */}
-          <div className="bg-cec-ink p-8 text-white sm:p-12">
-            <Eyebrow className="text-white/60">Horarios</Eyebrow>
-            <ul className="mt-8">
-              {SCHEDULE.map((s) => (
-                <li
-                  key={s.day}
-                  className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-b border-white/15 py-4 last:border-0"
+        <Reveal className="overflow-hidden rounded-[28px] border border-cec-ink/10">
+          <div className="grid md:grid-cols-2">
+            {/* Horarios */}
+            <div className="bg-cec-ink p-8 text-white sm:p-10">
+              <Eyebrow className="text-white/60">Horarios</Eyebrow>
+              <ul className="mt-6">
+                {SCHEDULE.map((s) => (
+                  <li
+                    key={s.day}
+                    className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-b border-white/15 py-3.5 last:border-0"
+                  >
+                    <span className="text-sm text-white/65">{s.day}</span>
+                    {/* tabular-nums: todos los números ocupan el mismo ancho → las horas quedan alineadas */}
+                    <span className="ml-auto text-base font-medium tabular-nums">{s.hours}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Dónde estamos */}
+            <div className="flex flex-col p-8 sm:p-10">
+              <Eyebrow>Dónde estamos</Eyebrow>
+              <p className="cec-display mt-6 text-3xl sm:text-4xl">{ADDRESS.line1}</p>
+              <p className="mt-2 text-cec-ink-soft">{ADDRESS.line2}</p>
+
+              <div className="mt-auto flex flex-wrap items-center justify-between gap-4 pt-8">
+                <SocialLinks instagramUrl={INSTAGRAM_URL} whatsappUrl={WHATSAPP_URL} />
+                <a
+                  href={MAPS_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group inline-flex items-center gap-2 text-sm font-medium"
                 >
-                  <span className="text-sm text-white/70">{s.day}</span>
-                  <span className="cec-display text-2xl">{s.hours}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Dónde estamos */}
-          <div className="flex flex-col p-8 sm:p-12">
-            <Eyebrow>Dónde estamos</Eyebrow>
-            <p className="cec-display mt-8 text-3xl sm:text-4xl">{ADDRESS.line1}</p>
-            <p className="mt-2 text-cec-ink-soft">{ADDRESS.line2}</p>
-
-            {/* Mapa embebido. En blanco y negro para respetar la estética;
-                recupera el color al pasar el mouse. loading="lazy" = no se
-                carga hasta que el usuario baja hasta aquí (web más rápida). */}
-            <div className="mt-8 overflow-hidden rounded-2xl border border-cec-ink/10">
-              <iframe
-                src={MAPS_EMBED_URL}
-                title="Mapa: Como en Casa, Carrera 49 # 54-47, Bello"
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-                className="block h-64 w-full grayscale transition-[filter] duration-500 hover:grayscale-0"
-              />
-            </div>
-
-            <div className="mt-6 flex flex-wrap items-center justify-between gap-4">
-              <SocialLinks instagramUrl={INSTAGRAM_URL} whatsappUrl={WHATSAPP_URL} />
-              <a
-                href={MAPS_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group inline-flex items-center gap-2 text-sm font-medium"
-              >
-                <span className="cec-link">Abrir en Google Maps</span>
-                <ArrowUpRight className="size-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
-              </a>
+                  <span className="cec-link">Abrir en Google Maps</span>
+                  <ArrowUpRight className="size-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                </a>
+              </div>
             </div>
           </div>
+
+          {/* Mapa a lo ancho. En gris para respetar la estética; recupera el
+              color al pasar el mouse. loading="lazy" = no se carga hasta que
+              el usuario baja hasta aquí (web más rápida). */}
+          <iframe
+            src={MAPS_EMBED_URL}
+            title="Mapa: Como en Casa, Carrera 49 # 54-47, Bello"
+            loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
+            className="block h-72 w-full border-t border-cec-ink/10 grayscale transition-[filter] duration-500 hover:grayscale-0 sm:h-80"
+          />
         </Reveal>
       </section>
     </>
