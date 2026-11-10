@@ -1,8 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ChevronDown, ChevronLeft, ChevronRight, X } from "lucide-react";
 
+import { Eyebrow, LogoMark } from "@/components/public/decor";
+import { Reveal } from "@/components/public/reveal";
 import { cn } from "@/lib/utils";
 import type { CelebrationPackage, PackageVariant } from "@/lib/supabase/packages";
 import {
@@ -61,11 +63,11 @@ function FieldLabel({
   return (
     <label
       htmlFor={htmlFor}
-      className="block text-xs font-semibold uppercase tracking-[0.14em] text-neutral-400"
+      className="block text-[11px] font-medium uppercase tracking-[0.24em] text-cec-ink/60"
     >
       {children}
       {optional && (
-        <span className="ml-1 normal-case tracking-normal font-normal text-neutral-300">
+        <span className="ml-1 normal-case tracking-normal font-normal text-cec-ink/40">
           (opcional)
         </span>
       )}
@@ -74,7 +76,14 @@ function FieldLabel({
 }
 
 const inputClass =
-  "h-10 w-full rounded-[10px] border border-black/15 bg-white px-3 text-base text-neutral-900 outline-none focus:border-black/40";
+  "h-11 w-full rounded-2xl border border-cec-ink/15 bg-white px-3.5 text-base text-cec-ink outline-none transition-colors focus:border-cec-ink/60";
+
+// Clase compartida para los textarea (antes estaba repetida inline).
+const textareaClass =
+  "w-full resize-none rounded-2xl border border-cec-ink/15 bg-white px-3.5 py-2.5 text-base text-cec-ink outline-none transition-colors focus:border-cec-ink/60";
+
+// Paleta que rota entre tarjetas de momentos (son las que venden → llevan color).
+const ACCENTS = ["bg-cec-blush", "bg-cec-sky", "bg-cec-sage", "bg-cec-lilac"];
 
 // ─── WhatsApp ─────────────────────────────────────────────────
 
@@ -115,6 +124,17 @@ function buildWhatsAppUrl(
 function PhotoCarousel({ images }: { images: string[] }) {
   const [idx, setIdx] = useState(0);
   const [errors, setErrors] = useState<Set<number>>(new Set());
+  const imgRef = useRef<HTMLImageElement>(null);
+
+  // Fix: si la imagen falla ANTES de que React hidrate la página,
+  // el onError nunca se dispara y se ve el ícono de imagen rota.
+  // Al montar revisamos: "complete" + naturalWidth 0 = falló la carga.
+  useEffect(() => {
+    const img = imgRef.current;
+    if (img && img.complete && img.naturalWidth === 0) {
+      setErrors((prev) => new Set(prev).add(idx));
+    }
+  }, [idx]);
 
   if (images.length === 0) return null;
 
@@ -129,18 +149,20 @@ function PhotoCarousel({ images }: { images: string[] }) {
   }
 
   return (
-    <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-neutral-100">
+    <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-white/60">
       {errors.has(idx) ? (
+        // Placeholder ilustrado mientras no estén las fotos reales
         <div className="flex h-full items-center justify-center">
-          <span className="text-xs text-neutral-300">Sin imagen</span>
+          <LogoMark className="h-16 text-cec-ink/15" />
         </div>
       ) : (
         // eslint-disable-next-line @next/next/no-img-element
         <img
+          ref={imgRef}
           key={images[idx]}
           src={images[idx]}
           alt=""
-          className="h-full w-full object-cover"
+          className="h-full w-full object-cover animate-in fade-in duration-500"
           onError={() => markError(idx)}
         />
       )}
@@ -151,7 +173,7 @@ function PhotoCarousel({ images }: { images: string[] }) {
             type="button"
             onClick={() => setIdx((i) => (i === 0 ? images.length - 1 : i - 1))}
             aria-label="Imagen anterior"
-            className="absolute left-2 top-1/2 -translate-y-1/2 flex h-7 w-7 items-center justify-center rounded-full bg-black/40 text-white hover:bg-black/60"
+            className="absolute left-2 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-cec-ink shadow-sm transition-transform hover:scale-110"
           >
             <ChevronLeft className="size-4" />
           </button>
@@ -159,11 +181,11 @@ function PhotoCarousel({ images }: { images: string[] }) {
             type="button"
             onClick={() => setIdx((i) => (i === images.length - 1 ? 0 : i + 1))}
             aria-label="Imagen siguiente"
-            className="absolute right-2 top-1/2 -translate-y-1/2 flex h-7 w-7 items-center justify-center rounded-full bg-black/40 text-white hover:bg-black/60"
+            className="absolute right-2 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-cec-ink shadow-sm transition-transform hover:scale-110"
           >
             <ChevronRight className="size-4" />
           </button>
-          <span className="absolute bottom-2 right-2 rounded-full bg-black/40 px-2 py-0.5 text-[11px] font-medium text-white">
+          <span className="absolute bottom-2 right-2 rounded-full bg-cec-ink px-2.5 py-0.5 text-[11px] font-medium text-white">
             {idx + 1} / {images.length}
           </span>
         </>
@@ -176,11 +198,14 @@ function PhotoCarousel({ images }: { images: string[] }) {
 
 function PackageCard({
   pkg,
+  index,
   onReserve,
 }: {
   pkg: CelebrationPackage;
+  index: number;
   onReserve: (pkg: CelebrationPackage, variant: PackageVariant) => void;
 }) {
+  const accent = ACCENTS[index % ACCENTS.length];
   const [expanded, setExpanded] = useState(false);
   const hasDetails = pkg.includes.length > 0 || pkg.conditions.length > 0;
   const showPortionHelper = pkg.variants.some((v) =>
@@ -188,11 +213,16 @@ function PackageCard({
   );
 
   return (
-    <div className="flex flex-col rounded-3xl border border-neutral-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-md lg:min-h-[300px]">
+    <div className={cn("cec-card flex h-full flex-col rounded-[22px] p-6", accent)}>
       {/* 1–2. Header block */}
-      <div className="border-b border-neutral-100 pb-4">
-        <h2 className="text-lg font-semibold text-neutral-900">{pkg.name}</h2>
-        <p className="mt-1.5 text-sm text-neutral-500">{pkg.description}</p>
+      <div className="flex items-start justify-between gap-3 pb-4">
+        <div>
+          <h2 className="cec-display text-[1.85rem]">{pkg.name}</h2>
+          <p className="mt-2 text-sm leading-relaxed text-cec-ink/75">{pkg.description}</p>
+        </div>
+        <span className="shrink-0 pt-2 text-xs font-medium tracking-[0.2em] text-cec-ink/45">
+          {String(index + 1).padStart(2, "0")}
+        </span>
       </div>
 
       {/* 3. Carousel */}
@@ -204,7 +234,7 @@ function PackageCard({
 
       {/* 4–5. Options */}
       <div className="mt-4">
-        <p className="text-xs font-semibold uppercase tracking-[0.12em] text-neutral-400">
+        <p className="text-[11px] font-medium uppercase tracking-[0.24em] text-cec-ink/60">
           Opciones disponibles
         </p>
         <div className="mt-2 space-y-2">
@@ -213,17 +243,22 @@ function PackageCard({
               key={v.label}
               type="button"
               onClick={() => onReserve(pkg, v)}
-              className="flex w-full items-center justify-between gap-3 rounded-xl bg-neutral-950 px-4 py-3 text-sm text-white transition-colors hover:bg-neutral-800 active:bg-neutral-900"
+              className="group flex w-full items-center justify-between gap-3 rounded-full bg-cec-ink py-2 pl-5 pr-2 text-sm text-white transition-colors hover:bg-neutral-700"
             >
               <span className="font-medium">{v.label}</span>
-              <span className="shrink-0 text-white/80">{v.priceLabel}</span>
+              <span className="flex shrink-0 items-center gap-2">
+                <span className="cec-display text-lg">{v.priceLabel}</span>
+                <span className="grid size-8 place-items-center rounded-full bg-white text-cec-ink transition-transform duration-300 group-hover:rotate-90">
+                  <ChevronRight className="size-4" />
+                </span>
+              </span>
             </button>
           ))}
         </div>
 
         {/* 5. Helper text — only for packages with porciones */}
         {showPortionHelper && (
-          <p className="mt-2 text-xs text-neutral-400">
+          <p className="mt-2 text-xs text-cec-ink/60">
             Las porciones corresponden al tamaño de la torta.
           </p>
         )}
@@ -234,7 +269,7 @@ function PackageCard({
         <button
           type="button"
           onClick={() => setExpanded((v) => !v)}
-          className="mt-4 flex items-center gap-1 text-xs font-medium text-neutral-400 hover:text-neutral-700"
+          className="mt-4 flex w-fit items-center gap-1 text-xs font-medium uppercase tracking-[0.2em] text-cec-ink/70 hover:text-cec-ink"
         >
           <ChevronDown
             className={cn(
@@ -255,19 +290,19 @@ function PackageCard({
           )}
         >
           <div className="overflow-hidden">
-            <div className="mt-3 space-y-3">
+            <div className="mt-3 space-y-3 rounded-2xl bg-white/70 p-4">
               {pkg.includes.length > 0 && (
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.12em] text-neutral-400">
+                  <p className="text-[11px] font-medium uppercase tracking-[0.24em] text-cec-ink/60">
                     Incluye
                   </p>
                   <ul className="mt-1.5 space-y-1">
                     {pkg.includes.map((item) => (
                       <li
                         key={item}
-                        className="flex items-start gap-2 text-sm text-neutral-700"
+                        className="flex items-start gap-2 text-sm text-cec-ink"
                       >
-                        <span className="mt-0.5 shrink-0 text-[10px] text-neutral-400">•</span>
+                        <span className="mt-0.5 shrink-0 text-[10px] text-cec-ink">✦</span>
                         {item}
                       </li>
                     ))}
@@ -276,16 +311,16 @@ function PackageCard({
               )}
               {pkg.conditions.length > 0 && (
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.12em] text-neutral-400">
+                  <p className="text-[11px] font-medium uppercase tracking-[0.24em] text-cec-ink/60">
                     Condiciones
                   </p>
                   <ul className="mt-1.5 space-y-1">
                     {pkg.conditions.map((item) => (
                       <li
                         key={item}
-                        className="flex items-start gap-2 text-sm text-neutral-500"
+                        className="flex items-start gap-2 text-sm text-cec-ink/70"
                       >
-                        <span className="mt-0.5 shrink-0 text-[10px] text-neutral-400">•</span>
+                        <span className="mt-0.5 shrink-0 text-[10px] text-cec-ink">✦</span>
                         {item}
                       </li>
                     ))}
@@ -402,14 +437,22 @@ export function MomentosClient({
   return (
     <>
       {/* Package grid */}
-      <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8">
-        <h1 className="text-4xl font-bold text-neutral-900">Momentos</h1>
-        <p className="mt-3 text-lg text-neutral-600">
-          Experiencias diseñadas para celebrar.
-        </p>
-        <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 lg:gap-8">
-          {packages.map((pkg) => (
-            <PackageCard key={pkg.id} pkg={pkg} onReserve={openSheet} />
+      <section className="mx-auto max-w-6xl px-4 pt-16 sm:px-6 lg:px-8">
+        <div className="grid gap-8 border-b border-cec-ink/10 pb-14 md:grid-cols-[1.3fr_1fr] md:items-end">
+          <div>
+            <Eyebrow>Celebraciones</Eyebrow>
+            <h1 className="cec-display mt-6 text-[clamp(2.8rem,7vw,5.5rem)]">Momentos</h1>
+          </div>
+          <p className="max-w-sm text-lg leading-relaxed text-cec-ink-soft md:justify-self-end">
+            Experiencias diseñadas para celebrar.
+          </p>
+        </div>
+
+        <div className="mt-14 grid items-start gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {packages.map((pkg, i) => (
+            <Reveal key={pkg.id} delay={(i % 3) * 110}>
+              <PackageCard pkg={pkg} index={i} onReserve={openSheet} />
+            </Reveal>
           ))}
         </div>
       </section>
@@ -419,7 +462,7 @@ export function MomentosClient({
         <>
           {/* Backdrop */}
           <div
-            className="fixed inset-0 z-40 bg-black/60"
+            className="fixed inset-0 z-40 bg-cec-ink/60 backdrop-blur-sm animate-in fade-in duration-200"
             onClick={closeSheet}
             aria-hidden="true"
           />
@@ -430,32 +473,32 @@ export function MomentosClient({
             aria-modal="true"
             aria-label={`Reservar ${selectedPkg!.name}`}
             className={[
-              "fixed z-50 overflow-y-auto bg-white",
-              "inset-x-0 bottom-0 max-h-[92svh] rounded-t-[24px] px-5 pt-4",
+              "cec fixed z-50 overflow-y-auto bg-white shadow-2xl",
+              "inset-x-0 bottom-0 max-h-[92svh] rounded-t-[30px] px-5 pt-4",
               "pb-[calc(env(safe-area-inset-bottom)+20px)]",
               "sm:inset-x-auto sm:left-1/2 sm:right-auto sm:bottom-auto sm:top-1/2",
               "sm:-translate-x-1/2 sm:-translate-y-1/2",
-              "sm:w-full sm:max-w-lg sm:rounded-[20px] sm:px-6 sm:pt-6 sm:pb-6",
+              "sm:w-full sm:max-w-lg sm:rounded-[30px] sm:px-7 sm:pt-7 sm:pb-7",
               "sm:max-h-[88svh]",
               "animate-in slide-in-from-bottom-4 duration-200 sm:zoom-in-95",
             ].join(" ")}
           >
             {/* Drag handle — mobile only */}
             <div className="mb-4 flex justify-center sm:hidden">
-              <span className="h-1 w-10 rounded-full bg-black/15" />
+              <span className="h-1.5 w-12 rounded-full bg-cec-ink/20" />
             </div>
 
             {/* Sheet header: locked package + variant + close */}
             <div className="flex items-start justify-between gap-3">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-neutral-400">
+                <p className="text-[11px] font-medium uppercase tracking-[0.24em] text-cec-ink">
                   Momento elegido
                 </p>
-                <p className="mt-0.5 text-base font-semibold text-neutral-900">
+                <p className="cec-display mt-2 text-3xl">
                   {selectedPkg!.name}
                 </p>
                 {selectedVariant && (
-                  <p className="mt-0.5 text-sm text-neutral-500">
+                  <p className="mt-1 text-sm text-cec-ink-soft">
                     {selectedVariant.label} · {selectedVariant.priceLabel}
                   </p>
                 )}
@@ -464,7 +507,7 @@ export function MomentosClient({
                 type="button"
                 onClick={closeSheet}
                 aria-label="Cerrar"
-                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-black/15 text-neutral-500 hover:border-black/30 hover:text-neutral-900"
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-cec-ink/20 text-cec-ink transition-transform hover:rotate-90"
               >
                 <X className="size-4" />
               </button>
@@ -472,12 +515,12 @@ export function MomentosClient({
 
             {/* Success */}
             {success ? (
-              <div className="mt-6 rounded-[16px] bg-neutral-50 px-5 py-8 text-center">
-                <p className="text-2xl">🎉</p>
-                <h2 className="mt-3 text-base font-semibold text-neutral-900">
+              <div className="mt-6 rounded-[22px] bg-cec-blush px-5 py-8 text-center">
+                <LogoMark className="mx-auto h-14 text-cec-ink" />
+                <h2 className="cec-display mt-4 text-3xl">
                   ¡Solicitud recibida!
                 </h2>
-                <p className="mt-2 text-sm text-neutral-600">
+                <p className="mt-2 text-sm text-cec-ink/80">
                   Recibimos tu solicitud. Continúa por WhatsApp para coordinar
                   el pago y confirmar disponibilidad con Lina.
                 </p>
@@ -485,14 +528,14 @@ export function MomentosClient({
                   href={buildWhatsAppUrl(selectedPkg!, selectedVariant!, form)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mt-5 flex h-10 w-full items-center justify-center rounded-[10px] bg-neutral-950 px-4 text-sm font-medium text-white hover:bg-neutral-800"
+                  className="mt-5 flex h-12 w-full items-center justify-center rounded-full bg-cec-ink px-4 text-sm font-medium text-white transition-colors hover:bg-neutral-700"
                 >
                   Continuar por WhatsApp
                 </a>
                 <button
                   type="button"
                   onClick={closeSheet}
-                  className="mt-3 inline-flex h-9 items-center rounded-[10px] border border-black/15 px-4 text-sm font-medium text-neutral-700 hover:border-black/30"
+                  className="mt-3 inline-flex h-10 items-center rounded-full border border-cec-ink/25 px-5 text-sm font-medium text-cec-ink hover:bg-white"
                 >
                   Ver más momentos
                 </button>
@@ -605,7 +648,7 @@ export function MomentosClient({
                     rows={3}
                     value={form.cardMessage}
                     onChange={(e) => setField("cardMessage", e.target.value)}
-                    className="w-full rounded-[10px] border border-black/15 bg-white px-3 py-2 text-base text-neutral-900 outline-none focus:border-black/40 resize-none"
+                    className={textareaClass}
                   />
                 </div>
 
@@ -632,7 +675,7 @@ export function MomentosClient({
                     onChange={(e) =>
                       setField("cardPhotoFile", e.target.files?.[0] ?? null)
                     }
-                    className="block w-full text-sm text-neutral-600 file:mr-3 file:h-8 file:cursor-pointer file:rounded-[8px] file:border-0 file:bg-black file:px-3 file:text-sm file:font-medium file:text-white"
+                    className="block w-full text-sm text-cec-ink-soft file:mr-3 file:h-9 file:cursor-pointer file:rounded-full file:border-0 file:bg-cec-ink file:px-4 file:text-sm file:font-semibold file:text-white"
                   />
                 </div>
 
@@ -644,16 +687,16 @@ export function MomentosClient({
                     rows={3}
                     value={form.observations}
                     onChange={(e) => setField("observations", e.target.value)}
-                    className="w-full rounded-[10px] border border-black/15 bg-white px-3 py-2 text-base text-neutral-900 outline-none focus:border-black/40 resize-none"
+                    className={textareaClass}
                   />
                 </div>
 
-                {error && <p className="text-sm text-red-500">{error}</p>}
+                {error && <p className="text-sm font-medium text-cec-ink">{error}</p>}
 
                 <button
                   type="submit"
                   disabled={loading}
-                  className="flex h-10 w-full items-center justify-center rounded-[10px] bg-black text-sm font-medium text-white disabled:opacity-50"
+                  className="flex h-12 w-full items-center justify-center rounded-full bg-cec-ink text-sm font-medium text-white transition-colors hover:bg-neutral-700 disabled:opacity-50"
                 >
                   {loading ? "Enviando…" : "Reservar momento"}
                 </button>

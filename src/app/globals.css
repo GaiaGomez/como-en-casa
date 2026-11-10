@@ -47,6 +47,19 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+
+  /* ── Web pública (Como en Casa) ──────────────────────────────
+     Tokens de marca para la experiencia pública. Solo se usan en
+     las rutas (public); el admin sigue con su paleta neutra. */
+  /* Regla: TODO en blanco y negro; el color solo vive en las
+     tarjetas que informan o venden (acciones, carta, momentos). */
+  --color-cec-ink: #111111;
+  --color-cec-ink-soft: #555555;
+  /* Colores de tarjetas: pasteles apagados (sin dorado/mostaza) */
+  --color-cec-blush: #ecd5cd;
+  --color-cec-sky: #d6e2eb;
+  --color-cec-sage: #d5dcc6;
+  --color-cec-lilac: #ddd6e7;
 }
 
 :root {
@@ -142,4 +155,101 @@
   .text-secondary-dark {
     color: rgba(255, 255, 255, 0.7); /* Gris claro para secundarios en fondos oscuros */
   }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   WEB PÚBLICA — elegante con un toque divertido
+   Todo va bajo .cec para no afectar al admin.
+   ═══════════════════════════════════════════════════════════════ */
+
+.cec {
+  font-family: var(--font-cec-sans), ui-sans-serif, system-ui, sans-serif;
+  /* Fondo blanco: la web es blanco y negro, el color va solo en tarjetas. */
+  background-color: #ffffff;
+  color: var(--color-cec-ink);
+}
+
+/* Titulares: Fraunces en peso ligero, SOFT a medias (cálida sin ser
+   infantil) y tracking negativo para que se vea editorial. Sin cursiva. */
+.cec-display {
+  font-family: var(--font-cec-serif), Georgia, serif;
+  font-weight: 350;
+  font-style: normal;
+  font-variation-settings: "SOFT" 50;
+  letter-spacing: -0.03em;
+  line-height: 0.98;
+}
+
+/* Logo como máscara: permite pintar el logo de negro o blanco
+   sin tener varias versiones del PNG. */
+.cec-logo {
+  display: inline-block;
+  background-color: currentColor;
+  -webkit-mask: url("/logo-como-en-casa-casita.png") center / contain no-repeat;
+  mask: url("/logo-como-en-casa-casita.png") center / contain no-repeat;
+  aspect-ratio: 694 / 1093;
+}
+
+/* ── Reveal al hacer scroll ──
+   <Reveal> pone data-visible="true" cuando el elemento entra en
+   pantalla; --d controla el retraso para entrar en cascada. */
+.cec-reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity 0.9s cubic-bezier(0.2, 0.7, 0.2, 1),
+    transform 0.9s cubic-bezier(0.2, 0.7, 0.2, 1);
+  transition-delay: var(--d, 0ms);
+}
+.cec-reveal[data-visible="true"] {
+  opacity: 1;
+  transform: none;
+}
+
+/* ── Título que entra palabra por palabra al cargar ── */
+@keyframes cec-rise {
+  from { opacity: 0; transform: translateY(0.4em); }
+  to   { opacity: 1; transform: none; }
+}
+.cec-rise {
+  display: inline-block;
+  opacity: 0;
+  animation: cec-rise 1s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+  animation-delay: var(--d, 0ms);
+}
+
+/* ── Anillo del logo que gira lento ── */
+@keyframes cec-spin { to { transform: rotate(360deg); } }
+.cec-spin { animation: cec-spin 40s linear infinite; }
+/* Al pasar el mouse por el logo del hero, el anillo acelera (guiño divertido) */
+.cec-spin-hover:hover .cec-spin { animation-duration: 8s; }
+
+/* ── Tarjetas: se levantan apenas y ganan sombra suave ── */
+.cec-card {
+  transition: transform 0.5s cubic-bezier(0.2, 0.7, 0.2, 1), box-shadow 0.5s;
+}
+.cec-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 24px 48px -28px rgba(17, 17, 17, 0.35);
+}
+
+/* Link con subrayado que crece desde la izquierda */
+.cec-link {
+  background: linear-gradient(currentColor, currentColor) left bottom / 0% 1px no-repeat;
+  transition: background-size 0.4s;
+  padding-bottom: 2px;
+}
+.cec-link:hover, .group:hover .cec-link { background-size: 100% 1px; }
+
+/* Flecha que se desplaza al pasar el mouse */
+.cec-arrow { transition: transform 0.35s; }
+.group:hover .cec-arrow { transform: translateX(4px); }
+
+/* Accesibilidad: si el sistema pide menos movimiento, se apaga todo. */
+@media (prefers-reduced-motion: reduce) {
+  .cec *, .cec *::before, .cec *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+  .cec-reveal, .cec-rise { opacity: 1; transform: none; }
 }

@@ -1,139 +1,176 @@
 import Link from "next/link";
-import { Clock, MapPin, AtSign, MessageCircle } from "lucide-react";
+import { ArrowRight, ArrowUpRight } from "lucide-react";
 
-const LINA_WHATSAPP = process.env.NEXT_PUBLIC_LINA_WHATSAPP_NUMBER ?? "TODO_AGREGAR_NUMERO";
+import { Eyebrow, LogoFull } from "@/components/public/decor";
+import { Reveal } from "@/components/public/reveal";
+import {
+  ADDRESS,
+  INSTAGRAM,
+  MAPS_URL,
+  PHONE,
+  SCHEDULE,
+  WHATSAPP_URL,
+} from "@/lib/public-info";
 
-const SCHEDULE = [
-  { day: "Lunes a jueves", hours: "4:30 p.m. – 9:00 p.m." },
-  { day: "Viernes", hours: "4:30 p.m. – 10:00 p.m." },
-  { day: "Sábado", hours: "11:00 a.m. – 10:00 p.m." },
-  { day: "Domingos y festivos", hours: "3:00 p.m. – 10:00 p.m." },
+// Las 3 acciones del home. Mismo contenido de siempre.
+// Son de las pocas piezas con color (dan info / llevan a vender).
+const ACTIONS: { href: string; external?: boolean; title: string; text: string; bg: string }[] = [
+  {
+    href: "/momentos",
+    title: "Momentos especiales",
+    text: "Celebra cumpleaños, aniversarios y más con decoración y torta personalizada.",
+    bg: "bg-cec-blush",
+  },
+  {
+    href: "/carta",
+    title: "Nuestra carta",
+    text: "Cafés, postres, bebidas y opciones para compartir.",
+    bg: "bg-cec-sky",
+  },
+  {
+    href: WHATSAPP_URL,
+    external: true,
+    title: "Escríbenos",
+    text: "Cuéntanos qué necesitas por WhatsApp.",
+    bg: "bg-cec-sage",
+  },
 ];
 
-const MAPS_URL =
-  "https://www.google.com/maps/search/?api=1&query=Carrera+49+%2354-47+Bello+Antioquia";
-
 export default function HomePage() {
-  const whatsappUrl = `https://wa.me/${LINA_WHATSAPP}`;
-
   return (
-    <div className="mx-auto max-w-4xl space-y-10 px-4 py-12 sm:px-6 lg:px-8">
-      {/* Hero */}
-      <section className="rounded-3xl border border-neutral-200 bg-white p-8 shadow-sm sm:p-12">
-        <h1 className="text-4xl font-bold tracking-tight text-neutral-900 sm:text-5xl">
-          Como en Casa
-        </h1>
-        <p className="mt-2 text-lg font-medium text-neutral-500">
-          Café y repostería fina en Bello.
-        </p>
-        <p className="mt-4 max-w-md text-base text-neutral-600">
-          Un lugar para celebrar, compartir algo dulce y disfrutar momentos especiales.
-        </p>
-        <div className="mt-8 flex flex-wrap gap-3">
-          <Link
-            href="/momentos"
-            className="inline-flex h-11 items-center rounded-xl bg-neutral-950 px-6 text-sm font-medium text-white hover:bg-neutral-800 active:bg-neutral-900"
-          >
-            Ver momentos
-          </Link>
-          <Link
-            href="/carta"
-            className="inline-flex h-11 items-center rounded-xl border border-neutral-200 bg-white px-6 text-sm font-medium text-neutral-900 hover:border-neutral-400"
-          >
-            Ver carta
-          </Link>
-        </div>
-      </section>
+    <>
+      {/* ═══ HERO ═══════════════════════════════════════════════
+          Tipografía editorial grande que entra palabra por palabra,
+          y el logo completo con el anillo girando lento. */}
+      <section className="mx-auto grid max-w-6xl items-center gap-14 px-4 pb-24 pt-12 sm:px-6 md:grid-cols-[1.15fr_1fr] md:pt-20 lg:px-8">
+        <div>
+          <Eyebrow>Café y repostería fina en Bello.</Eyebrow>
 
-      {/* Quick cards */}
-      <section>
-        <p className="mb-4 text-xs font-semibold uppercase tracking-[0.14em] text-neutral-400">
-          ¿Qué quieres hacer?
-        </p>
-        <div className="grid gap-4 sm:grid-cols-3">
-          <Link
-            href="/momentos"
-            className="flex flex-col gap-2 rounded-3xl border border-neutral-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-md"
-          >
-            <span className="text-2xl">🎉</span>
-            <span className="text-sm font-semibold text-neutral-900">Momentos especiales</span>
-            <span className="text-xs text-neutral-500">
-              Celebra cumpleaños, aniversarios y más con decoración y torta personalizada.
-            </span>
-          </Link>
-          <Link
-            href="/carta"
-            className="flex flex-col gap-2 rounded-3xl border border-neutral-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-md"
-          >
-            <span className="text-2xl">☕</span>
-            <span className="text-sm font-semibold text-neutral-900">Nuestra carta</span>
-            <span className="text-xs text-neutral-500">
-              Cafés, postres, bebidas y opciones para compartir.
-            </span>
-          </Link>
-          <a
-            href={whatsappUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex flex-col gap-2 rounded-3xl border border-neutral-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-md"
-          >
-            <span className="text-2xl">💬</span>
-            <span className="text-sm font-semibold text-neutral-900">Escríbenos</span>
-            <span className="text-xs text-neutral-500">
-              Cuéntanos qué necesitas por WhatsApp.
-            </span>
-          </a>
-        </div>
-      </section>
-
-      {/* Horarios + dirección */}
-      <section className="grid gap-4 sm:grid-cols-2">
-        <div className="rounded-3xl border border-neutral-200 bg-white p-6 shadow-sm">
-          <div className="mb-4 flex items-center gap-2">
-            <Clock className="size-4 text-neutral-400" />
-            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-neutral-400">
-              Horarios
-            </p>
-          </div>
-          <ul className="space-y-3">
-            {SCHEDULE.map((s) => (
-              <li key={s.day} className="flex flex-col gap-0.5">
-                <span className="text-xs font-medium text-neutral-900">{s.day}</span>
-                <span className="text-xs text-neutral-500">{s.hours}</span>
-              </li>
+          <h1 className="cec-display mt-6 text-[clamp(3.6rem,9.5vw,7.6rem)]">
+            {["Como", "en", "Casa"].map((word, i) => (
+              <span
+                key={word}
+                className="cec-rise mr-[0.22em]"
+                style={{ "--d": `${120 + i * 140}ms` } as React.CSSProperties}
+              >
+                {word}
+              </span>
             ))}
-          </ul>
+          </h1>
+
+          <p className="mt-7 max-w-sm text-lg leading-relaxed text-cec-ink-soft">
+            Un lugar para celebrar, compartir algo dulce y disfrutar momentos especiales.
+          </p>
+
+          <div className="mt-10 flex flex-wrap items-center gap-6">
+            <Link
+              href="/momentos"
+              className="group inline-flex h-12 items-center gap-3 rounded-full bg-cec-ink px-7 text-sm font-medium text-white transition-colors hover:bg-neutral-800"
+            >
+              Ver momentos
+              <ArrowRight className="cec-arrow size-4" />
+            </Link>
+            <Link href="/carta" className="group inline-flex items-center gap-2 text-sm font-medium">
+              <span className="cec-link">Ver carta</span>
+              <ArrowRight className="cec-arrow size-4" />
+            </Link>
+          </div>
         </div>
 
-        <div className="rounded-3xl border border-neutral-200 bg-white p-6 shadow-sm">
-          <div className="mb-4 flex items-center gap-2">
-            <MapPin className="size-4 text-neutral-400" />
-            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-neutral-400">
-              Dónde estamos
-            </p>
+        {/* Logo completo: círculo negro + contorno fino desplazado
+            (da profundidad sin recurrir a sombras duras). */}
+        <div className="cec-spin-hover relative mx-auto aspect-square w-full max-w-[440px]">
+          <div className="absolute inset-0 translate-x-4 translate-y-4 rounded-full border border-cec-ink/25" />
+          <div className="absolute inset-0 grid place-items-center rounded-full bg-cec-ink">
+            <LogoFull spin className="w-[82%] text-white" />
           </div>
-          <p className="text-sm font-medium text-neutral-900">Carrera 49 # 54-47</p>
-          <p className="text-sm text-neutral-500">Bello, Antioquia</p>
-          <div className="mt-4 space-y-2">
-            <div className="flex items-center gap-2 text-xs text-neutral-500">
-              <AtSign className="size-3.5 shrink-0" />
-              <span>@como.encasa21</span>
-            </div>
-            <div className="flex items-center gap-2 text-xs text-neutral-500">
-              <MessageCircle className="size-3.5 shrink-0" />
-              <span>304 137 5361</span>
-            </div>
-          </div>
-          <a
-            href={MAPS_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-5 inline-flex h-9 items-center rounded-xl bg-neutral-950 px-4 text-xs font-medium text-white hover:bg-neutral-800 active:bg-neutral-900"
-          >
-            Abrir en Google Maps
-          </a>
         </div>
       </section>
-    </div>
+
+      {/* ═══ ¿QUÉ QUIERES HACER? ═══════════════════════════════ */}
+      <section className="border-t border-cec-ink/10">
+        <div className="mx-auto max-w-6xl px-4 py-24 sm:px-6 lg:px-8">
+          <Reveal>
+            <h2 className="cec-display text-5xl sm:text-6xl">¿Qué quieres hacer?</h2>
+          </Reveal>
+
+          <div className="mt-12 grid gap-5 sm:grid-cols-3">
+            {ACTIONS.map((a, i) => {
+              const card = (
+                <div className={`cec-card group flex h-full min-h-[300px] flex-col rounded-[22px] p-7 ${a.bg}`}>
+                  <div className="flex items-start justify-between">
+                    <span className="text-xs font-medium tracking-[0.2em] text-cec-ink/50">
+                      0{i + 1}
+                    </span>
+                    <span className="grid size-10 place-items-center rounded-full bg-white/70 transition-all duration-300 group-hover:rotate-45 group-hover:bg-cec-ink group-hover:text-white">
+                      <ArrowUpRight className="size-4" />
+                    </span>
+                  </div>
+                  <h3 className="cec-display mt-auto pt-16 text-[2.1rem]">{a.title}</h3>
+                  <p className="mt-3 max-w-[30ch] text-sm leading-relaxed text-cec-ink/70">{a.text}</p>
+                </div>
+              );
+
+              return (
+                <Reveal key={a.title} delay={i * 120}>
+                  {a.external ? (
+                    <a href={a.href} target="_blank" rel="noopener noreferrer" className="block h-full">
+                      {card}
+                    </a>
+                  ) : (
+                    <Link href={a.href} className="block h-full">
+                      {card}
+                    </Link>
+                  )}
+                </Reveal>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══ VISÍTANOS ═════════════════════════════════════════ */}
+      <section className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+        <Reveal className="grid overflow-hidden rounded-[28px] border border-cec-ink/10 md:grid-cols-2">
+          {/* Horarios */}
+          <div className="bg-cec-ink p-8 text-white sm:p-12">
+            <Eyebrow className="text-white/60">Horarios</Eyebrow>
+            <ul className="mt-8">
+              {SCHEDULE.map((s) => (
+                <li
+                  key={s.day}
+                  className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-b border-white/15 py-4 last:border-0"
+                >
+                  <span className="text-sm text-white/70">{s.day}</span>
+                  <span className="cec-display text-2xl">{s.hours}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Dónde estamos */}
+          <div className="flex flex-col p-8 sm:p-12">
+            <Eyebrow>Dónde estamos</Eyebrow>
+            <p className="cec-display mt-8 text-4xl sm:text-5xl">{ADDRESS.line1}</p>
+            <p className="mt-2 text-cec-ink-soft">{ADDRESS.line2}</p>
+
+            <div className="mt-8 space-y-1 text-sm text-cec-ink-soft">
+              <p>{INSTAGRAM}</p>
+              <p>{PHONE}</p>
+            </div>
+
+            <a
+              href={MAPS_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group mt-auto inline-flex w-fit items-center gap-2 pt-10 text-sm font-medium"
+            >
+              <span className="cec-link">Abrir en Google Maps</span>
+              <ArrowUpRight className="size-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+            </a>
+          </div>
+        </Reveal>
+      </section>
+    </>
   );
 }
