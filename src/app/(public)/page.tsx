@@ -46,7 +46,7 @@ export default function HomePage() {
         <div>
           <Eyebrow>Café y repostería fina en Bello.</Eyebrow>
 
-          <h1 className="cec-display mt-6 text-[clamp(3.6rem,9.5vw,7.6rem)]">
+          <h1 className="cec-display mt-6 text-[clamp(3rem,7.5vw,6rem)]">
             {["Como", "en", "Casa"].map((word, i) => (
               <span
                 key={word}
@@ -91,7 +91,7 @@ export default function HomePage() {
       <section className="border-t border-cec-ink/10">
         <div className="mx-auto max-w-6xl px-4 py-24 sm:px-6 lg:px-8">
           <Reveal>
-            <h2 className="cec-display text-5xl sm:text-6xl">¿Qué quieres hacer?</h2>
+            <h2 className="cec-display text-4xl sm:text-5xl">¿Qué quieres hacer?</h2>
           </Reveal>
 
           <div className="mt-12 grid gap-5 sm:grid-cols-3">
@@ -106,7 +106,7 @@ export default function HomePage() {
                       <ArrowUpRight className="size-4" />
                     </span>
                   </div>
-                  <h3 className="cec-display mt-auto pt-16 text-[2.1rem]">{a.title}</h3>
+                  <h3 className="cec-display mt-auto pt-16 text-[1.9rem]">{a.title}</h3>
                   <p className="mt-3 max-w-[30ch] text-sm leading-relaxed text-cec-ink/70">{a.text}</p>
                 </div>
               );
@@ -151,7 +151,7 @@ export default function HomePage() {
           {/* Dónde estamos */}
           <div className="flex flex-col p-8 sm:p-12">
             <Eyebrow>Dónde estamos</Eyebrow>
-            <p className="cec-display mt-8 text-4xl sm:text-5xl">{ADDRESS.line1}</p>
+            <p className="cec-display mt-8 text-3xl sm:text-4xl">{ADDRESS.line1}</p>
             <p className="mt-2 text-cec-ink-soft">{ADDRESS.line2}</p>
 
             <div className="mt-8 space-y-1 text-sm text-cec-ink-soft">
