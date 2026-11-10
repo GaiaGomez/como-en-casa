@@ -1,11 +1,10 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import Image from "next/image";
 import { Search, X } from "lucide-react";
 
-import { Reveal } from "@/components/public/reveal";
 import type { MenuGroup, MenuItem, MenuKind, MenuSection } from "@/lib/menu-data";
+import { SCENES, sceneImage, sceneStone, type MenuScene } from "@/lib/menu-scenes";
 import { cn } from "@/lib/utils";
 
 // ─── Búsqueda ─────────────────────────────────────────────────
@@ -26,7 +25,6 @@ function itemMatches(item: MenuItem, q: string) {
  * Filtra la carta según el texto buscado.
  * - Si el título de la sección o del grupo coincide, se muestra completo.
  * - Si no, solo quedan los productos que coinciden.
- * Devuelve solo las secciones con algún resultado.
  */
 function filterMenu(sections: MenuSection[], query: string): MenuSection[] {
   const q = normalize(query.trim());
@@ -59,15 +57,21 @@ export function CartaClient({ sections }: { sections: MenuSection[] }) {
 
   const searching = query.trim().length > 0;
 
-  // Mientras se busca, se busca en TODA la carta (comer + beber).
+  // Secciones visibles: mientras se busca, se busca en TODA la carta.
   const visible = useMemo(
     () => (searching ? filterMenu(sections, query) : sections.filter((s) => s.kind === kind)),
     [sections, kind, query, searching]
   );
 
-  // ── Categoría activa según el scroll ──
-  // IntersectionObserver avisa qué sección está cruzando una franja
-  // horizontal de la pantalla; esa se marca como activa en los chips.
+  // Escenas con al menos una sección visible (cada escena = una foto de fondo).
+  const scenes = useMemo(() => {
+    const byId = new Map(visible.map((s) => [s.id, s]));
+    return SCENES.map((sc) => ({ scene: sc, secs: sc.sections.map((id) => byId.get(id)).filter(Boolean) as MenuSection[] })).filter(
+      (x) => x.secs.length > 0
+    );
+  }, [visible]);
+
+  // ── Chip activo según el scroll (IntersectionObserver) ──
   useEffect(() => {
     if (searching) return;
     const els = visible.map((s) => document.getElementById(s.id)).filter(Boolean) as HTMLElement[];
@@ -75,7 +79,6 @@ export function CartaClient({ sections }: { sections: MenuSection[] }) {
       (entries) => {
         const hit = entries.find((e) => e.isIntersecting);
         if (hit) setActive(hit.target.id);
-        // Arriba de todo (antes de la primera sección) se marca la primera.
         else if (window.scrollY < 400 && visible[0]) setActive(visible[0].id);
       },
       { rootMargin: "-35% 0px -60% 0px" }
@@ -84,7 +87,7 @@ export function CartaClient({ sections }: { sections: MenuSection[] }) {
     return () => observer.disconnect();
   }, [visible, searching]);
 
-  // Mantiene visible el chip activo cuando la fila de chips se desplaza de lado (móvil).
+  // Mantiene visible el chip activo en la fila que se desliza (móvil).
   useEffect(() => {
     const chip = chipsRef.current?.querySelector<HTMLElement>(`[data-id="${active}"]`);
     chip?.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
@@ -98,7 +101,6 @@ export function CartaClient({ sections }: { sections: MenuSection[] }) {
     setKind(next);
     setQuery("");
     setActive(sections.find((s) => s.kind === next)?.id ?? "");
-    // Vuelve al inicio de la carta al cambiar entre Comer y Beber
     document.getElementById("carta-top")?.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
@@ -107,169 +109,176 @@ export function CartaClient({ sections }: { sections: MenuSection[] }) {
       {/* ═══ Barra fija: Comer/Beber + buscador + categorías ═══ */}
       <div
         id="carta-top"
-        className="sticky top-[73px] z-20 -mx-4 scroll-mt-[73px] border-b border-cec-ink/10 bg-white/95 px-4 py-4 backdrop-blur-md sm:top-[81px] sm:-mx-6 sm:scroll-mt-[81px] sm:px-6 lg:-mx-8 lg:px-8"
+        className="sticky top-[73px] z-20 scroll-mt-[73px] border-b border-cec-ink/10 bg-[#f4efe8]/92 backdrop-blur-md sm:top-[81px] sm:scroll-mt-[81px]"
       >
-        <div className="flex items-center gap-2 sm:gap-3">
-          {/* Selector Comer / Beber */}
-          <div className="flex rounded-full bg-neutral-100 p-1 text-sm font-medium" role="tablist" aria-label="Tipo de carta">
-            {(["comer", "beber"] as const).map((k) => (
-              <button
-                key={k}
-                type="button"
-                role="tab"
-                aria-selected={!searching && kind === k}
-                onClick={() => switchKind(k)}
-                className={cn(
-                  "rounded-full px-4 py-2 capitalize transition-colors sm:px-5",
-                  !searching && kind === k ? "bg-cec-ink text-white" : "text-cec-ink hover:bg-white"
-                )}
-              >
-                {k}
-              </button>
-            ))}
+        <div className="mx-auto max-w-6xl px-4 py-3.5 sm:px-6 lg:px-8">
+          <div className="flex items-center gap-3">
+            {/* Selector Comer / Beber */}
+            <div className="cec-cond flex rounded-full border border-cec-ink p-[3px] text-[13px] font-semibold tracking-[0.18em]" role="tablist" aria-label="Tipo de carta">
+              {(["comer", "beber"] as const).map((k) => (
+                <button
+                  key={k}
+                  type="button"
+                  role="tab"
+                  aria-selected={!searching && kind === k}
+                  onClick={() => switchKind(k)}
+                  className={cn(
+                    "rounded-full px-4 py-1.5 transition-colors sm:px-5",
+                    !searching && kind === k ? "bg-cec-ink text-[#f4efe8]" : "hover:bg-cec-ink/10"
+                  )}
+                >
+                  {k}
+                </button>
+              ))}
+            </div>
+
+            {/* Buscador: línea fina, como los subtítulos de la carta */}
+            <label className="flex min-w-0 flex-1 items-center gap-2 border-b border-cec-ink/60 py-2 transition-colors focus-within:border-cec-ink">
+              <Search className="size-4 shrink-0 text-cec-ink/50" />
+              <input
+                type="search"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Busca un plato, bebida o ingrediente…"
+                className="w-full bg-transparent text-base outline-none placeholder:text-cec-ink/45 sm:text-sm [&::-webkit-search-cancel-button]:hidden"
+                aria-label="Buscar en la carta"
+              />
+              {searching && (
+                <button type="button" onClick={() => setQuery("")} aria-label="Borrar búsqueda" className="text-cec-ink/50 hover:text-cec-ink">
+                  <X className="size-4" />
+                </button>
+              )}
+            </label>
           </div>
 
-          {/* Buscador */}
-          <label className="flex min-w-0 flex-1 items-center gap-2 rounded-full border border-cec-ink/15 px-4 py-2.5 transition-colors focus-within:border-cec-ink/40">
-            <Search className="size-4 shrink-0 text-cec-ink/40" />
-            <input
-              type="search"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Busca en la carta…"
-              className="w-full bg-transparent text-base outline-none placeholder:text-cec-ink/40 sm:text-sm [&::-webkit-search-cancel-button]:hidden"
-              aria-label="Buscar en la carta"
-            />
-            {searching && (
-              <button type="button" onClick={() => setQuery("")} aria-label="Borrar búsqueda" className="text-cec-ink/50 hover:text-cec-ink">
-                <X className="size-4" />
-              </button>
-            )}
-          </label>
+          {/* Chips ovalados, como las etiquetas de la carta impresa */}
+          {!searching && (
+            <div
+              ref={chipsRef}
+              className="mt-3 flex gap-2 overflow-x-auto whitespace-nowrap pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            >
+              {visible.map((s) => (
+                <button
+                  key={s.id}
+                  type="button"
+                  data-id={s.id}
+                  onClick={() => goTo(s.id)}
+                  className={cn(
+                    "cec-cond rounded-[50%] border px-4 py-1.5 text-[11.5px] font-semibold tracking-[0.16em] transition-colors",
+                    active === s.id ? "border-cec-ink bg-cec-ink text-[#f4efe8]" : "border-cec-ink/35 hover:border-cec-ink"
+                  )}
+                >
+                  {s.title}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
-
-        {/* Chips de categorías (se ocultan mientras se busca) */}
-        {!searching && (
-          <div
-            ref={chipsRef}
-            className="mt-3 flex gap-2 overflow-x-auto whitespace-nowrap pb-1 text-sm [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-          >
-            {visible.map((s) => (
-              <button
-                key={s.id}
-                type="button"
-                data-id={s.id}
-                onClick={() => goTo(s.id)}
-                className={cn(
-                  "rounded-full border px-4 py-1.5 transition-colors",
-                  active === s.id
-                    ? "border-cec-ink bg-cec-ink text-white"
-                    : "border-cec-ink/15 hover:border-cec-ink/40"
-                )}
-              >
-                {s.title}
-              </button>
-            ))}
-          </div>
-        )}
       </div>
 
-      {/* ═══ Secciones ═══ */}
-      {visible.length === 0 ? (
-        <p className="py-24 text-center text-cec-ink-soft">
+      {/* ═══ Escenas con foto de fondo ═══ */}
+      {scenes.length === 0 ? (
+        <p className="mx-auto max-w-6xl px-4 py-24 text-center text-cec-ink-soft">
           No encontramos “{query}” en la carta.{" "}
           <button type="button" onClick={() => setQuery("")} className="cec-link font-medium text-cec-ink">
             Ver toda la carta
           </button>
         </p>
       ) : (
-        visible.map((section, i) => (
-          <SectionBlock key={section.id} section={section} index={i} flip={i % 2 === 1} />
-        ))
+        scenes.map(({ scene, secs }) => <Scene key={scene.id} scene={scene} sections={secs} />)
       )}
     </>
   );
 }
 
-// ─── Una sección de la carta ──────────────────────────────────
+// ─── Una escena: foto de fondo + secciones encima ─────────────
 
-function SectionBlock({ section, index, flip }: { section: MenuSection; index: number; flip: boolean }) {
+function Scene({ scene, sections }: { scene: MenuScene; sections: MenuSection[] }) {
+  // Variables CSS que usa .carta-scene (globals.css) para acomodar la foto.
+  const style = {
+    "--img": `url(${sceneImage(scene.id)})`,
+    "--stone": `url(${sceneStone(scene.id)})`,
+    "--freeY": scene.freeY,
+  } as React.CSSProperties;
+
+  return (
+    <div
+      className={cn("carta-scene", `text-${scene.textPos}`, `photo-${scene.photoSide}`, scene.centered && "centered", scene.dark && "dark")}
+      style={style}
+    >
+      {/* Capa 1: la piedra limpia estirada por toda la pantalla */}
+      <div className="carta-stone" aria-hidden="true" />
+      {/* Capa 2: la foto original, fundida por los bordes */}
+      <div className="carta-photo" aria-hidden="true" />
+
+      {/* Capa 3: el texto */}
+      <div className="carta-text">
+        <div className="carta-col">
+          {sections.map((s, i) => (
+            <SectionBlock key={s.id} section={s} kicker={i === 0 ? scene.kicker : undefined} />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function SectionBlock({ section, kicker }: { section: MenuSection; kicker?: string }) {
+  const items = section.groups.flatMap((g) => g.items ?? []);
+  // Secciones de productos cortos (casi sin descripciones) → grupos en 2 columnas
+  const twoCols = section.groups.length > 1 && items.filter((i) => i.description || i.options).length <= 1;
+
   return (
     <section
       id={section.id}
       // scroll-mt: al saltar con los chips, deja espacio para header + barra fija
-      className={cn(
-        "grid scroll-mt-[230px] gap-8 border-b border-cec-ink/10 py-14 last:border-0 sm:scroll-mt-[225px] md:gap-12 md:py-16",
-        flip ? "md:grid-cols-[7fr_5fr]" : "md:grid-cols-[5fr_7fr]"
-      )}
+      className="scroll-mt-[200px] [&+&]:mt-16"
     >
-      {/* Tarjeta con foto: se queda fija mientras bajas por la lista (desktop) */}
-      <div className={cn("self-start md:sticky md:top-[240px]", flip && "md:order-2")}>
-        <Reveal>
-          <div className={cn("rounded-[22px] p-3", section.accent)}>
-            {section.image && (
-              <div className="relative aspect-[4/3] overflow-hidden rounded-2xl">
-                <Image
-                  src={section.image}
-                  alt={section.title}
-                  fill
-                  // sizes le dice a Next qué tamaño real tendrá la imagen →
-                  // genera una versión liviana adecuada para cada pantalla.
-                  sizes="(min-width: 768px) 40vw, 100vw"
-                  className="object-cover"
-                />
-              </div>
-            )}
-            <div className={cn("flex items-baseline justify-between gap-4 px-3 pt-4", section.note ? "pb-1" : "pb-2", !section.image && "pt-8")}>
-              <h2 className="cec-display text-3xl sm:text-4xl">{section.title}</h2>
-              <span className="text-xs font-medium tracking-[0.2em] text-cec-ink/45">
-                {String(index + 1).padStart(2, "0")}
-              </span>
-            </div>
-            {section.note && <p className="px-3 pb-2 text-sm text-cec-ink/65">{section.note}</p>}
-          </div>
-        </Reveal>
+      {kicker && <p className="cec-cond mb-2 text-[12px] font-semibold tracking-[0.34em] opacity-75">{kicker}</p>}
+      <h2 className="cec-display mb-3 text-[clamp(2.1rem,9vw,5.5rem)] [overflow-wrap:anywhere] md:text-[clamp(2.6rem,6vw,5.5rem)]">{section.title}</h2>
+      {section.note && section.note !== kicker && <p className="mb-6 text-sm opacity-80">{section.note}</p>}
+
+      <div className={cn("mt-6", twoCols && "sm:columns-2 sm:gap-x-10")}>
+        {section.groups.map((group, gi) => (
+          <Group key={group.title ?? gi} group={group} />
+        ))}
       </div>
 
-      {/* Lista de productos */}
-      <div className={cn(flip && "md:order-1")}>
-        {section.groups.map((group, gi) => (
-          <Group key={group.title ?? gi} group={group} first={gi === 0} />
-        ))}
-        {section.footnotes && (
-          <ul className="mt-6 space-y-1 rounded-2xl bg-neutral-50 p-5 text-xs leading-relaxed text-cec-ink-soft">
-            {section.footnotes.map((f) => (
-              <li key={f}>{f}</li>
-            ))}
-          </ul>
-        )}
-      </div>
+      {section.footnotes && (
+        <p className="mt-4 text-xs leading-relaxed opacity-75">{section.footnotes.join(" · ")}</p>
+      )}
     </section>
   );
 }
 
-function Group({ group, first }: { group: MenuGroup; first: boolean }) {
+function Group({ group }: { group: MenuGroup }) {
   const items = group.items ?? [];
-  // Si los productos no tienen descripción y sus nombres son cortos, van en 2 columnas (más compacto).
-  const compact =
-    items.length > 3 && items.every((it) => !it.description && !it.options && it.name.length <= 28);
+  // Si 3+ productos cuestan lo mismo, el precio va una sola vez en un óvalo
+  const shared = items.length >= 3 && items.every((i) => i.price === items[0].price) ? items[0].price : null;
 
   return (
-    <div className={cn(!first && "mt-10")}>
+    <div className="mb-8 break-inside-avoid">
       {group.title && (
-        <p className="text-[11px] font-medium uppercase tracking-[0.28em] text-cec-ink-soft">{group.title}</p>
+        <p className="cec-cond mb-2 flex items-center gap-3 border-b border-current pb-1.5 text-[14px] font-semibold tracking-[0.2em]">
+          {group.title}
+          {shared && (
+            <span className="rounded-[50%] border border-current px-3 py-0.5 font-sans text-[12px] font-semibold normal-case tracking-normal">
+              {shared}
+            </span>
+          )}
+        </p>
       )}
-      {group.note && <p className="mt-2 text-sm text-cec-ink-soft">{group.note}</p>}
+      {group.note && <p className="mb-2 text-sm leading-relaxed opacity-80">{group.note}</p>}
 
       {group.table && (
-        <table className="mt-3 w-full text-sm">
+        <table className="cec-cond mb-2 w-full text-[16px] font-semibold">
           <thead>
-            <tr className="text-xs text-cec-ink/50">
-              <th className="pb-2 text-left font-normal">
+            <tr className="text-[11px] opacity-70">
+              <th className="pb-1 text-left font-medium">
                 <span className="sr-only">Preparación</span>
               </th>
               {group.table.columns.map((c) => (
-                <th key={c} className="pb-2 text-right font-normal">
+                <th key={c} className="pb-1 text-right font-medium tracking-[0.18em]">
                   {c}
                 </th>
               ))}
@@ -277,10 +286,10 @@ function Group({ group, first }: { group: MenuGroup; first: boolean }) {
           </thead>
           <tbody>
             {group.table.rows.map((r) => (
-              <tr key={r.name} className="border-t border-cec-ink/10">
-                <td className="py-3 font-medium">{r.name}</td>
+              <tr key={r.name}>
+                <td className="py-1.5">{r.name}</td>
                 {r.prices.map((p, i) => (
-                  <td key={i} className="py-3 text-right font-medium tabular-nums">
+                  <td key={i} className="py-1.5 text-right tabular-nums">
                     {p}
                   </td>
                 ))}
@@ -290,38 +299,35 @@ function Group({ group, first }: { group: MenuGroup; first: boolean }) {
         </table>
       )}
 
-      {items.length > 0 && (
-        <div className={cn(group.title && "mt-1", compact && "sm:grid sm:grid-cols-2 sm:gap-x-10")}>
-          {items.map((item) => (
-            <Item key={item.name} item={item} />
-          ))}
-        </div>
-      )}
+      {items.map((item) => (
+        <Item key={item.name} item={item} hidePrice={!!shared} />
+      ))}
     </div>
   );
 }
 
-function Item({ item }: { item: MenuItem }) {
+function Item({ item, hidePrice }: { item: MenuItem; hidePrice: boolean }) {
   return (
-    <div className="grid grid-cols-[1fr_auto] gap-x-6 gap-y-1 border-b border-cec-ink/[0.08] py-4 last:border-0">
-      <p className="font-medium">
+    <div className="grid grid-cols-[1fr_auto] gap-x-5 py-2.5">
+      <p className="cec-cond text-[17px] font-semibold">
         {item.name}
-        {item.detail && <span className="font-normal text-cec-ink/45"> · {item.detail}</span>}
+        {item.detail && <span className="ml-1.5 font-sans text-[14px] font-normal normal-case tracking-normal opacity-65">{item.detail}</span>}
       </p>
       {/* tabular-nums: los números ocupan el mismo ancho → precios alineados */}
-      {item.price && <p className="whitespace-nowrap text-right font-medium tabular-nums">{item.price}</p>}
+      {!hidePrice && item.price && <p className="cec-cond text-right text-[17px] font-bold tabular-nums tracking-[0.04em]">{item.price}</p>}
 
       {(item.description || item.options) && (
-        <div className="col-span-1 text-sm leading-relaxed text-cec-ink-soft">
+        <div className="col-span-1 mt-0.5 text-[14px] leading-relaxed opacity-80">
           {item.description && <p>{item.description}</p>}
           {item.options && (
-            <ul className="mt-2 space-y-1">
-              {item.options.map((o) => (
-                <li key={o.name}>
-                  <span className="text-cec-ink">{o.name}</span> — {o.description}
-                </li>
+            <p className="mt-1">
+              {item.options.map((o, i) => (
+                <span key={o.name}>
+                  {i > 0 && " · "}
+                  <b className="font-semibold">{o.name}</b> {o.description}
+                </span>
               ))}
-            </ul>
+            </p>
           )}
         </div>
       )}

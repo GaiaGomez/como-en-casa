@@ -169,16 +169,25 @@
   color: var(--color-cec-ink);
 }
 
-/* Titulares: Neucha, parecida al lettering del logo. Solo tiene un
-   peso y no tiene cursiva → font-synthesis: none evita que el
-   navegador invente negritas o cursivas falsas que la deformen. */
+/* Titulares: Gloock (serif editorial, la misma de la carta impresa).
+   Solo tiene un peso y no tiene cursiva → font-synthesis: none evita
+   que el navegador invente negritas o cursivas falsas. */
 .cec-display {
-  font-family: var(--font-cec-title), "Patrick Hand", sans-serif;
+  font-family: var(--font-cec-title), Georgia, serif;
   font-weight: 400;
   font-style: normal;
   font-synthesis: none;
-  letter-spacing: 0;
-  line-height: 1;
+  letter-spacing: -0.01em;
+  line-height: 0.98;
+  text-transform: uppercase;
+}
+
+/* Texto condensado en mayúsculas espaciadas: nombres de platos,
+   precios, etiquetas y botones (como en la carta impresa). */
+.cec-cond {
+  font-family: var(--font-cec-cond), var(--font-cec-sans), sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
 }
 
 /* Logo como máscara: permite pintar el logo de negro o blanco
@@ -253,4 +262,113 @@
     transition: none !important;
   }
   .cec-reveal, .cec-rise { opacity: 1; transform: none; }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   CARTA WEB — escenas con foto de fondo
+   Cada escena tiene 3 capas:
+   1) .carta-stone → la piedra de la foto (sin platos) estirada a todo el ancho
+   2) .carta-photo → la foto original, fundida por los bordes con máscaras
+   3) .carta-text  → el texto, siempre en la zona libre de la foto
+   ═══════════════════════════════════════════════════════════════ */
+.carta-scene {
+  position: relative;
+  overflow: hidden;
+  color: var(--color-cec-ink);
+  background: #e9dfd4;
+}
+.carta-scene.dark { color: #f4efe8; background: #2a2420; }
+
+.carta-stone {
+  position: absolute;
+  inset: 0;
+  background: var(--stone) center / cover no-repeat;
+}
+.carta-scene.dark .carta-stone { filter: brightness(0.32); }
+
+.carta-photo {
+  position: absolute;
+  width: min(46%, 720px);
+  aspect-ratio: 2 / 3;
+  background: var(--img) center / cover no-repeat;
+}
+.carta-scene.dark .carta-photo { filter: brightness(0.7); }
+
+/* Desktop: la foto pegada a un lado; se funde hacia el texto
+   y hacia el extremo abierto (arriba o abajo) para continuar en la piedra. */
+.carta-scene.photo-right .carta-photo { right: 0; }
+.carta-scene.photo-left .carta-photo { left: 0; }
+.carta-scene.text-bottom .carta-photo { top: 0; }   /* platos arriba */
+.carta-scene.text-top .carta-photo { bottom: 0; }   /* platos abajo */
+
+.carta-scene.photo-right.text-bottom .carta-photo {
+  -webkit-mask: linear-gradient(90deg, transparent, #000 35%), linear-gradient(0deg, transparent, #000 25%);
+  mask: linear-gradient(90deg, transparent, #000 35%), linear-gradient(0deg, transparent, #000 25%);
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
+}
+.carta-scene.photo-right.text-top .carta-photo {
+  -webkit-mask: linear-gradient(90deg, transparent, #000 35%), linear-gradient(180deg, transparent, #000 25%);
+  mask: linear-gradient(90deg, transparent, #000 35%), linear-gradient(180deg, transparent, #000 25%);
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
+}
+.carta-scene.photo-left.text-bottom .carta-photo {
+  -webkit-mask: linear-gradient(270deg, transparent, #000 35%), linear-gradient(0deg, transparent, #000 25%);
+  mask: linear-gradient(270deg, transparent, #000 35%), linear-gradient(0deg, transparent, #000 25%);
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
+}
+.carta-scene.photo-left.text-top .carta-photo {
+  -webkit-mask: linear-gradient(270deg, transparent, #000 35%), linear-gradient(180deg, transparent, #000 25%);
+  mask: linear-gradient(270deg, transparent, #000 35%), linear-gradient(180deg, transparent, #000 25%);
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
+}
+
+.carta-text {
+  position: relative;
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 90px 2rem 100px;
+  min-height: 92vh;
+}
+.carta-col { width: min(600px, 52%); }
+.carta-scene.photo-left .carta-col { margin-left: auto; }
+
+/* Fotos con platos en ambos extremos: centradas, fundido corto arriba y abajo */
+.carta-scene.centered .carta-photo { top: 50%; bottom: auto; transform: translateY(-50%); }
+.carta-scene.centered.photo-right .carta-photo {
+  -webkit-mask: linear-gradient(90deg, transparent, #000 35%), linear-gradient(180deg, transparent, #000 7%, #000 93%, transparent);
+  mask: linear-gradient(90deg, transparent, #000 35%), linear-gradient(180deg, transparent, #000 7%, #000 93%, transparent);
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
+}
+.carta-scene.centered.photo-left .carta-photo {
+  -webkit-mask: linear-gradient(270deg, transparent, #000 35%), linear-gradient(180deg, transparent, #000 7%, #000 93%, transparent);
+  mask: linear-gradient(270deg, transparent, #000 35%), linear-gradient(180deg, transparent, #000 7%, #000 93%, transparent);
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
+}
+
+/* Móvil: las fotos son verticales, así que encajan a todo el ancho.
+   - text-bottom (platos arriba): foto arriba, el texto empieza en la piedra libre (freeY).
+   - text-top (platos abajo): el texto va primero y la foto cierra la escena. */
+@media (max-width: 767px) {
+  .carta-photo { width: 100%; left: 0; right: auto; }
+  .carta-scene.centered .carta-photo { top: auto; bottom: 0; transform: none; }
+  .carta-scene.text-bottom .carta-photo { top: 0; bottom: auto; }
+  .carta-scene.text-top .carta-photo { top: auto; bottom: 0; }
+  .carta-scene.text-bottom .carta-photo {
+    -webkit-mask: linear-gradient(0deg, transparent, #000 14%); mask: linear-gradient(0deg, transparent, #000 14%);
+  }
+  .carta-scene.text-top .carta-photo {
+    -webkit-mask: linear-gradient(180deg, transparent, #000 18%); mask: linear-gradient(180deg, transparent, #000 18%);
+  }
+  .carta-text { min-height: 0; padding: 32px 18px 44px; }
+  .carta-scene.text-bottom .carta-text { padding-top: calc(150vw * var(--freeY)); }
+  .carta-scene.text-top .carta-text { padding-bottom: calc(150vw * (1 - var(--freeY)) + 16px); }
+  /* platos arriba y abajo: el texto termina antes de que empiece la foto */
+  .carta-scene.centered .carta-text { padding-bottom: calc(150vw + 8px); }
+  .carta-col { width: 100%; }
 }
