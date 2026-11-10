@@ -1,13 +1,13 @@
 import Link from "next/link";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
 
-import { Eyebrow, LogoFull } from "@/components/public/decor";
+import { Eyebrow, LogoFull, SocialLinks } from "@/components/public/decor";
 import { Reveal } from "@/components/public/reveal";
 import {
   ADDRESS,
-  INSTAGRAM,
+  INSTAGRAM_URL,
+  MAPS_EMBED_URL,
   MAPS_URL,
-  PHONE,
   SCHEDULE,
   WHATSAPP_URL,
 } from "@/lib/public-info";
@@ -154,20 +154,31 @@ export default function HomePage() {
             <p className="cec-display mt-8 text-3xl sm:text-4xl">{ADDRESS.line1}</p>
             <p className="mt-2 text-cec-ink-soft">{ADDRESS.line2}</p>
 
-            <div className="mt-8 space-y-1 text-sm text-cec-ink-soft">
-              <p>{INSTAGRAM}</p>
-              <p>{PHONE}</p>
+            {/* Mapa embebido. En blanco y negro para respetar la estética;
+                recupera el color al pasar el mouse. loading="lazy" = no se
+                carga hasta que el usuario baja hasta aquí (web más rápida). */}
+            <div className="mt-8 overflow-hidden rounded-2xl border border-cec-ink/10">
+              <iframe
+                src={MAPS_EMBED_URL}
+                title="Mapa: Como en Casa, Carrera 49 # 54-47, Bello"
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                className="block h-64 w-full grayscale transition-[filter] duration-500 hover:grayscale-0"
+              />
             </div>
 
-            <a
-              href={MAPS_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group mt-auto inline-flex w-fit items-center gap-2 pt-10 text-sm font-medium"
-            >
-              <span className="cec-link">Abrir en Google Maps</span>
-              <ArrowUpRight className="size-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
-            </a>
+            <div className="mt-6 flex flex-wrap items-center justify-between gap-4">
+              <SocialLinks instagramUrl={INSTAGRAM_URL} whatsappUrl={WHATSAPP_URL} />
+              <a
+                href={MAPS_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group inline-flex items-center gap-2 text-sm font-medium"
+              >
+                <span className="cec-link">Abrir en Google Maps</span>
+                <ArrowUpRight className="size-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+              </a>
+            </div>
           </div>
         </Reveal>
       </section>

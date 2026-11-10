@@ -1,7 +1,7 @@
 import Link from "next/link";
 
-import { ADDRESS, INSTAGRAM, PHONE } from "@/lib/public-info";
-import { LogoFull } from "./decor";
+import { ADDRESS, INSTAGRAM_URL, WHATSAPP_URL } from "@/lib/public-info";
+import { LogoFull, SocialLinks } from "./decor";
 
 /**
  * Footer público: cierra todas las páginas con la marca en grande
@@ -16,18 +16,7 @@ export function PublicFooter() {
         <div className="space-y-1 text-sm text-white/75">
           <p className="font-medium text-white">{ADDRESS.line1}</p>
           <p>{ADDRESS.line2}</p>
-          <p className="pt-3">
-            <a
-              href={`https://instagram.com/${INSTAGRAM.replace("@", "")}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline decoration-white/60 decoration-2 underline-offset-4 hover:text-neutral-300"
-            >
-              {INSTAGRAM}
-            </a>
-            <span className="mx-2">·</span>
-            {PHONE}
-          </p>
+          <SocialLinks instagramUrl={INSTAGRAM_URL} whatsappUrl={WHATSAPP_URL} tone="light" className="pt-4" />
         </div>
 
         <nav className="flex flex-wrap gap-x-5 gap-y-2 text-sm font-medium">
