@@ -1,8 +1,21 @@
+import type { Metadata } from "next";
 import { ArrowDown } from "lucide-react";
 
 import { Eyebrow } from "@/components/public/decor";
 import { MENU, MENU_PDF_URL } from "@/lib/menu-data";
 import { CartaClient } from "./client";
+
+// Vista previa del enlace /carta (WhatsApp, Instagram, Google)
+export const metadata: Metadata = {
+  title: "Nuestra carta",
+  description: "Cafés, repostería, brunch, hamburguesas, bebidas y más. Mira la carta de Como en Casa en Bello.",
+  openGraph: {
+    title: "Nuestra carta · Como en Casa",
+    description: "Cafés, repostería, brunch, hamburguesas, bebidas y más. Mira la carta de Como en Casa en Bello.",
+    // openGraph de una página reemplaza el del layout completo, así que la imagen se repite aquí
+    images: [{ url: "/og-como-en-casa.jpg", width: 1200, height: 630, alt: "Como en Casa — Nuestra carta" }],
+  },
+};
 
 // La página es Server Component: el encabezado se renderiza en el
 // servidor y solo la parte interactiva (filtros/buscador) va al cliente.

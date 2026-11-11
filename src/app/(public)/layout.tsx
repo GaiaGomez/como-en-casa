@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { Barlow, Barlow_Condensed, Gloock } from "next/font/google";
 
 import { PublicFooter } from "@/components/public/public-footer";
@@ -29,6 +30,28 @@ const barlowCondensed = Barlow_Condensed({
   weight: ["500", "600", "700"],
   variable: "--font-cec-cond",
 });
+
+// Metadatos de la web pública: es lo que muestran WhatsApp, Instagram
+// y Google en la vista previa de un enlace. Reemplazan los del admin
+// ("Operación interna…") solo en las rutas públicas.
+const SITE_URL = "https://como-en-casa-admin.vercel.app";
+const DESCRIPTION =
+  "Café de especialidad, repostería fina, gastronomía y celebraciones en Bello, Antioquia. Un lugar para sentirte como en casa.";
+
+export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
+  title: { default: "Como en Casa · Café y repostería en Bello", template: "%s · Como en Casa" },
+  description: DESCRIPTION,
+  openGraph: {
+    type: "website",
+    locale: "es_CO",
+    siteName: "Como en Casa",
+    title: "Como en Casa · Café y repostería en Bello",
+    description: DESCRIPTION,
+    images: [{ url: "/og-como-en-casa.jpg", width: 1200, height: 630, alt: "Como en Casa — Nuestra carta" }],
+  },
+  twitter: { card: "summary_large_image", images: ["/og-como-en-casa.jpg"] },
+};
 
 export default function PublicLayout({ children }: { children: React.ReactNode }) {
   return (
