@@ -4,11 +4,13 @@ import { getCurrentProfile } from "@/lib/supabase/auth";
 import { getPermissions } from "@/lib/permissions";
 import { getEmployees } from "@/lib/supabase/employees";
 import { getTipWeeks } from "@/lib/supabase/tips";
-import { getFridayWeekStart, getThursdayWeekEnd, type TipWeekData } from "@/lib/mock-data";
+import { getFridayWeekStart, getThursdayWeekEnd, getTodayColombiaDate, type TipWeekData } from "@/lib/mock-data";
 import { TeamManagementClient } from "./client";
 
 function emptyCurrentWeek(): TipWeekData {
-  const today = new Date().toISOString().slice(0, 10);
+  // Vercel corre en UTC: después de las 7 p. m. en Colombia ya sería "mañana".
+  // Usamos la fecha de Colombia para que servidor y cliente calculen la misma semana.
+  const today = getTodayColombiaDate();
   const startDate = getFridayWeekStart(today);
   return {
     id: "",

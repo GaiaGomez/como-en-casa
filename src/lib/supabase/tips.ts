@@ -15,7 +15,12 @@ export async function getTipWeeks(): Promise<TipWeekData[]> {
     .select("id, start_date, end_date, status")
     .order("start_date", { ascending: true });
 
-  if (weeksError) return mockFallback();
+  if (weeksError) {
+    // Antes devolvía semanas de prueba: se editaban datos falsos que al
+    // recargar "desaparecían". Ahora: vacío + log para ver el error real.
+    console.error("[getTipWeeks] error:", weeksError.message, "| code:", weeksError.code);
+    return [];
+  }
   if (!weeks || weeks.length === 0) return [];
 
   const weekIds = (weeks as WeekRow[]).map((w) => w.id);
@@ -27,7 +32,10 @@ export async function getTipWeeks(): Promise<TipWeekData[]> {
       supabase.from("tip_payments").select("week_id, employee_id, status").in("week_id", weekIds),
     ]);
 
-  if (amountsErr || scheduleErr || paymentsErr) return mockFallback();
+  if (amountsErr || scheduleErr || paymentsErr) {
+    console.error("[getTipWeeks] error leyendo detalle:", amountsErr?.message, scheduleErr?.message, paymentsErr?.message);
+    return [];
+  }
 
   return (weeks as WeekRow[]).map((week) => {
     const dailyTips: Record<string, number> = {};

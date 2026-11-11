@@ -20,6 +20,7 @@ import {
   getFridayWeekStart,
   getTodayColombiaDate,
   getWorkDayLabel,
+  parseDateOnly,
   getWorkDayShortLabel,
   tipWeeks,
   type Employee,
@@ -198,6 +199,20 @@ export function TeamManagementClient({
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
 
+  // Las propinas se guardan 700 ms después de dejar de escribir (debounce).
+  // Si alguien recarga o cierra justo en ese momento, el valor se perdía.
+  // `beforeunload` muestra el aviso nativo "¿Salir del sitio?" mientras haya
+  // escrituras pendientes.
+  useEffect(() => {
+    function warnIfPending(event: BeforeUnloadEvent) {
+      if (Object.keys(pendingTipWrites.current).length > 0) {
+        event.preventDefault();
+      }
+    }
+    window.addEventListener("beforeunload", warnIfPending);
+    return () => window.removeEventListener("beforeunload", warnIfPending);
+  }, []);
+
   useEffect(() => {
     const tab = searchParams.get("tab");
     setActiveTab(tab ? (queryToTab[tab] ?? "dias") : "dias");
@@ -309,12 +324,35 @@ export function TeamManagementClient({
     let dbId = weekDbIds.current[week.startDate];
     if (!dbId) {
       const created = await ensureTipWeek(week.startDate, week.endDate);
-      if (!created) { alert("No se pudo guardar el cambio en el servidor."); return; }
+      if (!created) {
+        revertWorked(week.startDate, employeeId, date, currentWorked);
+        alert("No se pudo guardar el cambio en el servidor.");
+        return;
+      }
       weekDbIds.current[week.startDate] = created;
       dbId = created;
     }
     const saved = await upsertWorkDay(dbId, employeeId, date, newWorked);
-    if (!saved) alert("No se pudo guardar el cambio en el servidor.");
+    if (!saved) {
+      // Revertimos el check en pantalla: si no se guardó, no debe "parecer" guardado.
+      revertWorked(week.startDate, employeeId, date, currentWorked);
+      alert("No se pudo guardar el cambio en el servidor.");
+    }
+  }
+
+  function revertWorked(weekStart: string, employeeId: string, date: string, value: boolean) {
+    setWeeks((current) =>
+      current.map((w) =>
+        w.startDate === weekStart
+          ? {
+              ...w,
+              workWeek: w.workWeek.map((day) =>
+                day.date === date ? { ...day, worked: { ...day.worked, [employeeId]: value } } : day
+              ),
+            }
+          : w
+      )
+    );
   }
 
   function updateDailyTip(date: string, value: number) {
@@ -341,6 +379,7 @@ export function TeamManagementClient({
         dbId = created;
       }
       const saved = await upsertDailyTip(dbId, date, value);
+      delete pendingTipWrites.current[writeKey];
       if (!saved) alert("No se pudo guardar el cambio en el servidor.");
     }, 700);
   }
@@ -411,11 +450,12 @@ export function TeamManagementClient({
         )
       );
       setIsDialogOpen(false);
+      // Antes solo se mandaban nombre/cargo/teléfono y "activo" → active.
+      // Resultado: documento, EPS, notas, etc. nunca llegaban a la BD, y
+      // poner "Descanso" marcaba active=false → la persona desaparecía.
       const saved = await updateEmployee(dialogEmployee.id, {
-        name,
-        role,
-        phone: phone || undefined,
-        active: status === "activo",
+        name, role, phone, documentId, birthDate, address, hiredAt,
+        contractType, eps, emergencyContact, emergencyPhone, internalNotes, status,
       });
       if (!saved) alert("No se pudo guardar el cambio en el servidor.");
       return;
@@ -431,7 +471,7 @@ export function TeamManagementClient({
       birthDate,
       address,
       status,
-      hiredAt: hiredAt || new Date().toISOString().slice(0, 10),
+      hiredAt: hiredAt || getTodayColombiaDate(),
       baseShift: role,
       contractType: contractType || "Pendiente",
       salaryBase: "Pendiente",
@@ -457,7 +497,10 @@ export function TeamManagementClient({
     setIsDialogOpen(false);
     event.currentTarget.reset();
 
-    const realId = await insertEmployee({ name, role, phone: phone || undefined });
+    const realId = await insertEmployee({
+      name, role, phone, documentId, birthDate, address, hiredAt,
+      contractType, eps, emergencyContact, emergencyPhone, internalNotes, status,
+    });
     if (realId) {
       setTeam((current) =>
         current.map((e) => (e.id === tempId ? { ...e, id: realId } : e))
@@ -790,7 +833,7 @@ export function TeamManagementClient({
               <p className="py-6 text-center text-sm text-neutral-400">Aún no hay historial de propinas.</p>
             ) : (
               [...weeks]
-                .sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime())
+                .sort((a, b) => b.startDate.localeCompare(a.startDate))
                 .map((week) => {
                   const weekTotal = Object.values(week.dailyTips).reduce((a, b) => a + b, 0);
                   const label = getCompactWeekLabel(week.startDate, week.endDate);
@@ -967,22 +1010,23 @@ function getDayLabel(date: string) {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
+    timeZone: "UTC", // la fecha ya viene anclada a UTC con parseDateOnly
   });
-  return formatter.format(new Date(`${date}T00:00:00`)).replace(",", "");
+  return formatter.format(parseDateOnly(date)).replace(",", "");
 }
 
 function getCompactWeekLabel(startDate: string, endDate: string) {
-  const start = new Date(`${startDate}T00:00:00`);
-  const end = new Date(`${endDate}T00:00:00`);
-  const monthFormatter = new Intl.DateTimeFormat("es-CO", { month: "long" });
+  const start = parseDateOnly(startDate);
+  const end = parseDateOnly(endDate);
+  const monthFormatter = new Intl.DateTimeFormat("es-CO", { month: "long", timeZone: "UTC" });
   const getMonth = (date: Date) => monthFormatter.format(date);
 
-  const startDay = start.getDate();
-  const endDay = end.getDate();
+  const startDay = start.getUTCDate();
+  const endDay = end.getUTCDate();
   const startMonth = getMonth(start);
   const endMonth = getMonth(end);
-  const startYear = start.getFullYear();
-  const endYear = end.getFullYear();
+  const startYear = start.getUTCFullYear();
+  const endYear = end.getUTCFullYear();
 
   if (startYear !== endYear) {
     return `Semana del ${startDay} de ${startMonth} de ${startYear} al ${endDay} de ${endMonth} de ${endYear}`;

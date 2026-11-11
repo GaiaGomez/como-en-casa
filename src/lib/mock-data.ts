@@ -482,25 +482,46 @@ export const manualShoppingItems: ManualShoppingItem[] = [
 const dayNames = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
 const shortDayNames = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
 
+// Zona horaria oficial del negocio. Todo "hoy" / "ahora" se calcula aquí,
+// sin importar desde qué país o computador se abra la app.
+export const BUSINESS_TIME_ZONE = "America/Bogota";
+
+// "Hoy" en Colombia como "YYYY-MM-DD" (en-CA formatea justo así).
 export function getTodayColombiaDate(): string {
   return new Intl.DateTimeFormat("en-CA", {
-    timeZone: "America/Bogota",
+    timeZone: BUSINESS_TIME_ZONE,
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
   }).format(new Date());
 }
 
+// Convierte "YYYY-MM-DD" en un Date anclado a medianoche UTC. Una fecha de
+// calendario ("el 6 de noviembre") no tiene hora ni zona; anclarla a UTC y
+// leerla siempre con getUTC* / timeZone "UTC" hace que el día NO cambie según
+// la zona horaria del dispositivo. El "qué día es hoy" sí depende de la zona,
+// y para eso está getTodayColombiaDate().
+export function parseDateOnly(dateStr: string): Date {
+  return new Date(`${dateStr}T00:00:00Z`);
+}
+
+// IMPORTANTE: toda la aritmética de fechas se hace en UTC ("Z" + getUTC*/setUTC*).
+// Antes se parseaba en hora LOCAL (`T00:00:00` sin Z) y se convertía con
+// toISOString() (que es UTC). En un navegador adelantado a UTC (ej. Madrid,
+// UTC+1) la medianoche local es las 23:00 del día anterior en UTC, así que
+// cada llamada restaba un día: la semana salía corrida y lo que se marcaba
+// quedaba guardado en otra fecha/semana ("se borraba").
 export function addDays(dateStr: string, days: number) {
-  const date = new Date(`${dateStr}T00:00:00`);
-  date.setDate(date.getDate() + days);
+  const date = parseDateOnly(dateStr);
+  date.setUTCDate(date.getUTCDate() + days);
   return date.toISOString().slice(0, 10);
 }
 
 export function getFridayWeekStart(dateStr: string) {
-  const date = new Date(`${dateStr}T00:00:00`);
-  const daysSinceFriday = (date.getDay() + 2) % 7;
-  date.setDate(date.getDate() - daysSinceFriday);
+  const date = parseDateOnly(dateStr);
+  // getUTCDay: 0=domingo … 5=viernes. (día + 2) % 7 = días desde el viernes.
+  const daysSinceFriday = (date.getUTCDay() + 2) % 7;
+  date.setUTCDate(date.getUTCDate() - daysSinceFriday);
   return date.toISOString().slice(0, 10);
 }
 
@@ -513,35 +534,34 @@ export function getWeekDateRange(startDate: string) {
 }
 
 export function getWeekLabel(startDate: string, endDate = getThursdayWeekEnd(startDate)) {
-  const start = new Date(`${startDate}T00:00:00`);
-  const end = new Date(`${endDate}T00:00:00`);
-  const monthFormatter = new Intl.DateTimeFormat("es-CO", { month: "long" });
+  const start = parseDateOnly(startDate);
+  const end = parseDateOnly(endDate);
+  const monthFormatter = new Intl.DateTimeFormat("es-CO", { month: "long", timeZone: "UTC" });
   const startMonth = monthFormatter.format(start);
   const endMonth = monthFormatter.format(end);
-  const startYear = start.getFullYear();
-  const endYear = end.getFullYear();
+  const startYear = start.getUTCFullYear();
+  const endYear = end.getUTCFullYear();
 
   if (startYear !== endYear) {
-    return `Del ${start.getDate()} de ${startMonth} de ${startYear} al ${end.getDate()} de ${endMonth} de ${endYear}`;
+    return `Del ${start.getUTCDate()} de ${startMonth} de ${startYear} al ${end.getUTCDate()} de ${endMonth} de ${endYear}`;
   }
 
   if (startMonth !== endMonth) {
-    return `Del ${start.getDate()} de ${startMonth} al ${end.getDate()} de ${endMonth}`;
+    return `Del ${start.getUTCDate()} de ${startMonth} al ${end.getUTCDate()} de ${endMonth}`;
   }
 
-  return `Del ${start.getDate()} al ${end.getDate()} de ${endMonth}`;
+  return `Del ${start.getUTCDate()} al ${end.getUTCDate()} de ${endMonth}`;
 }
 
 export function getWorkDayLabel(dateStr: string) {
-  const date = new Date(`${dateStr}T00:00:00`);
-  return dayNames[date.getDay()];
+  return dayNames[parseDateOnly(dateStr).getUTCDay()];
 }
 
 export function getWorkDayShortLabel(dateStr: string) {
-  const date = new Date(`${dateStr}T00:00:00`);
-  const day = String(date.getDate()).padStart(2, "0");
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  return `${shortDayNames[date.getDay()]} ${day}/${month}`;
+  const date = parseDateOnly(dateStr);
+  const day = String(date.getUTCDate()).padStart(2, "0");
+  const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+  return `${shortDayNames[date.getUTCDay()]} ${day}/${month}`;
 }
 
 export function getBuyQty(item: InventoryItem): number {
