@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
 
@@ -40,50 +41,75 @@ export default function HomePage() {
   return (
     <>
       {/* ═══ HERO ═══════════════════════════════════════════════
-          Tipografía editorial grande que entra palabra por palabra,
-          y el logo completo con el anillo girando lento. */}
-      <section className="mx-auto grid max-w-6xl items-center gap-14 px-4 pb-24 pt-12 sm:px-6 md:grid-cols-[1.15fr_1fr] md:pt-20 lg:px-8">
-        <div>
-          <Eyebrow>Café y repostería en Bello</Eyebrow>
+          Foto de la terraza de noche a todo el ancho, con el texto en
+          blanco encima. Solo esta sección lleva foto; el resto del home
+          sigue blanco. */}
+      <section className="relative isolate overflow-hidden text-white">
+        {/* Foto de fondo. next/image con `fill` la ajusta al tamaño de la
+            sección; `priority` la carga primero porque es lo primero que se ve. */}
+        <Image
+          src="/hero-terraza.jpg"
+          alt="Terraza de Como en Casa de noche, con luces y mesas decoradas"
+          fill
+          priority
+          sizes="100vw"
+          // Celular: encuadre a la izquierda (object-[15%_center]) para que se vean
+          // las luces, los globos y el letrero BABY. Computador: foto centrada.
+          className="-z-20 object-cover object-[15%_center] md:object-center"
+        />
+        {/* Capa oscura para que el texto blanco se lea:
+            - Celular: degradado de abajo hacia arriba. Arriba queda casi limpio
+              (las luces brillan) y abajo oscuro, donde va el texto.
+            - Computador: degradado de izquierda a derecha, como antes. */}
+        <div
+          aria-hidden
+          className="absolute inset-0 -z-10 bg-gradient-to-t from-black/90 via-black/45 to-black/0 md:bg-gradient-to-r md:from-black/75 md:via-black/45 md:to-black/10"
+        />
 
-          <h1 className="cec-display mt-6 text-[clamp(3rem,7.5vw,6rem)]">
-            {["Como", "en", "Casa"].map((word, i) => (
-              <span
-                key={word}
-                className="cec-rise mr-[0.22em]"
-                style={{ "--d": `${120 + i * 140}ms` } as React.CSSProperties}
+        {/* Celular: alto casi completo y texto pegado abajo (content-end) para
+            dejar arriba el espacio a las luces. Computador: centrado. */}
+        <div className="mx-auto grid min-h-[86svh] max-w-6xl content-end items-center gap-14 px-4 pb-14 pt-14 sm:px-6 md:min-h-[78svh] md:content-center md:grid-cols-[1.15fr_1fr] md:pb-24 md:pt-20 lg:px-8">
+          <div>
+            <Eyebrow className="text-white/75">Café y repostería en Bello</Eyebrow>
+
+            <h1 className="cec-display mt-6 text-[clamp(3rem,7.5vw,6rem)] drop-shadow-[0_2px_12px_rgba(0,0,0,0.35)]">
+              {["Como", "en", "Casa"].map((word, i) => (
+                <span
+                  key={word}
+                  className="cec-rise mr-[0.22em]"
+                  style={{ "--d": `${120 + i * 140}ms` } as React.CSSProperties}
+                >
+                  {word}
+                </span>
+              ))}
+            </h1>
+
+            <p className="mt-7 max-w-sm text-lg leading-relaxed text-white/85">
+              Tu casita en Bello para un buen café, algo dulce y celebrar lo que sea.
+            </p>
+
+            <div className="mt-10 flex flex-wrap items-center gap-6">
+              <Link
+                href="/momentos"
+                className="cec-pop-btn inline-flex h-12 items-center gap-2 rounded-full bg-[#f4f1ec] px-7 text-base font-bold text-cec-ink hover:bg-white"
               >
-                {word}
-              </span>
-            ))}
-          </h1>
-
-          <p className="mt-7 max-w-sm text-lg leading-relaxed text-cec-ink-soft">
-            Tu casita en Bello para un buen café, algo dulce y celebrar lo que sea.
-          </p>
-
-          <div className="mt-10 flex flex-wrap items-center gap-6">
-            <Link
-              href="/momentos"
-              className="cec-pop-btn inline-flex h-12 items-center gap-2 rounded-full bg-[#f4f1ec] px-7 text-base font-bold text-cec-ink hover:bg-white"
-            >
-              Ver momentos
-              <ArrowRight className="cec-nudge size-4" strokeWidth={2.5} />
-            </Link>
-            <Link href="/carta" className="group inline-flex items-center gap-2 text-sm font-medium">
-              <span className="cec-link">Ver carta</span>
-              <ArrowRight className="cec-arrow size-4" />
-            </Link>
+                Ver momentos
+                <ArrowRight className="cec-nudge size-4" strokeWidth={2.5} />
+              </Link>
+              <Link href="/carta" className="group inline-flex items-center gap-2 text-sm font-medium text-white">
+                <span className="cec-link">Ver carta</span>
+                <ArrowRight className="cec-arrow size-4" />
+              </Link>
+            </div>
           </div>
-        </div>
 
-        {/* Logo completo: círculo negro + contorno fino desplazado
-            (da profundidad sin recurrir a sombras duras). */}
-        <div className="cec-spin-hover relative mx-auto aspect-square w-full max-w-[440px]">
-          {/* Círculo de "sombra" sólido: mismo lenguaje pop del resto de la web */}
-          <div className="absolute inset-0 translate-x-3 translate-y-3 rounded-full bg-cec-ink/85" />
-          <div className="absolute inset-0 grid place-items-center rounded-full bg-cec-ink">
-            <LogoFull spin className="w-[82%] text-white" />
+          {/* Logo completo: círculo negro con borde blanco fino para que se
+              despegue de la foto oscura. Se oculta en celular para que la
+              foto respire y el texto quede protagonista. */}
+          <div className="cec-spin-hover relative mx-auto hidden aspect-square w-full max-w-[400px] md:block">
+            <div className="absolute inset-0 grid place-items-center rounded-full border-[1.5px] border-white/70 bg-cec-ink/90 shadow-[8px_8px_0_0_rgba(255,255,255,0.85)] backdrop-blur-sm">
+              <LogoFull spin className="w-[82%] text-white" />
+            </div>
           </div>
         </div>
       </section>
