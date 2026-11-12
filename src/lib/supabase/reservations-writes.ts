@@ -46,6 +46,17 @@ export async function uploadReservationFile(
   return path;
 }
 
+/**
+ * URL pública de la foto de la tarjeta (el bucket reservation-photos es
+ * público, ver migración 20261112_fotos_tarjeta_publicas.sql).
+ * getPublicUrl no hace petición a la red: solo arma la URL.
+ */
+export function getPublicPhotoUrl(path: string): string | null {
+  const supabase = createBrowserSupabase();
+  if (!supabase) return null;
+  return supabase.storage.from("reservation-photos").getPublicUrl(path).data.publicUrl;
+}
+
 export async function createReservation(
   payload: CreateReservationPayload
 ): Promise<boolean> {

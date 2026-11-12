@@ -7,10 +7,11 @@ import { Eyebrow, LogoMark } from "@/components/public/decor";
 import { Reveal } from "@/components/public/reveal";
 import { cn } from "@/lib/utils";
 import { getTodayColombiaDate, parseDateOnly } from "@/lib/mock-data";
-import { BUSINESS_WHATSAPP, OPENING_HOURS } from "@/lib/public-info";
+import { OPENING_HOURS, RESERVATIONS_WHATSAPP as RESERVATIONS_NUMBER } from "@/lib/public-info";
 import type { CelebrationPackage, PackageVariant } from "@/lib/supabase/packages";
 import {
   createReservation,
+  getPublicPhotoUrl,
   uploadReservationFile,
 } from "@/lib/supabase/reservations-writes";
 
@@ -97,7 +98,7 @@ const ACCENTS = ["bg-cec-blush", "bg-cec-sky", "bg-cec-sage", "bg-cec-lilac"];
 // (un chat roto) justo en el paso que cierra la venta. Ahora usa el WhatsApp
 // oficial del negocio, y la variable queda solo como override opcional.
 const RESERVATIONS_WHATSAPP =
-  process.env.NEXT_PUBLIC_LINA_WHATSAPP_NUMBER || BUSINESS_WHATSAPP;
+  process.env.NEXT_PUBLIC_LINA_WHATSAPP_NUMBER || RESERVATIONS_NUMBER;
 
 /** "2026-11-15" → "sábado 15/11/2026" (sin depender de la zona del dispositivo). */
 function fmtDateLong(iso: string): string {
@@ -147,7 +148,8 @@ function buildWhatsAppUrl(
   pkg: CelebrationPackage,
   variant: PackageVariant,
   form: FormState,
-  code: string
+  code: string,
+  photoUrl: string | null
 ): string {
   const lines = [
     "¡Hola, Como en Casa! 🎉 Acabo de hacer una reserva en la web.",
@@ -165,7 +167,9 @@ function buildWhatsAppUrl(
   }
   if (form.decorationColor) lines.push(`*Color:* ${form.decorationColor}`);
   if (form.cardMessage) lines.push(`*Mensaje para la tarjeta:* "${form.cardMessage}"`);
-  if (form.cardPhotoFile) lines.push("*Foto para la tarjeta:* la subí en la web ✅");
+  // wa.me no deja adjuntar archivos: mandamos el link a la foto para que
+  // Lina la abra desde el chat sin entrar al admin.
+  if (photoUrl) lines.push(`*Foto para la tarjeta:* ${photoUrl}`);
   if (form.observations) lines.push(`*Notas:* ${form.observations}`);
   lines.push("", "¿Me confirman disponibilidad y cómo hago el pago? 🙌");
   return `https://wa.me/${RESERVATIONS_WHATSAPP}?text=${encodeURIComponent(lines.join("\n"))}`;
@@ -425,6 +429,7 @@ export function MomentosClient({
   const [success, setSuccess] = useState(false);
   // Código corto que viaja en el mensaje de WhatsApp para ubicar la reserva en el admin
   const [code, setCode] = useState("");
+  const [photoUrl, setPhotoUrl] = useState<string | null>(null);
 
   // Vista previa de la foto. createObjectURL crea una URL temporal en memoria;
   // useMemo evita crear una nueva en cada render y el efecto la libera
@@ -447,6 +452,7 @@ export function MomentosClient({
     setSelectedPkg(pkg);
     setSelectedVariant(variant);
     setForm(EMPTY_FORM);
+    setPhotoUrl(null);
     setError(null);
     setSuccess(false);
     setLoading(false);
@@ -494,6 +500,7 @@ export function MomentosClient({
         return;
       }
       cardPhotoPath = path;
+      setPhotoUrl(getPublicPhotoUrl(path));
     }
 
     // Generamos el id aquí para poder mostrar el código sin leer la BD
@@ -641,7 +648,7 @@ export function MomentosClient({
                   Falta un último paso: envíanos el mensaje por WhatsApp. Ya va con todos tus datos, solo dale <b>enviar</b>.
                 </p>
                 <a
-                  href={buildWhatsAppUrl(selectedPkg!, selectedVariant!, form, code)}
+                  href={buildWhatsAppUrl(selectedPkg!, selectedVariant!, form, code, photoUrl)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="cec-pop-btn mt-6 flex h-14 w-full items-center justify-center gap-2 rounded-full bg-[#f4f1ec] px-4 text-lg font-bold text-cec-ink hover:bg-white"

@@ -3,10 +3,15 @@
 // duplicarlos ahora que el footer también los muestra.
 // Contacto actualizado a la línea nueva de WhatsApp del negocio.
 
-// WhatsApp oficial del negocio ("Como En Casa New").
+// WhatsApp ÚNICO del negocio: +57 310 848 2320 (nov 2026).
+// Lo usan todos los botones de la web (Inicio, footer, íconos) y las reservas.
 // Formato wa.me: código de país + número, sin "+", espacios ni guiones.
-export const BUSINESS_WHATSAPP = "573044907873";
+// Si el número cambia, se cambia SOLO aquí.
+export const BUSINESS_WHATSAPP = "573108482320";
 export const WHATSAPP_URL = `https://wa.me/${BUSINESS_WHATSAPP}`;
+
+// Alias para el formulario de reservas (mismo número).
+export const RESERVATIONS_WHATSAPP = BUSINESS_WHATSAPP;
 
 export const SCHEDULE = [
   { day: "Lunes a jueves", hours: "4:30 p.m. – 9:00 p.m." },
