@@ -50,9 +50,9 @@ export const metadata: Metadata = {
     siteName: "Como en Casa",
     title: "Como en Casa · Café, comida y repostería en Bello",
     description: DESCRIPTION,
-    images: [{ url: "/og-como-en-casa-terraza.jpg", width: 1200, height: 630, alt: "Bebidas de Como en Casa en la terraza con luces" }],
+    images: [{ url: "/og-como-en-casa-postres.jpg", width: 1200, height: 630, alt: "Cheesecake, café y macarons en Como en Casa" }],
   },
-  twitter: { card: "summary_large_image", images: ["/og-como-en-casa-terraza.jpg"] },
+  twitter: { card: "summary_large_image", images: ["/og-como-en-casa-postres.jpg"] },
 };
 
 export default function PublicLayout({ children }: { children: React.ReactNode }) {
