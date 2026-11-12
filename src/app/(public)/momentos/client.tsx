@@ -76,11 +76,11 @@ function FieldLabel({
 }
 
 const inputClass =
-  "h-11 w-full rounded-2xl border border-cec-ink/15 bg-white px-3.5 text-base text-cec-ink outline-none transition-colors focus:border-cec-ink/60";
+  "h-11 w-full rounded-2xl border-[1.5px] border-cec-ink/20 bg-white px-3.5 text-base text-cec-ink outline-none transition-colors focus:border-cec-ink/60";
 
 // Clase compartida para los textarea (antes estaba repetida inline).
 const textareaClass =
-  "w-full resize-none rounded-2xl border border-cec-ink/15 bg-white px-3.5 py-2.5 text-base text-cec-ink outline-none transition-colors focus:border-cec-ink/60";
+  "w-full resize-none rounded-2xl border-[1.5px] border-cec-ink/20 bg-white px-3.5 py-2.5 text-base text-cec-ink outline-none transition-colors focus:border-cec-ink/60";
 
 // Paleta que rota entre tarjetas de momentos (son las que venden → llevan color).
 const ACCENTS = ["bg-cec-blush", "bg-cec-sky", "bg-cec-sage", "bg-cec-lilac"];
@@ -505,7 +505,7 @@ export function MomentosClient({
             aria-modal="true"
             aria-label={`Reservar ${selectedPkg!.name}`}
             className={[
-              "cec fixed z-50 overflow-y-auto bg-white shadow-2xl",
+              "cec cec-pop-box fixed z-50 overflow-y-auto bg-white",
               "inset-x-0 bottom-0 max-h-[92svh] rounded-t-[30px] px-5 pt-4",
               "pb-[calc(env(safe-area-inset-bottom)+20px)]",
               "sm:inset-x-auto sm:left-1/2 sm:right-auto sm:bottom-auto sm:top-1/2",
@@ -560,7 +560,7 @@ export function MomentosClient({
                   href={buildWhatsAppUrl(selectedPkg!, selectedVariant!, form)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mt-5 flex h-12 w-full items-center justify-center rounded-full bg-cec-ink px-4 text-sm font-medium text-white transition-colors hover:bg-neutral-700"
+                  className="cec-pop-btn mt-5 flex h-12 w-full items-center justify-center rounded-full bg-[#f4f1ec] px-4 text-base font-bold text-cec-ink hover:bg-white"
                 >
                   Continuar por WhatsApp
                 </a>
@@ -728,7 +728,7 @@ export function MomentosClient({
                 <button
                   type="submit"
                   disabled={loading}
-                  className="flex h-12 w-full items-center justify-center rounded-full bg-cec-ink text-sm font-medium text-white transition-colors hover:bg-neutral-700 disabled:opacity-50"
+                  className="cec-pop-btn flex h-12 w-full items-center justify-center rounded-full bg-[#f4f1ec] text-base font-bold text-cec-ink hover:bg-white disabled:opacity-50"
                 >
                   {loading ? "Enviando…" : "Enviar solicitud"}
                 </button>

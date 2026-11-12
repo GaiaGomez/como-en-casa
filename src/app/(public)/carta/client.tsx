@@ -114,7 +114,7 @@ export function CartaClient({ sections }: { sections: MenuSection[] }) {
         <div className="mx-auto max-w-6xl px-4 py-3.5 sm:px-6 lg:px-8">
           <div className="flex items-center gap-3">
             {/* Selector Comer / Beber */}
-            <div className="cec-cond flex rounded-full border border-cec-ink p-[3px] text-[13px] font-semibold tracking-[0.18em]" role="tablist" aria-label="Tipo de carta">
+            <div className="cec-cond cec-pop-sm flex rounded-full bg-[#f4efe8] p-[3px] text-[13px] font-semibold tracking-[0.18em]" role="tablist" aria-label="Tipo de carta">
               {(["comer", "beber"] as const).map((k) => (
                 <button
                   key={k}
@@ -139,7 +139,7 @@ export function CartaClient({ sections }: { sections: MenuSection[] }) {
                 type="search"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Busca un plato, bebida o ingrediente…"
+                placeholder="¿Qué se te antoja hoy?"
                 className="w-full bg-transparent text-base outline-none placeholder:text-cec-ink/45 sm:text-sm [&::-webkit-search-cancel-button]:hidden"
                 aria-label="Buscar en la carta"
               />
@@ -179,7 +179,7 @@ export function CartaClient({ sections }: { sections: MenuSection[] }) {
       {/* ═══ Escenas con foto de fondo ═══ */}
       {scenes.length === 0 ? (
         <p className="mx-auto max-w-6xl px-4 py-24 text-center text-cec-ink-soft">
-          No encontramos “{query}” en la carta.{" "}
+          Uy, no encontramos “{query}”.{" "}
           <button type="button" onClick={() => setQuery("")} className="cec-link font-medium text-cec-ink">
             Ver toda la carta
           </button>

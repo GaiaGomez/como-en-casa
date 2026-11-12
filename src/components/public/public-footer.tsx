@@ -14,6 +14,7 @@ export function PublicFooter() {
         <LogoFull spin className="size-40 text-white sm:size-48" />
 
         <div className="space-y-1 text-sm text-white/75">
+          <p className="cec-display pb-3 text-2xl text-white">Te esperamos con el café listo.</p>
           <p className="font-medium text-white">{ADDRESS.line1}</p>
           <p>{ADDRESS.line2}</p>
           <SocialLinks instagramUrl={INSTAGRAM_URL} whatsappUrl={WHATSAPP_URL} tone="light" className="pt-4" />

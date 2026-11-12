@@ -32,7 +32,7 @@ export function PublicHeader() {
           <LogoMark className="h-12 text-black sm:h-14" />
         </Link>
 
-        <nav className="flex items-center gap-1 rounded-full border border-cec-ink/15 bg-white p-1">
+        <nav className="cec-pop-sm flex items-center gap-1 rounded-full bg-white p-1">
           {navLinks.map((link) => {
             const active =
               link.href === "/" ? pathname === "/" : pathname.startsWith(link.href);

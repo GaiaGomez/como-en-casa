@@ -32,10 +32,10 @@ export default function CartaPage() {
         </div>
         <div className="max-w-sm md:justify-self-end">
           <p className="text-lg leading-relaxed text-cec-ink-soft">
-            Explora nuestros cafés, postres y opciones para compartir.
+            Café, postres, brunch y más. Busca lo que se te antoja.
           </p>
           <a href={MENU_PDF_URL} download className="group mt-5 inline-flex items-center gap-2 text-sm font-medium">
-            <span className="cec-link">Descargar carta en PDF</span>
+            <span className="cec-link">Descárgala en PDF</span>
             <ArrowDown className="size-4 transition-transform group-hover:translate-y-0.5" />
           </a>
         </div>

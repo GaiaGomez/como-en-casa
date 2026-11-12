@@ -136,8 +136,8 @@ const DETAILS: Record<string, PackageDetails> = {
     priceLabel: "Desde $130.000",
     servingsLabel: "",
     variants: [
-      { label: "1 a 5 personas", priceLabel: "$130.000" },
-      { label: "1 a 12 personas", priceLabel: "$220.000" },
+      { label: "1 a 5 porciones", priceLabel: "$130.000" },
+      { label: "1 a 12 porciones", priceLabel: "$220.000" },
     ],
     images: photos("momento-como-en-casa", 7),
     includes: [

@@ -18,20 +18,20 @@ const ACTIONS: { href: string; external?: boolean; title: string; text: string; 
   {
     href: "/momentos",
     title: "Momentos especiales",
-    text: "Celebra cumpleaños, aniversarios y más con decoración y torta personalizada.",
+    text: "Cumple, aniversario o porque sí: te armamos la mesa, la torta y los globos.",
     bg: "bg-cec-blush",
   },
   {
     href: "/carta",
     title: "Nuestra carta",
-    text: "Cafés, postres, bebidas y opciones para compartir.",
+    text: "Café, postres, brunch y algo rico para compartir.",
     bg: "bg-cec-sky",
   },
   {
     href: WHATSAPP_URL,
     external: true,
     title: "Escríbenos",
-    text: "Cuéntanos qué necesitas por WhatsApp.",
+    text: "¿Tienes una idea o una pregunta? Háblanos por WhatsApp.",
     bg: "bg-cec-sage",
   },
 ];
@@ -44,7 +44,7 @@ export default function HomePage() {
           y el logo completo con el anillo girando lento. */}
       <section className="mx-auto grid max-w-6xl items-center gap-14 px-4 pb-24 pt-12 sm:px-6 md:grid-cols-[1.15fr_1fr] md:pt-20 lg:px-8">
         <div>
-          <Eyebrow>Café y repostería fina en Bello.</Eyebrow>
+          <Eyebrow>Café y repostería en Bello</Eyebrow>
 
           <h1 className="cec-display mt-6 text-[clamp(3rem,7.5vw,6rem)]">
             {["Como", "en", "Casa"].map((word, i) => (
@@ -59,16 +59,16 @@ export default function HomePage() {
           </h1>
 
           <p className="mt-7 max-w-sm text-lg leading-relaxed text-cec-ink-soft">
-            Un lugar para celebrar, compartir algo dulce y disfrutar momentos especiales.
+            Tu casita en Bello para un buen café, algo dulce y celebrar lo que sea.
           </p>
 
           <div className="mt-10 flex flex-wrap items-center gap-6">
             <Link
               href="/momentos"
-              className="group inline-flex h-12 items-center gap-3 rounded-full bg-cec-ink px-7 text-sm font-medium text-white transition-colors hover:bg-neutral-800"
+              className="cec-pop-btn inline-flex h-12 items-center gap-2 rounded-full bg-[#f4f1ec] px-7 text-base font-bold text-cec-ink hover:bg-white"
             >
               Ver momentos
-              <ArrowRight className="cec-arrow size-4" />
+              <ArrowRight className="cec-nudge size-4" strokeWidth={2.5} />
             </Link>
             <Link href="/carta" className="group inline-flex items-center gap-2 text-sm font-medium">
               <span className="cec-link">Ver carta</span>
@@ -80,7 +80,8 @@ export default function HomePage() {
         {/* Logo completo: círculo negro + contorno fino desplazado
             (da profundidad sin recurrir a sombras duras). */}
         <div className="cec-spin-hover relative mx-auto aspect-square w-full max-w-[440px]">
-          <div className="absolute inset-0 translate-x-4 translate-y-4 rounded-full border border-cec-ink/25" />
+          {/* Círculo de "sombra" sólido: mismo lenguaje pop del resto de la web */}
+          <div className="absolute inset-0 translate-x-3 translate-y-3 rounded-full bg-cec-ink/85" />
           <div className="absolute inset-0 grid place-items-center rounded-full bg-cec-ink">
             <LogoFull spin className="w-[82%] text-white" />
           </div>
@@ -91,13 +92,16 @@ export default function HomePage() {
       <section className="border-t border-cec-ink/10">
         <div className="mx-auto max-w-6xl px-4 py-24 sm:px-6 lg:px-8">
           <Reveal>
-            <h2 className="cec-display text-4xl sm:text-5xl">¿Qué quieres hacer?</h2>
+            <h2 className="cec-display text-4xl sm:text-5xl">¿Qué plan tienes?</h2>
           </Reveal>
 
           <div className="mt-12 grid gap-5 sm:grid-cols-3">
             {ACTIONS.map((a, i) => {
               const card = (
-                <div className={`cec-card group flex h-full min-h-[300px] flex-col rounded-[22px] p-7 ${a.bg}`}>
+                <div
+                  className={`cec-pop-card group flex h-full min-h-[260px] flex-col rounded-[22px] p-7 ${a.bg}`}
+                  style={{ "--tilt": i % 2 === 0 ? "-0.8deg" : "0.8deg" } as React.CSSProperties}
+                >
                   <div className="flex items-start justify-between">
                     <span className="text-xs font-medium tracking-[0.2em] text-cec-ink/50">
                       0{i + 1}
@@ -112,7 +116,12 @@ export default function HomePage() {
               );
 
               return (
-                <Reveal key={a.title} delay={i * 120}>
+                <Reveal
+                  key={a.title}
+                  delay={i * 120}
+                  className="cec-reveal-tilt h-full"
+                  style={{ "--enter-tilt": i % 2 === 0 ? "-2deg" : "2deg" } as React.CSSProperties}
+                >
                   {a.external ? (
                     <a href={a.href} target="_blank" rel="noopener noreferrer" className="block h-full">
                       {card}
@@ -135,11 +144,11 @@ export default function HomePage() {
           Antes el mapa vivía en la columna derecha y estiraba el
           bloque negro, dejando un hueco vacío. */}
       <section className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-        <Reveal className="overflow-hidden rounded-[28px] border border-cec-ink/10">
+        <Reveal className="cec-pop-box overflow-hidden rounded-[28px]">
           <div className="grid md:grid-cols-2">
             {/* Horarios */}
             <div className="bg-cec-ink p-8 text-white sm:p-10">
-              <Eyebrow className="text-white/60">Horarios</Eyebrow>
+              <Eyebrow className="text-white/60">Cuándo venir</Eyebrow>
               <ul className="mt-6">
                 {SCHEDULE.map((s) => (
                   <li
@@ -168,7 +177,7 @@ export default function HomePage() {
                   rel="noopener noreferrer"
                   className="group inline-flex items-center gap-2 text-sm font-medium"
                 >
-                  <span className="cec-link">Abrir en Google Maps</span>
+                  <span className="cec-link">Cómo llegar</span>
                   <ArrowUpRight className="size-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
                 </a>
               </div>
@@ -183,7 +192,7 @@ export default function HomePage() {
             title="Mapa: Como en Casa, Carrera 49 # 54-47, Bello"
             loading="lazy"
             referrerPolicy="no-referrer-when-downgrade"
-            className="block h-72 w-full border-t border-cec-ink/10 grayscale transition-[filter] duration-500 hover:grayscale-0 sm:h-80"
+            className="block h-72 w-full border-t-[1.5px] border-cec-ink grayscale transition-[filter] duration-500 hover:grayscale-0 sm:h-80"
           />
         </Reveal>
       </section>

@@ -262,6 +262,18 @@
    así parece que se "hunde" como un botón físico.
    ═══════════════════════════════════════════════════════════════ */
 
+/* Caja pop estática (sin movimiento al hover): bloques grandes como
+   "Visítanos", el modal de reserva, etc. */
+.cec-pop-box {
+  border: 1.5px solid var(--color-cec-ink);
+  box-shadow: 6px 6px 0 0 var(--color-cec-ink);
+}
+/* Versión chiquita para controles (nav, selector Comer/Beber) */
+.cec-pop-sm {
+  border: 1.5px solid var(--color-cec-ink);
+  box-shadow: 3px 3px 0 0 var(--color-cec-ink);
+}
+
 /* Tarjeta: entra girada levemente y se endereza; al hover se levanta
    e inclina hacia un lado (alternado con --tilt desde el componente). */
 .cec-pop-card {
