@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { ChevronDown, ChevronLeft, ChevronRight, X } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight, X } from "lucide-react";
 
 import { Eyebrow, LogoMark } from "@/components/public/decor";
 import { Reveal } from "@/components/public/reveal";
@@ -149,7 +149,9 @@ function PhotoCarousel({ images }: { images: string[] }) {
   }
 
   return (
-    <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-white/60">
+    // 4/5 (vertical): casi todas las fotos de los momentos son verticales;
+    // con 4/3 se recortaban arriba y abajo y se perdían globos o torta.
+    <div className="relative aspect-[4/5] overflow-hidden rounded-2xl bg-white/60">
       {errors.has(idx) ? (
         // Placeholder ilustrado mientras no estén las fotos reales
         <div className="flex h-full items-center justify-center">
@@ -162,7 +164,7 @@ function PhotoCarousel({ images }: { images: string[] }) {
           key={images[idx]}
           src={images[idx]}
           alt=""
-          className="h-full w-full object-cover animate-in fade-in duration-500"
+          className="cec-photo cec-photo-in h-full w-full object-cover"
           onError={() => markError(idx)}
         />
       )}
@@ -195,6 +197,27 @@ function PhotoCarousel({ images }: { images: string[] }) {
 }
 
 // ─── Package card ─────────────────────────────────────────────
+// Rediseño: todo visible de una (sin "Ver detalles"). Orden pensado para
+// vender: qué es → fotos → qué incluye → elegir opción → botón "Reservar".
+// Las opciones ahora se SELECCIONAN (como radio buttons) y hay un único botón
+// de acción claro, en vez de que cada opción fuera un botón que abría la reserva.
+
+// Agrupa variantes con formato "Sabor · Tamaño" por tamaño.
+// Ej: "Chocolate · 10 a 15 porciones" → grupo "10 a 15 porciones", texto "Chocolate".
+// Si ninguna trae " · ", devuelve un solo grupo sin título (comportamiento normal).
+function groupVariants(variants: PackageVariant[]) {
+  const SEP = " · ";
+  if (!variants.some((v) => v.label.includes(SEP))) {
+    return [{ title: null as string | null, items: variants.map((v) => ({ variant: v, text: v.label })) }];
+  }
+  const groups = new Map<string, { variant: PackageVariant; text: string }[]>();
+  for (const v of variants) {
+    const [text, title = ""] = v.label.split(SEP);
+    if (!groups.has(title)) groups.set(title, []);
+    groups.get(title)!.push({ variant: v, text });
+  }
+  return [...groups].map(([title, items]) => ({ title: title as string | null, items }));
+}
 
 function PackageCard({
   pkg,
@@ -206,18 +229,20 @@ function PackageCard({
   onReserve: (pkg: CelebrationPackage, variant: PackageVariant) => void;
 }) {
   const accent = ACCENTS[index % ACCENTS.length];
-  const [expanded, setExpanded] = useState(false);
-  const hasDetails = pkg.includes.length > 0 || pkg.conditions.length > 0;
-  const showPortionHelper = pkg.variants.some((v) =>
-    v.label.toLowerCase().includes("porciones")
-  );
+  // Opción elegida dentro de la tarjeta. Por defecto, la primera (la más económica).
+  const [selected, setSelected] = useState<PackageVariant | undefined>(pkg.variants[0]);
+  const hasOptions = pkg.variants.length > 1;
 
   return (
-    <div className={cn("cec-card flex h-full flex-col rounded-[22px] p-6", accent)}>
-      {/* 1–2. Header block */}
-      <div className="flex items-start justify-between gap-3 pb-4">
+    <div
+      className={cn("cec-pop-card flex flex-col rounded-[22px] p-6", accent)}
+      // Inclinación al hover alternada (izq/der) para que la grilla se sienta viva
+      style={{ "--tilt": index % 2 === 0 ? "-0.8deg" : "0.8deg" } as React.CSSProperties}
+    >
+      {/* 1. Nombre + descripción */}
+      <div className="flex items-start justify-between gap-3">
         <div>
-          <h2 className="cec-display text-[1.85rem]">{pkg.name}</h2>
+          <h2 className="cec-display text-[1.85rem] leading-tight">{pkg.name}</h2>
           <p className="mt-2 text-sm leading-relaxed text-cec-ink/75">{pkg.description}</p>
         </div>
         <span className="shrink-0 pt-2 text-xs font-medium tracking-[0.2em] text-cec-ink/45">
@@ -225,112 +250,110 @@ function PackageCard({
         </span>
       </div>
 
-      {/* 3. Carousel */}
+      {/* 2. Fotos */}
       {pkg.images.length > 0 && (
         <div className="mt-4">
           <PhotoCarousel images={pkg.images} />
         </div>
       )}
 
-      {/* 4–5. Options */}
-      <div className="mt-4">
-        <p className="text-[11px] font-medium uppercase tracking-[0.24em] text-cec-ink/60">
-          Opciones disponibles
-        </p>
-        <div className="mt-2 space-y-2">
-          {pkg.variants.map((v) => (
-            <button
-              key={v.label}
-              type="button"
-              onClick={() => onReserve(pkg, v)}
-              className="group flex w-full items-center justify-between gap-3 rounded-full bg-cec-ink py-2 pl-5 pr-2 text-sm text-white transition-colors hover:bg-neutral-700"
-            >
-              <span className="font-medium">{v.label}</span>
-              <span className="flex shrink-0 items-center gap-2">
-                <span className="cec-display text-lg">{v.priceLabel}</span>
-                <span className="grid size-8 place-items-center rounded-full bg-white text-cec-ink transition-transform duration-300 group-hover:rotate-90">
-                  <ChevronRight className="size-4" />
-                </span>
-              </span>
-            </button>
-          ))}
+      {/* 3. Qué incluye — siempre visible */}
+      {pkg.includes.length > 0 && (
+        <div className="mt-5">
+          <p className="text-[11px] font-medium uppercase tracking-[0.24em] text-cec-ink/60">
+            Incluye
+          </p>
+          <ul className="cec-stagger mt-2 space-y-1.5">
+            {pkg.includes.map((item, i) => (
+              <li
+                key={item}
+                className="flex items-start gap-2 text-sm leading-snug text-cec-ink"
+                style={{ "--i": i } as React.CSSProperties}
+              >
+                <Check className="cec-check mt-0.5 size-3.5 shrink-0" aria-hidden />
+                {item}
+              </li>
+            ))}
+          </ul>
         </div>
+      )}
 
-        {/* 5. Helper text — only for packages with porciones */}
-        {showPortionHelper && (
-          <p className="mt-2 text-xs text-cec-ink/60">
-            Las porciones corresponden al tamaño de la torta.
+      <div className="pt-5">
+        {/* 4. Opciones: siempre visibles (con una sola opción también, así el
+            precio vive aquí y el botón solo dice "Reservar") */}
+        {pkg.variants.length > 0 && (
+          <fieldset>
+            <legend className="text-[11px] font-medium uppercase tracking-[0.24em] text-cec-ink/60">
+              {hasOptions ? "Elige tu opción" : "Tu opción"}
+            </legend>
+            {/* Si las opciones vienen como "Sabor · Tamaño", se agrupan por tamaño
+                para que una lista larga (ej. 10 tortas) sea fácil de leer. */}
+            <div className="mt-2 space-y-3" role="radiogroup">
+              {groupVariants(pkg.variants).map((group) => (
+                <div key={group.title ?? "all"}>
+                  {group.title && (
+                    <p className="mb-1.5 text-xs font-medium text-cec-ink/70">{group.title}</p>
+                  )}
+                  <div className="space-y-1.5">
+                    {group.items.map(({ variant: v, text }) => {
+                      const isActive = selected?.label === v.label;
+                      return (
+                        <button
+                          key={v.label}
+                          type="button"
+                          role="radio"
+                          aria-checked={isActive}
+                          onClick={() => setSelected(v)}
+                          className={cn(
+                            "cec-pop-option flex w-full items-center justify-between gap-3 rounded-xl border-[1.5px] px-3.5 py-2 text-left text-sm",
+                            isActive
+                              ? "border-cec-ink bg-white text-cec-ink"
+                              : "border-cec-ink/20 bg-white/50 text-cec-ink/80 hover:border-cec-ink/50 hover:bg-white/80"
+                          )}
+                        >
+                          <span className="flex items-center gap-2.5">
+                            {/* círculo tipo radio */}
+                            <span
+                              className={cn(
+                                "grid size-4 shrink-0 place-items-center rounded-full border",
+                                isActive ? "border-cec-ink" : "border-cec-ink/30"
+                              )}
+                            >
+                              {isActive && <span className="cec-dot size-2 rounded-full bg-cec-ink" />}
+                            </span>
+                            <span className={isActive ? "font-medium" : ""}>{text}</span>
+                          </span>
+                          <span className="shrink-0 font-medium">{v.priceLabel}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </fieldset>
+        )}
+
+        {/* 5. Botón principal — estilo pop (borde + sombra sólida). Sin precio:
+            ya se ve arriba en la opción seleccionada. */}
+        {selected && (
+          <button
+            type="button"
+            onClick={() => onReserve(pkg, selected)}
+            className="cec-pop-btn mt-5 flex w-full items-center justify-center gap-2 rounded-full bg-[#f4f1ec] px-6 py-3 text-cec-ink hover:bg-white"
+          >
+            <span className="text-lg font-bold tracking-wide">Reservar</span>
+            <ChevronRight className="cec-nudge size-5" strokeWidth={2.5} aria-hidden />
+          </button>
+        )}
+
+        {/* 6. Condiciones — pequeñas, siempre visibles */}
+        {pkg.conditions.length > 0 && (
+          <p className="mt-3 text-center text-[11px] leading-relaxed text-cec-ink/55">
+            {pkg.conditions.join(" · ")}
           </p>
         )}
       </div>
-
-      {/* 6. Ver detalles toggle */}
-      {hasDetails && (
-        <button
-          type="button"
-          onClick={() => setExpanded((v) => !v)}
-          className="mt-4 flex w-fit items-center gap-1 text-xs font-medium uppercase tracking-[0.2em] text-cec-ink/70 hover:text-cec-ink"
-        >
-          <ChevronDown
-            className={cn(
-              "size-3.5 transition-transform duration-200",
-              expanded && "rotate-180"
-            )}
-          />
-          {expanded ? "Ocultar detalles" : "Ver detalles"}
-        </button>
-      )}
-
-      {/* 7. Expandable details — grid-rows for smooth animation */}
-      {hasDetails && (
-        <div
-          className={cn(
-            "grid transition-[grid-template-rows] duration-200 ease-in-out",
-            expanded ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
-          )}
-        >
-          <div className="overflow-hidden">
-            <div className="mt-3 space-y-3 rounded-2xl bg-white/70 p-4">
-              {pkg.includes.length > 0 && (
-                <div>
-                  <p className="text-[11px] font-medium uppercase tracking-[0.24em] text-cec-ink/60">
-                    Incluye
-                  </p>
-                  <ul className="mt-1.5 space-y-1">
-                    {pkg.includes.map((item) => (
-                      <li
-                        key={item}
-                        className="flex items-start gap-2 text-sm text-cec-ink"
-                      >
-                        <span className="mt-0.5 shrink-0 text-[10px] text-cec-ink">✦</span>
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-              {pkg.conditions.length > 0 && (
-                <div>
-                  <p className="text-[11px] font-medium uppercase tracking-[0.24em] text-cec-ink/60">
-                    Condiciones
-                  </p>
-                  <ul className="mt-1.5 space-y-1">
-                    {pkg.conditions.map((item) => (
-                      <li
-                        key={item}
-                        className="flex items-start gap-2 text-sm text-cec-ink/70"
-                      >
-                        <span className="mt-0.5 shrink-0 text-[10px] text-cec-ink">✦</span>
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
@@ -377,7 +400,7 @@ export function MomentosClient({
     setLoading(true);
 
     if (form.cardPhotoFile && form.cardPhotoFile.size > MAX_FILE_BYTES) {
-      setError("La foto para tarjeta no puede superar 10 MB.");
+      setError("La foto pesa más de 10 MB. Prueba con una más liviana.");
       setLoading(false);
       return;
     }
@@ -387,7 +410,7 @@ export function MomentosClient({
     if (form.cardPhotoFile) {
       const path = await uploadReservationFile("reservation-photos", form.cardPhotoFile);
       if (!path) {
-        setError("No se pudo subir la foto para tarjeta. Intenta de nuevo.");
+        setError("No pudimos subir la foto. Intenta otra vez.");
         setLoading(false);
         return;
       }
@@ -415,7 +438,7 @@ export function MomentosClient({
     setLoading(false);
 
     if (!ok) {
-      setError("No se pudo registrar tu solicitud. Intenta de nuevo.");
+      setError("Algo falló al enviar tu solicitud. Intenta otra vez.");
       return;
     }
 
@@ -444,13 +467,22 @@ export function MomentosClient({
             <h1 className="cec-display mt-6 text-[clamp(2.8rem,7vw,5.5rem)]">Momentos</h1>
           </div>
           <p className="max-w-sm text-lg leading-relaxed text-cec-ink-soft md:justify-self-end">
-            Experiencias diseñadas para celebrar.
+            Tú pones el motivo; nosotros, la mesa, la torta y los globos.
           </p>
         </div>
 
-        <div className="mt-14 grid items-start gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        {/* Masonry con CSS columns: cada tarjeta mide lo que necesita su contenido
+            (sin huecos en blanco). `break-inside-avoid` evita que una tarjeta se
+            parta entre dos columnas; `mb-5` reemplaza el gap vertical del grid. */}
+        <div className="mt-14 columns-1 gap-5 sm:columns-2 lg:columns-3">
           {packages.map((pkg, i) => (
-            <Reveal key={pkg.id} delay={(i % 3) * 110}>
+            <Reveal
+              key={pkg.id}
+              delay={(i % 3) * 120}
+              // mb-6 deja lugar para la sombra sólida de 6px
+              className="cec-reveal-tilt mb-7 break-inside-avoid"
+              style={{ "--enter-tilt": i % 2 === 0 ? "-2deg" : "2deg" } as React.CSSProperties}
+            >
               <PackageCard pkg={pkg} index={i} onReserve={openSheet} />
             </Reveal>
           ))}
@@ -518,11 +550,11 @@ export function MomentosClient({
               <div className="mt-6 rounded-[22px] bg-cec-blush px-5 py-8 text-center">
                 <LogoMark className="mx-auto h-14 text-cec-ink" />
                 <h2 className="cec-display mt-4 text-3xl">
-                  ¡Solicitud recibida!
+                  ¡Ya casi!
                 </h2>
                 <p className="mt-2 text-sm text-cec-ink/80">
-                  Recibimos tu solicitud. Continúa por WhatsApp para coordinar
-                  el pago y confirmar disponibilidad con Lina.
+                  Ya tenemos tu solicitud. Escríbele a Lina por WhatsApp para
+                  confirmar la fecha y el pago.
                 </p>
                 <a
                   href={buildWhatsAppUrl(selectedPkg!, selectedVariant!, form)}
@@ -570,7 +602,7 @@ export function MomentosClient({
 
                 {/* Personas */}
                 <div className="space-y-1.5">
-                  <FieldLabel htmlFor="guest-count">Personas que asistirán</FieldLabel>
+                  <FieldLabel htmlFor="guest-count">¿Cuántas personas van?</FieldLabel>
                   <input
                     id="guest-count"
                     type="number"
@@ -585,7 +617,7 @@ export function MomentosClient({
 
                 {/* Nombre */}
                 <div className="space-y-1.5">
-                  <FieldLabel htmlFor="client-name">Nombre de quien reserva</FieldLabel>
+                  <FieldLabel htmlFor="client-name">Tu nombre</FieldLabel>
                   <input
                     id="client-name"
                     type="text"
@@ -598,7 +630,7 @@ export function MomentosClient({
 
                 {/* WhatsApp */}
                 <div className="space-y-1.5">
-                  <FieldLabel htmlFor="client-whatsapp">WhatsApp</FieldLabel>
+                  <FieldLabel htmlFor="client-whatsapp">Tu WhatsApp</FieldLabel>
                   <input
                     id="client-whatsapp"
                     type="tel"
@@ -612,7 +644,7 @@ export function MomentosClient({
 
                 {/* Homenajeado */}
                 <div className="space-y-1.5">
-                  <FieldLabel htmlFor="honoree-name" optional>Nombre del homenajeado</FieldLabel>
+                  <FieldLabel htmlFor="honoree-name" optional>¿A quién celebramos?</FieldLabel>
                   <input
                     id="honoree-name"
                     type="text"
@@ -642,7 +674,7 @@ export function MomentosClient({
 
                 {/* Mensaje */}
                 <div className="space-y-1.5">
-                  <FieldLabel htmlFor="card-message" optional>Mensaje para tarjeta</FieldLabel>
+                  <FieldLabel htmlFor="card-message" optional>Mensaje para la tarjeta</FieldLabel>
                   <textarea
                     id="card-message"
                     rows={3}
@@ -667,7 +699,7 @@ export function MomentosClient({
 
                 {/* Foto */}
                 <div className="space-y-1.5">
-                  <FieldLabel htmlFor="card-photo" optional>Foto para tarjeta</FieldLabel>
+                  <FieldLabel htmlFor="card-photo" optional>Foto para la tarjeta</FieldLabel>
                   <input
                     id="card-photo"
                     type="file"
@@ -681,7 +713,7 @@ export function MomentosClient({
 
                 {/* Observaciones */}
                 <div className="space-y-1.5">
-                  <FieldLabel htmlFor="observations" optional>Observaciones</FieldLabel>
+                  <FieldLabel htmlFor="observations" optional>¿Algo más que debamos saber?</FieldLabel>
                   <textarea
                     id="observations"
                     rows={3}
@@ -698,7 +730,7 @@ export function MomentosClient({
                   disabled={loading}
                   className="flex h-12 w-full items-center justify-center rounded-full bg-cec-ink text-sm font-medium text-white transition-colors hover:bg-neutral-700 disabled:opacity-50"
                 >
-                  {loading ? "Enviando…" : "Reservar momento"}
+                  {loading ? "Enviando…" : "Enviar solicitud"}
                 </button>
               </form>
             )}

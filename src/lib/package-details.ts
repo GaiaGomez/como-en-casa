@@ -1,6 +1,7 @@
-// Static marketing content for each celebration package.
-// Keyed by slug. This is the source of truth for all public card content.
-// Update here when prices, descriptions, or details change.
+// Contenido comercial de cada momento (paquete de celebración).
+// Indexado por slug. Es la fuente de verdad del contenido de las tarjetas públicas:
+// la base de datos (celebration_packages) solo aporta id, slug, nombre base y orden.
+// Si cambian precios, fotos o textos, se actualiza AQUÍ.
 
 export type PackageVariant = {
   label: string;
@@ -8,19 +9,22 @@ export type PackageVariant = {
 };
 
 export type PackageDetails = {
+  /** Nombre comercial. Si existe, reemplaza el `name` que viene de la BD. */
+  name?: string;
   description?: string;
   priceLabel: string;
   servingsLabel: string;
   variants: PackageVariant[];
+  /** Rutas dentro de /public. La primera es la portada de la tarjeta. */
   images: string[];
   includes: string[];
   conditions: string[];
 };
 
+// Condiciones: cortas y en 2 líneas (antes eran 3 que repetían la idea de "nada de afuera").
 const STANDARD_CONDITIONS = [
-  "Se consume de la carta",
-  "No se permite ingresar alimentos ni bebidas",
-  "No se permite ingresar decoración externa",
+  "El consumo es de nuestra carta",
+  "No se permiten alimentos, bebidas ni decoración de afuera",
 ];
 
 const DEFAULT: PackageDetails = {
@@ -32,160 +36,159 @@ const DEFAULT: PackageDetails = {
   conditions: STANDARD_CONDITIONS,
 };
 
+// Genera ["/momentos/<prefijo>-1.jpg", …] para no escribir cada ruta a mano.
+function photos(prefix: string, count: number): string[] {
+  return Array.from({ length: count }, (_, i) => `/momentos/${prefix}-${i + 1}.jpg`);
+}
+
+// Guía de copy: frases cortas, tono cercano, de "tú". Lo que ya dice la opción
+// (porciones, precio) NO se repite en "Incluye" ni en la descripción.
 const DETAILS: Record<string, PackageDetails> = {
   "momento-de-celebracion": {
-    description: "Ideal para cumpleaños, aniversarios o fechas especiales rápidas.",
+    name: "Momento de celebración",
+    description: "Llegas y la mesa ya está lista para celebrar. Tú solo pides de la carta y disfrutas.",
     priceLabel: "$40.000",
     servingsLabel: "",
-    variants: [
-      { label: "Momento especial", priceLabel: "$40.000" },
-    ],
-    images: [
-      "/momentos/momento-celebracion-1.jpg",
-      "/momentos/momento-celebracion-2.jpg",
-    ],
+    variants: [{ label: "Mesa decorada", priceLabel: "$40.000" }],
+    images: photos("momento-celebracion", 9),
     includes: [
-      "Espacio decorado para el momento",
-      "Foto y tarjeta personalizada",
-      "3 globos con helio en color personalizado",
-      "Letrero decorativo",
-      "Tarjeta de obsequio",
+      "3 globos con helio del color que quieras",
+      "Letrero de luces",
+      "Tarjeta con foto, de regalo",
       "Vela de flor",
-      "Postre de cumpleaños con vela volcán",
-    ],
-    conditions: STANDARD_CONDITIONS,
-  },
-  "momento-de-felicidad": {
-    description: "Un momento completo con torta rectangular personalizada y decoración especial.",
-    priceLabel: "$210.000",
-    servingsLabel: "Para 16 porciones",
-    variants: [
-      { label: "16 porciones", priceLabel: "$210.000" },
-    ],
-    images: [
-      "/momentos/momento-felicidad-1.jpg",
-      "/momentos/momento-felicidad-2.jpg",
-    ],
-    includes: [
-      "Torta rectangular decorada y personalizada",
-      "Decoración con globos",
-      "Letrero decorativo",
-      "Tarjeta con foto personalizada",
-      "Tarjeta con vela de flor",
+      "Postre de cumpleaños",
     ],
     conditions: STANDARD_CONDITIONS,
   },
   "momento-con-minicake": {
-    description: "Una opción pequeña y especial con mini cake personalizado.",
+    name: "Momento con minicake",
+    description: "Pequeñito pero con todo: un mini cake con nombre o foto y una mesa solo para ustedes.",
     priceLabel: "$65.000",
     servingsLabel: "Para 1 a 4 porciones",
-    variants: [
-      { label: "1–4 porciones", priceLabel: "$65.000" },
-    ],
-    images: [
-      "/momentos/momento-minicake-1.jpg",
-      "/momentos/momento-minicake-2.jpg",
-    ],
+    variants: [{ label: "1 a 4 porciones", priceLabel: "$65.000" }],
+    images: photos("momento-minicake", 7),
     includes: [
       "Mini cake personalizado",
-      "Espacio decorado para el momento",
-      "Globos",
-      "Letrero decorativo",
-      "Tarjeta personalizada",
-      "Tarjeta con vela de flor",
-    ],
-    conditions: STANDARD_CONDITIONS,
-  },
-  "momento-como-en-casa": {
-    description: "Una experiencia completa para celebrar con torta personalizada y decoración.",
-    priceLabel: "Desde $130.000",
-    servingsLabel: "",
-    variants: [
-      { label: "1–5 personas", priceLabel: "$130.000" },
-      { label: "1–12 personas", priceLabel: "$220.000" },
-    ],
-    images: [
-      "/momentos/momento-como-en-casa-1.jpg",
-      "/momentos/momento-como-en-casa-2.jpg",
-    ],
-    includes: [
-      "Torta decorada y personalizada",
-      "Servilletas y platos decorados para la torta",
-      "Espacio decorado con globos",
-      "Letrero decorativo",
-      "Tarjeta con foto personalizada",
-      "Tarjeta con vela de flor",
-    ],
-    conditions: STANDARD_CONDITIONS,
-  },
-  "torta-de-corazon": {
-    description: "Momento especial con torta de corazón decorada y personalizada.",
-    priceLabel: "Desde $125.000",
-    servingsLabel: "",
-    variants: [
-      { label: "1–6 porciones", priceLabel: "$125.000" },
-      { label: "1–13 porciones", priceLabel: "$200.000" },
-    ],
-    images: [
-      "/momentos/torta-corazon-1.jpg",
-      "/momentos/torta-corazon-2.jpg",
-    ],
-    includes: [
-      "Torta de corazón decorada y personalizada",
-      "Servilletas y platos decorados para la torta",
-      "Espacio decorado con globos",
-      "Letrero decorativo",
-      "Tarjeta con foto personalizada",
-      "Tarjeta con vela de flor",
-    ],
-    conditions: STANDARD_CONDITIONS,
-  },
-  "aniversario-corazon": {
-    description: "Una experiencia romántica con torta de corazón y decoración de aniversario.",
-    priceLabel: "Desde $125.000",
-    servingsLabel: "",
-    variants: [
-      { label: "1–6 porciones", priceLabel: "$125.000" },
-      { label: "1–13 porciones", priceLabel: "$200.000" },
-    ],
-    images: [
-      "/momentos/aniversario-corazon-1.jpg",
-      "/momentos/aniversario-corazon-2.jpg",
-    ],
-    includes: [
-      "Torta de corazón decorada",
-      "Decoración romántica para aniversario",
-      "Globos y letrero decorativo",
-      "Tarjeta personalizada",
+      "Mesa con tarjeta personalizada",
+      "Globos y letrero",
       "Tarjeta con vela de flor",
     ],
     conditions: STANDARD_CONDITIONS,
   },
   "pinta-tu-torta": {
-    description: "Una experiencia creativa para pintar y decorar tu propia torta.",
+    name: "Pinta tu torta",
+    description: "Te damos la torta, tú pones el arte. Ideal para un cumple, una cita o una tarde con amigos. Y te la llevas.",
     priceLabel: "Desde $45.000",
     servingsLabel: "",
     variants: [
-      { label: "Torta sola", priceLabel: "$45.000" },
-      { label: "Experiencia completa", priceLabel: "$80.000" },
+      { label: "Solo la torta", priceLabel: "$45.000" },
+      { label: "Con decoración de cumple", priceLabel: "$80.000" },
     ],
-    images: [
-      "/momentos/pinta-tu-torta-1.jpg",
-      "/momentos/pinta-tu-torta-2.jpg",
-    ],
+    images: photos("pinta-tu-torta", 3),
     includes: [
-      "Torta sabor vainilla con relleno de frutos rojos y crema de chocolate blanco",
-      "Pintura comestible",
-      "Sprinkles para decorar",
-      "Mini mariposas comestibles",
-      "Blonda de madera",
-      "Caja para llevar",
-      "Decoración con globos de helio y tarjeta de cumpleaños (solo experiencia completa)",
+      "Torta de vainilla con frutos rojos y crema de chocolate blanco",
+      "Pintura comestible, sprinkles y mini mariposas",
+      "Blonda de madera y caja para llevar",
+      "Con decoración: globos con helio y tarjeta de cumpleaños",
     ],
-    conditions: [
-      "Reserva tu experiencia",
-      "Sujeto a disponibilidad",
+    conditions: ["Reserva con anticipación", "Sujeto a disponibilidad"],
+  },
+  "torta-de-corazon": {
+    name: "Momento torta de corazón",
+    description: "La torta que todos quieren en sus fotos, en el color que elijas y con la mesa lista.",
+    priceLabel: "Desde $125.000",
+    servingsLabel: "",
+    variants: [
+      { label: "1 a 6 porciones", priceLabel: "$125.000" },
+      { label: "1 a 13 porciones", priceLabel: "$200.000" },
     ],
+    images: photos("torta-corazon", 9),
+    includes: [
+      "Torta de corazón personalizada",
+      "Platos y servilletas decorados",
+      "Globos y letrero",
+      "Tarjeta con foto",
+      "Tarjeta con vela de flor",
+    ],
+    conditions: STANDARD_CONDITIONS,
+  },
+  "aniversario-corazon": {
+    name: "Momento de aniversario",
+    description: "Celebren su amor sin organizar nada. Nosotros ponemos la torta, la mesa y los detalles.",
+    priceLabel: "Desde $125.000",
+    servingsLabel: "",
+    variants: [
+      { label: "1 a 6 porciones", priceLabel: "$125.000" },
+      { label: "1 a 13 porciones", priceLabel: "$200.000" },
+    ],
+    images: photos("aniversario-corazon", 4),
+    includes: [
+      "Torta de corazón",
+      "Mesa con tarjeta personalizada",
+      "Globos y letrero",
+      "Tarjeta con vela de flor",
+    ],
+    conditions: STANDARD_CONDITIONS,
+  },
+  "momento-como-en-casa": {
+    name: "Momento Como en Casa",
+    description: "Nuestro plan más completo. Tú solo llegas, el resto corre por nuestra cuenta.",
+    priceLabel: "Desde $130.000",
+    servingsLabel: "",
+    variants: [
+      { label: "1 a 5 personas", priceLabel: "$130.000" },
+      { label: "1 a 12 personas", priceLabel: "$220.000" },
+    ],
+    images: photos("momento-como-en-casa", 7),
+    includes: [
+      "Torta personalizada",
+      "Platos y servilletas decorados",
+      "Globos y letrero",
+      "Tarjeta con foto",
+      "Tarjeta con vela de flor",
+    ],
+    conditions: STANDARD_CONDITIONS,
+  },
+  "momento-felicidad-con-torta": {
+    name: "Momento de felicidad con torta",
+    description: "Escoge tu torta favorita y nosotros armamos la mesa. El precio va según la torta.",
+    priceLabel: "Desde $125.000",
+    servingsLabel: "",
+    variants: [
+      { label: "Chocolate · 10 a 15 porciones", priceLabel: "$125.000" },
+      { label: "Red velvet · 10 a 15 porciones", priceLabel: "$125.000" },
+      { label: "María Luisa · 10 a 15 porciones", priceLabel: "$125.000" },
+      { label: "Zanahoria · 10 a 15 porciones", priceLabel: "$135.000" },
+      { label: "Selva negra · 10 a 15 porciones", priceLabel: "$155.000" },
+      { label: "Chocolate · 20 a 25 porciones", priceLabel: "$185.000" },
+      { label: "Red velvet · 20 a 25 porciones", priceLabel: "$185.000" },
+      { label: "María Luisa · 20 a 25 porciones", priceLabel: "$185.000" },
+      { label: "Zanahoria · 20 a 25 porciones", priceLabel: "$190.000" },
+      { label: "Selva negra · 20 a 25 porciones", priceLabel: "$198.000" },
+    ],
+    images: photos("felicidad-con-torta", 7),
+    includes: [
+      "Mesa decorada",
+      "Tarjeta con foto, de regalo",
+      "Tarjeta con vela de flor",
+      "Red velvet y María Luisa: eliges crema o fruta al reservar",
+    ],
+    conditions: STANDARD_CONDITIONS,
+  },
+  "momento-de-felicidad": {
+    name: "Momento de felicidad",
+    description: "Para celebrar en grande con todo el parche: una torta rectangular que alcanza para todos.",
+    priceLabel: "$210.000",
+    servingsLabel: "Para 1 a 16 porciones",
+    variants: [{ label: "1 a 16 porciones", priceLabel: "$210.000" }],
+    images: photos("momento-felicidad", 7),
+    includes: [
+      "Torta rectangular personalizada",
+      "Globos y letrero",
+      "Tarjeta con foto",
+      "Tarjeta con vela de flor",
+    ],
+    conditions: STANDARD_CONDITIONS,
   },
 };
 

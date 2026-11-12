@@ -15,11 +15,14 @@ import { cn } from "@/lib/utils";
 export function Reveal({
   children,
   className,
+  style,
   delay = 0,
   as: Tag = "div",
 }: {
   children: React.ReactNode;
   className?: string;
+  /** Estilos extra (ej. variables CSS); se combinan con --d. */
+  style?: React.CSSProperties;
   /** Retraso en ms, para que varios elementos entren en cascada. */
   delay?: number;
   as?: "div" | "section" | "li" | "article";
@@ -48,7 +51,7 @@ export function Reveal({
       // El cast es necesario porque el ref es genérico para varios tags.
       ref={ref as React.Ref<never>}
       className={cn("cec-reveal", className)}
-      style={{ "--d": `${delay}ms` } as React.CSSProperties}
+      style={{ ...style, "--d": `${delay}ms` } as React.CSSProperties}
     >
       {children}
     </Tag>

@@ -38,7 +38,8 @@ function mergePackage(
   return {
     id,
     slug,
-    name,
+    // El nombre comercial de package-details gana; si no hay, se usa el de la BD.
+    name: d.name ?? name,
     description: d.description ?? dbDescription,
     position,
     priceLabel: d.priceLabel,
@@ -50,14 +51,17 @@ function mergePackage(
   };
 }
 
+// Respaldo si Supabase no está disponible. Mismo orden que la migración
+// supabase/migrations/20261112_momentos.sql.
 const FALLBACK_PACKAGES: CelebrationPackage[] = [
-  mergePackage("1", "momento-de-celebracion", "Momento de celebración",  "El momento perfecto para celebrar juntos.",                     1),
-  mergePackage("2", "momento-de-felicidad",   "Momento de felicidad",    "Regala una experiencia llena de amor.",                         2),
-  mergePackage("3", "momento-con-minicake",   "Momento con minicake",    "Una celebración dulce con minicake incluido.",                  3),
-  mergePackage("4", "momento-como-en-casa",   "Momento Como en Casa",    "Nuestra experiencia más completa y especial.",                  4),
-  mergePackage("5", "torta-de-corazon",       "Torta de corazón",        "Una torta en forma de corazón para los que amas.",              5),
-  mergePackage("6", "aniversario-corazon",    "Aniversario corazón",     "Celebra tu amor con una experiencia única.",                    6),
-  mergePackage("7", "pinta-tu-torta",         "Pinta tu torta",          "Una actividad especial: personaliza y decora tu propia torta.", 7),
+  mergePackage("1", "momento-de-celebracion",      "Momento de celebración",         "", 1),
+  mergePackage("2", "momento-con-minicake",        "Momento con minicake",           "", 2),
+  mergePackage("3", "pinta-tu-torta",              "Pinta tu torta",                 "", 3),
+  mergePackage("4", "torta-de-corazon",            "Momento torta de corazón",       "", 4),
+  mergePackage("5", "aniversario-corazon",         "Momento de aniversario",         "", 5),
+  mergePackage("6", "momento-como-en-casa",        "Momento Como en Casa",           "", 6),
+  mergePackage("7", "momento-felicidad-con-torta", "Momento de felicidad con torta", "", 7),
+  mergePackage("8", "momento-de-felicidad",        "Momento de felicidad",           "", 8),
 ];
 
 export async function getPackages(): Promise<CelebrationPackage[]> {
