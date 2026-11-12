@@ -39,7 +39,9 @@ export async function proxy(request: NextRequest) {
   // Public routes: no auth required — pass through immediately.
   // Route group folders like (public) do not appear in the URL,
   // so we match by pathname only.
-  const PUBLIC_PREFIXES = ["/momentos", "/reservar", "/tienda"];
+  // Toda ruta pública nueva de src/app/(public) debe añadirse aquí,
+  // si no, el proxy la trata como privada y redirige a /login.
+  const PUBLIC_PREFIXES = ["/carta", "/momentos", "/reservar", "/tienda"];
   const isPublic =
     pathname === "/" ||
     PUBLIC_PREFIXES.some((p) => pathname === p || pathname.startsWith(p + "/"));
