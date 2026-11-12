@@ -15,6 +15,20 @@ export const SCHEDULE = [
   { day: "Domingos y festivos", hours: "3:00 p.m. – 10:00 p.m." },
 ];
 
+// Mismo horario que SCHEDULE pero en formato que el código puede usar
+// (24 h, por día de la semana: 0 = domingo … 6 = sábado). Si cambia el
+// horario, actualizar AMBOS. Lo usa el formulario de reservas para ofrecer
+// solo horas en las que el local está abierto.
+export const OPENING_HOURS: Record<number, { open: string; close: string }> = {
+  0: { open: "15:00", close: "22:00" },
+  1: { open: "16:30", close: "21:00" },
+  2: { open: "16:30", close: "21:00" },
+  3: { open: "16:30", close: "21:00" },
+  4: { open: "16:30", close: "21:00" },
+  5: { open: "16:30", close: "22:00" },
+  6: { open: "11:00", close: "22:00" },
+};
+
 export const ADDRESS = { line1: "Carrera 49 # 54-47", line2: "Bello, Antioquia" };
 
 export const INSTAGRAM = "@como.encasa21";

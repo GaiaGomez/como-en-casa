@@ -2,6 +2,9 @@ import { createBrowserSupabase } from "./browser";
 import type { ReservationStatus, PaymentStatus } from "./reservations";
 
 export type CreateReservationPayload = {
+  /** UUID generado en el navegador: sirve de código de reserva en el WhatsApp
+   *  sin tener que leer la fila de vuelta (el público no tiene permiso SELECT). */
+  id?: string;
   packageId: string | null;
   packageName: string;
   selectedVariantLabel?: string;
@@ -50,6 +53,7 @@ export async function createReservation(
   if (!supabase) return false;
 
   const { error } = await supabase.from("reservations").insert({
+    ...(payload.id ? { id: payload.id } : {}),
     package_id: payload.packageId ?? null,
     package_name: payload.packageName,
     selected_variant_label: payload.selectedVariantLabel || null,

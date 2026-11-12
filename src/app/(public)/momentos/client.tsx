@@ -1,11 +1,13 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { Check, ChevronLeft, ChevronRight, X } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Check, ChevronLeft, ChevronRight, ImagePlus, Minus, Plus, X } from "lucide-react";
 
 import { Eyebrow, LogoMark } from "@/components/public/decor";
 import { Reveal } from "@/components/public/reveal";
 import { cn } from "@/lib/utils";
+import { getTodayColombiaDate, parseDateOnly } from "@/lib/mock-data";
+import { BUSINESS_WHATSAPP, OPENING_HOURS } from "@/lib/public-info";
 import type { CelebrationPackage, PackageVariant } from "@/lib/supabase/packages";
 import {
   createReservation,
@@ -21,7 +23,11 @@ const OCCASIONS = [
   "Otra celebración",
 ];
 
+// Colores rápidos: un toque y listo (el cliente igual puede escribir otro).
+const QUICK_COLORS = ["Rosado", "Azul", "Rojo", "Lila", "Dorado", "Blanco"];
+
 const MAX_FILE_BYTES = 10 * 1024 * 1024;
+const MAX_CARD_MESSAGE = 200;
 
 type FormState = {
   eventDate: string;
@@ -86,37 +92,83 @@ const textareaClass =
 const ACCENTS = ["bg-cec-blush", "bg-cec-sky", "bg-cec-sage", "bg-cec-lilac"];
 
 // ─── WhatsApp ─────────────────────────────────────────────────
+// Antes: process.env.NEXT_PUBLIC_LINA_WHATSAPP_NUMBER ?? "TODO_AGREGAR_NUMERO".
+// Esa variable no existe en .env.local, así que el botón abría wa.me/TODO_…
+// (un chat roto) justo en el paso que cierra la venta. Ahora usa el WhatsApp
+// oficial del negocio, y la variable queda solo como override opcional.
+const RESERVATIONS_WHATSAPP =
+  process.env.NEXT_PUBLIC_LINA_WHATSAPP_NUMBER || BUSINESS_WHATSAPP;
 
-const LINA_WHATSAPP =
-  process.env.NEXT_PUBLIC_LINA_WHATSAPP_NUMBER ?? "TODO_AGREGAR_NUMERO";
-
-function fmtDate(iso: string): string {
+/** "2026-11-15" → "sábado 15/11/2026" (sin depender de la zona del dispositivo). */
+function fmtDateLong(iso: string): string {
+  const weekday = new Intl.DateTimeFormat("es-CO", { weekday: "long", timeZone: "UTC" }).format(parseDateOnly(iso));
   const [y, m, d] = iso.split("-");
-  return `${d}/${m}/${y}`;
+  return `${weekday} ${d}/${m}/${y}`;
 }
 
+/** "16:30" → "4:30 p. m." */
+function fmtTime12(hhmm: string): string {
+  const [h, m] = hhmm.split(":").map(Number);
+  const suffix = h >= 12 ? "p. m." : "a. m.";
+  const h12 = h % 12 === 0 ? 12 : h % 12;
+  return `${h12}:${String(m).padStart(2, "0")} ${suffix}`;
+}
+
+/**
+ * Horas disponibles para una fecha: cada 30 min desde que abrimos hasta
+ * 1 hora antes de cerrar (para que el momento alcance a disfrutarse).
+ */
+function getTimeSlots(dateIso: string): string[] {
+  if (!dateIso) return [];
+  const hours = OPENING_HOURS[parseDateOnly(dateIso).getUTCDay()];
+  if (!hours) return [];
+  const toMin = (t: string) => Number(t.slice(0, 2)) * 60 + Number(t.slice(3, 5));
+  const slots: string[] = [];
+  for (let t = toMin(hours.open); t <= toMin(hours.close) - 60; t += 30) {
+    slots.push(`${String(Math.floor(t / 60)).padStart(2, "0")}:${String(t % 60).padStart(2, "0")}`);
+  }
+  return slots;
+}
+
+/** Deja solo dígitos y quita el 57 inicial: "+57 300 123 4567" → "3001234567". */
+function normalizePhone(raw: string): string {
+  const digits = raw.replace(/\D/g, "");
+  return digits.length === 12 && digits.startsWith("57") ? digits.slice(2) : digits;
+}
+
+/** Código corto y legible para la reserva: primeros 6 caracteres del UUID. */
+function reservationCode(id: string): string {
+  return id.replace(/-/g, "").slice(0, 6).toUpperCase();
+}
+
+// Mensaje que el cliente envía. Lleva TODO lo que el equipo necesita, así
+// no hay que preguntar nada por chat: solo confirmar disponibilidad y pago.
 function buildWhatsAppUrl(
   pkg: CelebrationPackage,
   variant: PackageVariant,
-  form: FormState
+  form: FormState,
+  code: string
 ): string {
   const lines = [
-    "Hola Lina! 👋 Quiero reservar un momento en Como en Casa.",
+    "¡Hola, Como en Casa! 🎉 Acabo de hacer una reserva en la web.",
     "",
+    `*Reserva #${code}*`,
     `*Momento:* ${pkg.name}`,
     `*Opción:* ${variant.label} · ${variant.priceLabel}`,
-    `*Fecha:* ${fmtDate(form.eventDate)}`,
-    `*Hora:* ${form.eventTime.slice(0, 5)}`,
+    `*Fecha:* ${fmtDateLong(form.eventDate)}`,
+    `*Hora:* ${fmtTime12(form.eventTime)}`,
     `*Personas:* ${form.guestCount}`,
-    `*Nombre:* ${form.clientName}`,
-    `*WhatsApp:* ${form.clientWhatsapp}`,
+    `*A nombre de:* ${form.clientName}`,
   ];
-  if (form.honoreeName) lines.push(`*Homenajeado/a:* ${form.honoreeName}`);
-  if (form.occasion) lines.push(`*Ocasión:* ${form.occasion}`);
-  if (form.cardMessage) lines.push(`*Mensaje para tarjeta:* ${form.cardMessage}`);
-  if (form.decorationColor) lines.push(`*Color de decoración:* ${form.decorationColor}`);
-  if (form.observations) lines.push(`*Observaciones:* ${form.observations}`);
-  return `https://wa.me/${LINA_WHATSAPP}?text=${encodeURIComponent(lines.join("\n"))}`;
+  if (form.occasion || form.honoreeName) {
+    lines.push(`*Celebramos:* ${[form.occasion, form.honoreeName && `de ${form.honoreeName}`].filter(Boolean).join(" ")}`);
+  }
+  if (form.decorationColor) lines.push(`*Color:* ${form.decorationColor}`);
+  if (form.cardMessage) lines.push(`*Mensaje para la tarjeta:* "${form.cardMessage}"`);
+  if (form.cardPhotoFile) lines.push("*Foto para la tarjeta:* la subí en la web ✅");
+  if (form.observations) lines.push(`*Notas:* ${form.observations}`);
+  lines.push("", "¿Me confirman disponibilidad y cómo hago el pago? 🙌");
+  return `https://wa.me/${RESERVATIONS_WHATSAPP}?text=${encodeURIComponent(lines.join("\n"))}`;
 }
 
 // ─── Photo carousel ───────────────────────────────────────────
@@ -371,6 +423,21 @@ export function MomentosClient({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  // Código corto que viaja en el mensaje de WhatsApp para ubicar la reserva en el admin
+  const [code, setCode] = useState("");
+
+  // Vista previa de la foto. createObjectURL crea una URL temporal en memoria;
+  // useMemo evita crear una nueva en cada render y el efecto la libera
+  // (revokeObjectURL) cuando cambia la foto o se cierra el formulario.
+  const photoPreview = useMemo(
+    () => (form.cardPhotoFile ? URL.createObjectURL(form.cardPhotoFile) : null),
+    [form.cardPhotoFile]
+  );
+  useEffect(() => {
+    return () => {
+      if (photoPreview) URL.revokeObjectURL(photoPreview);
+    };
+  }, [photoPreview]);
 
   function setField<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -397,6 +464,18 @@ export function MomentosClient({
     if (!selectedPkg || !selectedVariant) return;
 
     setError(null);
+
+    // Validaciones que el navegador no hace solo
+    const phone = normalizePhone(form.clientWhatsapp);
+    if (!/^3\d{9}$/.test(phone)) {
+      setError("Revisa tu WhatsApp: debe ser un celular de 10 dígitos que empiece por 3.");
+      return;
+    }
+    if (!form.eventTime) {
+      setError("Elige la hora de tu momento.");
+      return;
+    }
+
     setLoading(true);
 
     if (form.cardPhotoFile && form.cardPhotoFile.size > MAX_FILE_BYTES) {
@@ -417,7 +496,11 @@ export function MomentosClient({
       cardPhotoPath = path;
     }
 
+    // Generamos el id aquí para poder mostrar el código sin leer la BD
+    const id = crypto.randomUUID();
+
     const ok = await createReservation({
+      id,
       packageId: selectedPkg.id,
       packageName: selectedPkg.name,
       selectedVariantLabel: selectedVariant.label,
@@ -426,7 +509,7 @@ export function MomentosClient({
       eventTime: form.eventTime,
       guestCount: Number(form.guestCount),
       clientName: form.clientName,
-      clientWhatsapp: form.clientWhatsapp,
+      clientWhatsapp: phone,
       honoreeName: form.honoreeName || undefined,
       occasion: form.occasion || undefined,
       cardMessage: form.cardMessage || undefined,
@@ -442,6 +525,7 @@ export function MomentosClient({
       return;
     }
 
+    setCode(reservationCode(id));
     setSuccess(true);
   }
 
@@ -545,193 +629,322 @@ export function MomentosClient({
               </button>
             </div>
 
-            {/* Success */}
+            {/* ═══ Éxito: el último paso es WhatsApp ═══ */}
             {success ? (
-              <div className="mt-6 rounded-[22px] bg-cec-blush px-5 py-8 text-center">
-                <LogoMark className="mx-auto h-14 text-cec-ink" />
-                <h2 className="cec-display mt-4 text-3xl">
-                  ¡Ya casi!
-                </h2>
-                <p className="mt-2 text-sm text-cec-ink/80">
-                  Ya tenemos tu solicitud. Escríbele a Lina por WhatsApp para
-                  confirmar la fecha y el pago.
+              <div className="cec-pop-box mt-6 rounded-[22px] bg-cec-sage px-5 py-7 text-center">
+                <LogoMark className="mx-auto h-12 text-cec-ink" />
+                <p className="mt-4 text-[11px] font-medium uppercase tracking-[0.24em] text-cec-ink/60">
+                  Reserva #{code}
+                </p>
+                <h2 className="cec-display mt-2 text-3xl">¡Listo, {form.clientName.split(" ")[0]}!</h2>
+                <p className="mx-auto mt-2 max-w-xs text-sm text-cec-ink/80">
+                  Falta un último paso: envíanos el mensaje por WhatsApp. Ya va con todos tus datos, solo dale <b>enviar</b>.
                 </p>
                 <a
-                  href={buildWhatsAppUrl(selectedPkg!, selectedVariant!, form)}
+                  href={buildWhatsAppUrl(selectedPkg!, selectedVariant!, form, code)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="cec-pop-btn mt-5 flex h-12 w-full items-center justify-center rounded-full bg-[#f4f1ec] px-4 text-base font-bold text-cec-ink hover:bg-white"
+                  className="cec-pop-btn mt-6 flex h-14 w-full items-center justify-center gap-2 rounded-full bg-[#f4f1ec] px-4 text-lg font-bold text-cec-ink hover:bg-white"
                 >
-                  Continuar por WhatsApp
+                  Enviar por WhatsApp
+                  <ChevronRight className="cec-nudge size-5" strokeWidth={2.5} aria-hidden />
                 </a>
+                <p className="mt-4 text-xs text-cec-ink/60">
+                  Ahí te confirmamos disponibilidad y te pasamos los datos de pago.
+                </p>
                 <button
                   type="button"
                   onClick={closeSheet}
-                  className="mt-3 inline-flex h-10 items-center rounded-full border border-cec-ink/25 px-5 text-sm font-medium text-cec-ink hover:bg-white"
+                  className="mt-4 text-xs font-medium text-cec-ink/70 underline underline-offset-4 hover:text-cec-ink"
                 >
-                  Ver más momentos
+                  Volver a los momentos
                 </button>
               </div>
             ) : (
-              <form onSubmit={handleSubmit} className="mt-5 space-y-4">
-                {/* Fecha + Hora */}
-                <div className="grid grid-cols-2 gap-3">
+              <form onSubmit={handleSubmit} className="mt-5 space-y-6">
+                {/* Cómo funciona: da confianza y deja claro que no se paga aquí */}
+                <ol className="grid grid-cols-3 gap-2 text-center text-[11px] leading-snug text-cec-ink/75">
+                  {["Llenas esto (2 min)", "Nos escribes por WhatsApp", "Confirmamos y pagas"].map((t, i) => (
+                    <li key={t} className="rounded-2xl bg-cec-ink/[0.04] px-2 py-2.5">
+                      <span className="mx-auto mb-1 grid size-5 place-items-center rounded-full bg-cec-ink text-[10px] font-bold text-white">
+                        {i + 1}
+                      </span>
+                      {t}
+                    </li>
+                  ))}
+                </ol>
+
+                {/* ── 1. Cuándo ── */}
+                <fieldset className="space-y-3">
+                  <legend className="cec-display text-xl">¿Cuándo?</legend>
                   <div className="space-y-1.5">
-                    <FieldLabel htmlFor="event-date">Fecha del momento</FieldLabel>
+                    <FieldLabel htmlFor="event-date">Fecha</FieldLabel>
                     <input
                       id="event-date"
                       type="date"
                       required
+                      min={getTodayColombiaDate()}
                       value={form.eventDate}
-                      onChange={(e) => setField("eventDate", e.target.value)}
+                      // Al cambiar la fecha se borra la hora: el horario cambia según el día
+                      onChange={(e) => setForm((prev) => ({ ...prev, eventDate: e.target.value, eventTime: "" }))}
+                      className={inputClass}
+                    />
+                  </div>
+
+                  {/* Hora: solo horas en que estamos abiertos ese día */}
+                  <div className="space-y-1.5">
+                    <FieldLabel htmlFor="event-time">Hora</FieldLabel>
+                    {form.eventDate ? (
+                      <div id="event-time" className="flex flex-wrap gap-1.5" role="radiogroup" aria-label="Hora">
+                        {getTimeSlots(form.eventDate).map((slot) => (
+                          <button
+                            key={slot}
+                            type="button"
+                            role="radio"
+                            aria-checked={form.eventTime === slot}
+                            onClick={() => setField("eventTime", slot)}
+                            className={cn(
+                              "cec-pop-option rounded-full border-[1.5px] px-3 py-1.5 text-sm",
+                              form.eventTime === slot
+                                ? "border-cec-ink bg-white font-semibold"
+                                : "border-cec-ink/20 bg-white/50 text-cec-ink/80 hover:border-cec-ink/50"
+                            )}
+                          >
+                            {fmtTime12(slot)}
+                          </button>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-sm text-cec-ink/50">Primero elige la fecha y te mostramos las horas disponibles.</p>
+                    )}
+                  </div>
+
+                  {/* Personas: contador −/+ (más fácil que escribir en el celular) */}
+                  <div className="flex items-center justify-between gap-3">
+                    <FieldLabel htmlFor="guest-count">¿Cuántas personas van?</FieldLabel>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        aria-label="Una persona menos"
+                        onClick={() => setField("guestCount", String(Math.max(1, Number(form.guestCount) - 1)))}
+                        className="cec-pop-option grid size-9 place-items-center rounded-full border-[1.5px] border-cec-ink bg-white"
+                      >
+                        <Minus className="size-4" />
+                      </button>
+                      <input
+                        id="guest-count"
+                        type="number"
+                        inputMode="numeric"
+                        required
+                        min="1"
+                        max="50"
+                        value={form.guestCount}
+                        onChange={(e) => setField("guestCount", e.target.value)}
+                        className="h-9 w-12 rounded-xl border-[1.5px] border-cec-ink/20 bg-white text-center text-base font-semibold outline-none [appearance:textfield] focus:border-cec-ink/60 [&::-webkit-inner-spin-button]:appearance-none"
+                      />
+                      <button
+                        type="button"
+                        aria-label="Una persona más"
+                        onClick={() => setField("guestCount", String(Math.min(50, Number(form.guestCount) + 1)))}
+                        className="cec-pop-option grid size-9 place-items-center rounded-full border-[1.5px] border-cec-ink bg-white"
+                      >
+                        <Plus className="size-4" />
+                      </button>
+                    </div>
+                  </div>
+                </fieldset>
+
+                {/* ── 2. Quién reserva ── */}
+                <fieldset className="space-y-3">
+                  <legend className="cec-display text-xl">¿Quién reserva?</legend>
+                  <div className="space-y-1.5">
+                    <FieldLabel htmlFor="client-name">Tu nombre</FieldLabel>
+                    <input
+                      id="client-name"
+                      type="text"
+                      required
+                      autoComplete="name"
+                      value={form.clientName}
+                      onChange={(e) => setField("clientName", e.target.value)}
                       className={inputClass}
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <FieldLabel htmlFor="event-time">Hora del momento</FieldLabel>
+                    <FieldLabel htmlFor="client-whatsapp">Tu WhatsApp</FieldLabel>
                     <input
-                      id="event-time"
-                      type="time"
+                      id="client-whatsapp"
+                      type="tel"
+                      inputMode="numeric"
+                      autoComplete="tel"
                       required
-                      value={form.eventTime}
-                      onChange={(e) => setField("eventTime", e.target.value)}
+                      placeholder="300 123 4567"
+                      value={form.clientWhatsapp}
+                      onChange={(e) => setField("clientWhatsapp", e.target.value)}
                       className={inputClass}
                     />
                   </div>
-                </div>
+                </fieldset>
 
-                {/* Personas */}
-                <div className="space-y-1.5">
-                  <FieldLabel htmlFor="guest-count">¿Cuántas personas van?</FieldLabel>
-                  <input
-                    id="guest-count"
-                    type="number"
-                    required
-                    min="1"
-                    max="50"
-                    value={form.guestCount}
-                    onChange={(e) => setField("guestCount", e.target.value)}
-                    className={inputClass}
-                  />
-                </div>
+                {/* ── 3. Detalles: opcionales, pero evitan el ida y vuelta por chat ── */}
+                <fieldset className="space-y-3">
+                  <legend className="cec-display text-xl">Los detalles</legend>
+                  <p className="-mt-1 text-xs text-cec-ink/60">
+                    Opcional, pero si los llenas tenemos todo listo sin preguntarte nada más.
+                  </p>
 
-                {/* Nombre */}
-                <div className="space-y-1.5">
-                  <FieldLabel htmlFor="client-name">Tu nombre</FieldLabel>
-                  <input
-                    id="client-name"
-                    type="text"
-                    required
-                    value={form.clientName}
-                    onChange={(e) => setField("clientName", e.target.value)}
-                    className={inputClass}
-                  />
-                </div>
+                  <div className="space-y-1.5">
+                    <FieldLabel htmlFor="occasion">¿Qué celebran?</FieldLabel>
+                    <div id="occasion" className="flex flex-wrap gap-1.5" role="radiogroup" aria-label="Ocasión">
+                      {OCCASIONS.map((o) => (
+                        <button
+                          key={o}
+                          type="button"
+                          role="radio"
+                          aria-checked={form.occasion === o}
+                          // Tocar de nuevo la misma ocasión la deselecciona
+                          onClick={() => setField("occasion", form.occasion === o ? "" : o)}
+                          className={cn(
+                            "cec-pop-option rounded-full border-[1.5px] px-3 py-1.5 text-sm",
+                            form.occasion === o
+                              ? "border-cec-ink bg-white font-semibold"
+                              : "border-cec-ink/20 bg-white/50 text-cec-ink/80 hover:border-cec-ink/50"
+                          )}
+                        >
+                          {o}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
 
-                {/* WhatsApp */}
-                <div className="space-y-1.5">
-                  <FieldLabel htmlFor="client-whatsapp">Tu WhatsApp</FieldLabel>
-                  <input
-                    id="client-whatsapp"
-                    type="tel"
-                    required
-                    placeholder="3001234567"
-                    value={form.clientWhatsapp}
-                    onChange={(e) => setField("clientWhatsapp", e.target.value)}
-                    className={inputClass}
-                  />
-                </div>
+                  <div className="space-y-1.5">
+                    <FieldLabel htmlFor="honoree-name">¿A quién celebramos?</FieldLabel>
+                    <input
+                      id="honoree-name"
+                      type="text"
+                      placeholder="Nombre de la persona"
+                      value={form.honoreeName}
+                      onChange={(e) => setField("honoreeName", e.target.value)}
+                      className={inputClass}
+                    />
+                  </div>
 
-                {/* Homenajeado */}
-                <div className="space-y-1.5">
-                  <FieldLabel htmlFor="honoree-name" optional>¿A quién celebramos?</FieldLabel>
-                  <input
-                    id="honoree-name"
-                    type="text"
-                    value={form.honoreeName}
-                    onChange={(e) => setField("honoreeName", e.target.value)}
-                    className={inputClass}
-                  />
-                </div>
+                  <div className="space-y-1.5">
+                    <FieldLabel htmlFor="decoration-color">Color de la decoración</FieldLabel>
+                    <div className="flex flex-wrap gap-1.5">
+                      {QUICK_COLORS.map((c) => (
+                        <button
+                          key={c}
+                          type="button"
+                          aria-pressed={form.decorationColor === c}
+                          onClick={() => setField("decorationColor", form.decorationColor === c ? "" : c)}
+                          className={cn(
+                            "cec-pop-option rounded-full border-[1.5px] px-3 py-1.5 text-sm",
+                            form.decorationColor === c
+                              ? "border-cec-ink bg-white font-semibold"
+                              : "border-cec-ink/20 bg-white/50 text-cec-ink/80 hover:border-cec-ink/50"
+                          )}
+                        >
+                          {c}
+                        </button>
+                      ))}
+                    </div>
+                    <input
+                      id="decoration-color"
+                      type="text"
+                      placeholder="¿Otro? Escríbelo aquí"
+                      value={QUICK_COLORS.includes(form.decorationColor) ? "" : form.decorationColor}
+                      onChange={(e) => setField("decorationColor", e.target.value)}
+                      className={inputClass}
+                    />
+                  </div>
 
-                {/* Ocasión */}
-                <div className="space-y-1.5">
-                  <FieldLabel htmlFor="occasion" optional>Ocasión</FieldLabel>
-                  <select
-                    id="occasion"
-                    value={form.occasion}
-                    onChange={(e) => setField("occasion", e.target.value)}
-                    className={inputClass}
+                  <div className="space-y-1.5">
+                    <div className="flex items-baseline justify-between">
+                      <FieldLabel htmlFor="card-message">Mensaje para la tarjeta</FieldLabel>
+                      <span className="text-[11px] text-cec-ink/45">
+                        {form.cardMessage.length}/{MAX_CARD_MESSAGE}
+                      </span>
+                    </div>
+                    <textarea
+                      id="card-message"
+                      rows={3}
+                      maxLength={MAX_CARD_MESSAGE}
+                      placeholder="Ej: ¡Feliz cumple, mamá! Te amamos."
+                      value={form.cardMessage}
+                      onChange={(e) => setField("cardMessage", e.target.value)}
+                      className={textareaClass}
+                    />
+                  </div>
+
+                  {/* Foto: botón grande + vista previa, en vez del input de archivo nativo */}
+                  <div className="space-y-1.5">
+                    <FieldLabel htmlFor="card-photo">Foto para la tarjeta</FieldLabel>
+                    <label
+                      htmlFor="card-photo"
+                      className="flex cursor-pointer items-center gap-3 rounded-2xl border-[1.5px] border-dashed border-cec-ink/30 bg-white/60 p-3 transition-colors hover:border-cec-ink/60"
+                    >
+                      {photoPreview ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={photoPreview}
+                          alt="Vista previa de la foto"
+                          className="size-14 shrink-0 rounded-xl object-cover"
+                        />
+                      ) : (
+                        <span className="grid size-14 shrink-0 place-items-center rounded-xl bg-cec-ink/[0.06]">
+                          <ImagePlus className="size-6 text-cec-ink/60" />
+                        </span>
+                      )}
+                      <span className="text-sm">
+                        <span className="block font-semibold">
+                          {form.cardPhotoFile ? "Cambiar foto" : "Subir una foto"}
+                        </span>
+                        <span className="block text-xs text-cec-ink/55">
+                          {form.cardPhotoFile ? form.cardPhotoFile.name : "Sale impresa en la tarjeta"}
+                        </span>
+                      </span>
+                    </label>
+                    <input
+                      id="card-photo"
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp,image/heic,image/heif"
+                      onChange={(e) => setField("cardPhotoFile", e.target.files?.[0] ?? null)}
+                      className="sr-only"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <FieldLabel htmlFor="observations">¿Algo más?</FieldLabel>
+                    <textarea
+                      id="observations"
+                      rows={2}
+                      placeholder="Ej: es sorpresa, llegamos 10 min antes, sabor de la torta…"
+                      value={form.observations}
+                      onChange={(e) => setField("observations", e.target.value)}
+                      className={textareaClass}
+                    />
+                  </div>
+                </fieldset>
+
+                {error && (
+                  <p role="alert" className="rounded-2xl bg-cec-blush px-4 py-3 text-sm font-medium text-cec-ink">
+                    {error}
+                  </p>
+                )}
+
+                <div>
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="cec-pop-btn flex h-14 w-full items-center justify-center gap-2 rounded-full bg-[#f4f1ec] text-lg font-bold text-cec-ink hover:bg-white disabled:opacity-50"
                   >
-                    <option value="">Selecciona una ocasión</option>
-                    {OCCASIONS.map((o) => (
-                      <option key={o} value={o}>
-                        {o}
-                      </option>
-                    ))}
-                  </select>
+                    {loading ? "Guardando…" : "Continuar a WhatsApp"}
+                    {!loading && <ChevronRight className="cec-nudge size-5" strokeWidth={2.5} aria-hidden />}
+                  </button>
+                  <p className="mt-3 text-center text-xs text-cec-ink/55">
+                    No pagas nada todavía. Primero te confirmamos disponibilidad.
+                  </p>
                 </div>
-
-                {/* Mensaje */}
-                <div className="space-y-1.5">
-                  <FieldLabel htmlFor="card-message" optional>Mensaje para la tarjeta</FieldLabel>
-                  <textarea
-                    id="card-message"
-                    rows={3}
-                    value={form.cardMessage}
-                    onChange={(e) => setField("cardMessage", e.target.value)}
-                    className={textareaClass}
-                  />
-                </div>
-
-                {/* Color */}
-                <div className="space-y-1.5">
-                  <FieldLabel htmlFor="decoration-color" optional>Color de decoración</FieldLabel>
-                  <input
-                    id="decoration-color"
-                    type="text"
-                    placeholder="Ej: rosado, dorado, azul…"
-                    value={form.decorationColor}
-                    onChange={(e) => setField("decorationColor", e.target.value)}
-                    className={inputClass}
-                  />
-                </div>
-
-                {/* Foto */}
-                <div className="space-y-1.5">
-                  <FieldLabel htmlFor="card-photo" optional>Foto para la tarjeta</FieldLabel>
-                  <input
-                    id="card-photo"
-                    type="file"
-                    accept="image/jpeg,image/png,image/webp,image/heic,image/heif"
-                    onChange={(e) =>
-                      setField("cardPhotoFile", e.target.files?.[0] ?? null)
-                    }
-                    className="block w-full text-sm text-cec-ink-soft file:mr-3 file:h-9 file:cursor-pointer file:rounded-full file:border-0 file:bg-cec-ink file:px-4 file:text-sm file:font-semibold file:text-white"
-                  />
-                </div>
-
-                {/* Observaciones */}
-                <div className="space-y-1.5">
-                  <FieldLabel htmlFor="observations" optional>¿Algo más que debamos saber?</FieldLabel>
-                  <textarea
-                    id="observations"
-                    rows={3}
-                    value={form.observations}
-                    onChange={(e) => setField("observations", e.target.value)}
-                    className={textareaClass}
-                  />
-                </div>
-
-                {error && <p className="text-sm font-medium text-cec-ink">{error}</p>}
-
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="cec-pop-btn flex h-12 w-full items-center justify-center rounded-full bg-[#f4f1ec] text-base font-bold text-cec-ink hover:bg-white disabled:opacity-50"
-                >
-                  {loading ? "Enviando…" : "Enviar solicitud"}
-                </button>
               </form>
             )}
           </div>
