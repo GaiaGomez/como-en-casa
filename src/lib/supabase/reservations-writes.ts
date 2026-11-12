@@ -1,4 +1,5 @@
 import { createBrowserSupabase } from "./browser";
+import { createPublicSupabase } from "./public-client";
 import type { ReservationStatus, PaymentStatus } from "./reservations";
 
 export type CreateReservationPayload = {
@@ -23,23 +24,52 @@ export type CreateReservationPayload = {
   observations?: string;
 };
 
+/**
+ * Reduce la foto antes de subirla: máx. 1600 px por lado, JPEG al 85 %.
+ * Una foto de celular pesa 3–8 MB; así queda en ~300 KB → sube rápido
+ * incluso con datos móviles y nunca choca con el límite de 10 MB del bucket.
+ * Si el navegador no puede leer el formato (ej. HEIC en Chrome), se sube
+ * el archivo original tal cual.
+ */
+async function compressImage(file: File): Promise<File> {
+  if (!/^image\/(jpeg|png|webp)$/.test(file.type)) return file;
+  try {
+    const bitmap = await createImageBitmap(file);
+    const scale = Math.min(1, 1600 / Math.max(bitmap.width, bitmap.height));
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.round(bitmap.width * scale);
+    canvas.height = Math.round(bitmap.height * scale);
+    canvas.getContext("2d")!.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+    const blob = await new Promise<Blob | null>((res) => canvas.toBlob(res, "image/jpeg", 0.85));
+    if (!blob || blob.size >= file.size) return file;
+    return new File([blob], file.name.replace(/\.\w+$/, ".jpg"), { type: "image/jpeg" });
+  } catch {
+    return file;
+  }
+}
+
 export async function uploadReservationFile(
   bucket: "reservation-photos" | "payment-proofs",
-  file: File
+  original: File
 ): Promise<string | null> {
-  const supabase = createBrowserSupabase();
+  const supabase = createPublicSupabase();
   if (!supabase) return null;
 
-  const ext = file.name.split(".").pop() ?? "bin";
+  const file = bucket === "reservation-photos" ? await compressImage(original) : original;
+  const ext = (file.name.split(".").pop() ?? "jpg").toLowerCase();
   const path = `${crypto.randomUUID()}.${ext}`;
 
   const { error } = await supabase.storage.from(bucket).upload(path, file, {
     cacheControl: "3600",
     upsert: false,
+    // Tipo explícito: algunos navegadores mandan type vacío y el bucket
+    // (que solo acepta imágenes) rechaza el archivo.
+    contentType: file.type || "image/jpeg",
   });
 
   if (error) {
-    console.error("[uploadReservationFile] error:", error.message);
+    // Log con detalle para poder diagnosticar desde la consola del navegador
+    console.error("[uploadReservationFile] error:", error.message, error);
     return null;
   }
 
@@ -52,7 +82,7 @@ export async function uploadReservationFile(
  * getPublicUrl no hace petición a la red: solo arma la URL.
  */
 export function getPublicPhotoUrl(path: string): string | null {
-  const supabase = createBrowserSupabase();
+  const supabase = createPublicSupabase();
   if (!supabase) return null;
   return supabase.storage.from("reservation-photos").getPublicUrl(path).data.publicUrl;
 }
@@ -60,7 +90,7 @@ export function getPublicPhotoUrl(path: string): string | null {
 export async function createReservation(
   payload: CreateReservationPayload
 ): Promise<boolean> {
-  const supabase = createBrowserSupabase();
+  const supabase = createPublicSupabase();
   if (!supabase) return false;
 
   const { error } = await supabase.from("reservations").insert({
@@ -102,6 +132,7 @@ export async function updateReservation(
     internalNotes?: string;
   }
 ): Promise<boolean> {
+  // Admin: necesita la sesión de quien edita (no el cliente anónimo)
   const supabase = createBrowserSupabase();
   if (!supabase) return false;
 
