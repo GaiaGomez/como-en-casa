@@ -70,7 +70,7 @@ export default function HomePage() {
             dejar arriba el espacio a las luces. Computador: centrado. */}
         <div className="mx-auto grid min-h-[86svh] max-w-6xl content-end items-center gap-14 px-4 pb-14 pt-14 sm:px-6 md:min-h-[78svh] md:content-center md:grid-cols-[1.15fr_1fr] md:pb-24 md:pt-20 lg:px-8">
           <div>
-            <Eyebrow className="text-white/75">Café y repostería en Bello</Eyebrow>
+            <Eyebrow className="text-white/75">Café · Comida · Repostería · Bello</Eyebrow>
 
             <h1 className="cec-display mt-6 text-[clamp(3rem,7.5vw,6rem)] drop-shadow-[0_2px_12px_rgba(0,0,0,0.35)]">
               {["Como", "en", "Casa"].map((word, i) => (
@@ -85,7 +85,7 @@ export default function HomePage() {
             </h1>
 
             <p className="mt-7 max-w-sm text-lg leading-relaxed text-white/85">
-              Tu casita en Bello para un buen café, algo dulce y celebrar lo que sea.
+              Tu casita en Bello para comer rico, tomarte un buen café y celebrar lo que sea.
             </p>
 
             <div className="mt-10 flex flex-wrap items-center gap-6">

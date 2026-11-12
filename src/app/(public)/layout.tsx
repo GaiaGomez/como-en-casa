@@ -40,13 +40,13 @@ const DESCRIPTION =
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: { default: "Como en Casa · Café y repostería en Bello", template: "%s · Como en Casa" },
+  title: { default: "Como en Casa · Café, comida y repostería en Bello", template: "%s · Como en Casa" },
   description: DESCRIPTION,
   openGraph: {
     type: "website",
     locale: "es_CO",
     siteName: "Como en Casa",
-    title: "Como en Casa · Café y repostería en Bello",
+    title: "Como en Casa · Café, comida y repostería en Bello",
     description: DESCRIPTION,
     images: [{ url: "/og-como-en-casa.jpg", width: 1200, height: 630, alt: "Como en Casa — Nuestra carta" }],
   },
