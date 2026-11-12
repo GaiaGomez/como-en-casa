@@ -13,7 +13,7 @@ export const metadata: Metadata = {
     title: "Nuestra carta · Como en Casa",
     description: "Cafés, repostería, brunch, hamburguesas, bebidas y más. Mira la carta de Como en Casa en Bello.",
     // openGraph de una página reemplaza el del layout completo, así que la imagen se repite aquí
-    images: [{ url: "/og-como-en-casa.jpg", width: 1200, height: 630, alt: "Como en Casa — Nuestra carta" }],
+    images: [{ url: "/og-como-en-casa-terraza.jpg", width: 1200, height: 630, alt: "Bebidas de Como en Casa en la terraza con luces" }],
   },
 };
 
