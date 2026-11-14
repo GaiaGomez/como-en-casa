@@ -673,7 +673,7 @@ export const MENU: MenuSection[] = [
           { name: "Vodka Absolut", price: "$15.000" },
           { name: "Aguardiente Antioqueño", price: "$10.500" },
           { name: "Ron Viejo de Caldas", price: "$10.500" },
-          { name: "Whiskey Red Label", price: "$13.500" },
+          { name: "Whiskey Red Label", price: "$22.500" },
           { name: "Jack Daniel's", price: "$22.500" },
           { name: "Jägermeister", price: "$22.500" },
         ],
